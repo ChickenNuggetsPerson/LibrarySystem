@@ -1,0 +1,19 @@
+doctype html
+head
+  title Create Account
+h1 Sign Up
+form(action='/auth/signup' method='post')
+  h3 Username:
+  input(type='text' name='username' placeholder='Username' required='')
+  br
+  br
+  h3 Password:
+  input(type='password' name='password' placeholder='Password' required='')
+  br
+  br
+  h3 First Name:
+  input(type='text' name='firstname' placeholder='First Name' required='')
+  br
+  br
+  input(type='submit' value='Create Account')
+  a(href='/login') Already Have An Account?
