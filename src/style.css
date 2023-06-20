@@ -1,0 +1,22 @@
+body {
+    background-color: rgb(54, 54, 54);
+}
+h1 {
+    
+    color: white;
+}
+h2 {
+  
+  color: white;
+}
+
+
+header {
+  align-items: center;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+table {
+  color: white;
+}

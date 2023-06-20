@@ -1,0 +1,27 @@
+extends layout
+
+block layout-content
+
+  html
+    head
+      title Library Indexer
+      script(src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js")
+    header
+    body
+      div(id="qr-reader" style="width: 100%")
+      script.
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log(`Code scanned = ${decodedText}`, decodedResult);
+            fetch('/library/addbook', {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({isbnCode: decodedResult})
+            })
+            .then(response => response.json())
+            .then(response => console.log(JSON.stringify(response)))
+        }
+        var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);

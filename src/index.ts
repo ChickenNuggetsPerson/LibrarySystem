@@ -6,12 +6,13 @@ import { check, validationResult } from 'express-validator';
 const Sequelize = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 import * as fs from 'fs';
+const isbn = require('node-isbn');
 
 let fileStoreOptions = {};
 const app = express();
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
@@ -85,27 +86,30 @@ async function getFirstName(id:string) {
 // Serve the Pages
 app.get('/', (req, res) => {
     if (!isAuthenticated(req, res)) {
-        return res.render('login.pug');
+        return res.render('login');
     }
     res.redirect('/library');
 });
 app.get('/login', (req, res) => {
-    res.render('login.pug');
+    res.render('login');
 });
 app.get('/signup', (req, res) => {
-    res.render('signup.pug');
+    res.render('signup');
 });
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {});
     res.redirect('/');
 });
 app.get('/library', (req, res) => {
-    res.render('main.pug', { name: req.session.firstName });
+    res.render('library', { name: req.session.firstName });
+})
+app.get('/addBook', (req, res) => {
+    res.render('addbook');
 })
 
 
-app.get('/styles.css', (req, res) => {
-    res.sendFile(__dirname + 'style.css');
+app.get('/style.css', (req, res) => {
+    res.sendFile(__dirname + '/style.css');
 });
 app.get('/debug', function(req, res) {
 
@@ -159,10 +163,13 @@ app.post('/auth/signup', loginValidate, async (req:any, res:any) => {
     res.redirect('/library');
 	
 });
+app.post('/library/addbook', async (req:any, res:any) => {
+    console.log(req.body);
+})
 
 
 app.listen(8888, () => {
-    console.log('The application is listening on port 3000!');
+    console.log('The application is listening on port 8888');
     userTags.sync();
 })
     
