@@ -1,11 +1,11 @@
-import express from 'express';
+const express = require('express')
 const session = require('express-session');
 let FileStore = require('session-file-store')(session);
-import bodyParser from 'body-parser';
-import { check, validationResult } from 'express-validator';
+const bodyParser = require('body-parser')
+const { check, validationResult } = require('express-validator');
 const Sequelize = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
-import * as fs from 'fs';
+const fs = require('fs')
 const isbn = require('node-isbn');
 
 let fileStoreOptions = {};
@@ -13,6 +13,7 @@ const app = express();
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
@@ -20,10 +21,6 @@ app.use(session({
     cookie: { secure: false },
     store: new FileStore(fileStoreOptions)
 }));
-function isAuthenticated(req:any, res:any) {
-    
-	return req.session.user != undefined && req.session.firstname != undefined;
-}
 
 const userSequelizer = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
@@ -38,7 +35,7 @@ const userTags = userSequelizer.define('tags', {
     firstName: Sequelize.STRING
 })
 
-async function createUser(username:string, pass:string, firstName:string) {
+async function createUser(username, pass, firstName) {
     const id = uuidv4();
     fs.mkdirSync("users/" + id);
     await userTags.create({
@@ -51,10 +48,10 @@ async function createUser(username:string, pass:string, firstName:string) {
     console.log("Created User " + username);
     return id;
 };
-function deleteUser(id:string) {
+function deleteUser(id) {
 
 }
-async function userExists(username:string, pass:string) {
+async function userExists(username, pass) {
     console.log("Checking User " + username)
     await userTags.sync();
     const tag = await userTags.findOne({where: {
@@ -65,10 +62,10 @@ async function userExists(username:string, pass:string) {
         console.log("Logged in " + Buffer.from(tag.firstName, 'base64').toString("utf8"))
         return tag.userID;
     } else {
-        return null;
+        return undefined;
     }
 }
-async function getFirstName(id:string) {
+async function getFirstName(id) {
     await userTags.sync();
     const tag = await userTags.findOne({where: {
         userID: id
@@ -76,7 +73,7 @@ async function getFirstName(id:string) {
     if (tag) {
         return Buffer.from(tag.firstName, 'base64').toString("utf8");
     } else {
-        return null;
+        return undefined;
     }
 }
 
@@ -85,7 +82,7 @@ async function getFirstName(id:string) {
 
 // Serve the Pages
 app.get('/', (req, res) => {
-    if (!isAuthenticated(req, res)) {
+    if (!req.session.user) {
         return res.render('login');
     }
     res.redirect('/library');
@@ -101,10 +98,28 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 app.get('/library', (req, res) => {
+    if (!req.session.user) {
+        console.log("not authed")
+        return res.render('login');
+    }
     res.render('library', { name: req.session.firstName });
 })
+app.get('/scanBook', (req, res) => {
+    if (!req.session.user) {
+        return res.render('login');
+    }
+    res.render('scanBook');
+})
 app.get('/addBook', (req, res) => {
-    res.render('addbook');
+    if (!req.session.user) {
+        return res.render('login');
+    }
+    if (req.session.book) {
+        res.render('addBook', {book: JSON.stringify(req.session.book)});
+    } else {
+        res.redirect('/scanBook');
+    }
+    
 })
 
 
@@ -130,7 +145,7 @@ let loginValidate = [
 
 // Handle the login post
 // Process User Input
-app.post('/auth/login', loginValidate, async (req:any, res:any) => {
+app.post('/auth/login', loginValidate, async (req, res) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
         //return res.status(422).json({ errors: errors.array() });
@@ -142,12 +157,13 @@ app.post('/auth/login', loginValidate, async (req:any, res:any) => {
     req.session.user = id;
     let name = await getFirstName(id);
     req.session.firstName = name;
-    req.session.save(() => {});
-    req.session.reload(() => {});
-    res.redirect('/library');
+    console.log(req.body)
+    setTimeout(() => {
+        res.redirect('/library');
+    }, 500);
 	
 });
-app.post('/auth/signup', loginValidate, async (req:any, res:any) => {
+app.post('/auth/signup', loginValidate, async (req, res) => {
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
         //return res.sendFile(__dirname + '/web/createAccount.html');
@@ -158,13 +174,36 @@ app.post('/auth/signup', loginValidate, async (req:any, res:any) => {
     req.session.user = id;
     let name = await getFirstName(id);
     req.session.firstName = name;
-    req.session.save(() => {});
-    req.session.reload(() => {});
-    res.redirect('/library');
+    setTimeout(() => {
+        res.redirect('/library');
+    }, 500);
+    
 	
 });
-app.post('/library/addbook', async (req:any, res:any) => {
-    console.log(req.body);
+app.post('/library/scanBook', async (req, res) => {
+    isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
+            
+        req.session.book = book;
+        res.json({error: false});
+
+    }).catch(function (err) {
+        console.log('Book not found', err);
+        res.json({error: true});
+    });
+})
+app.post('/library/addBook', async (req, res) => {
+    if (req.body.answerResult) {
+
+        // Add Book
+        console.log("adding book")
+        req.session.book = undefined;
+        res.send("Acknoledged")
+
+    } else {
+        console.log("not adding book")
+        req.session.book = undefined;
+        res.send("Acknoledged")
+    }
 })
 
 

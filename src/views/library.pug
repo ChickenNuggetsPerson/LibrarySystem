@@ -7,9 +7,33 @@ block layout-content
       title Library Indexer
     header
       h2 Hello #{name}
+      div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+        button(type="button" class="btn btn-success" onclick="headerBtnClick('scan')") Scan Book
+        button(type="button" class="btn btn-danger" onclick="headerBtnClick('')") Remove Book
       
+      script.
+        function headerBtnClick(parm) {
+          if (parm == 'scan')
+            window.location.replace("/scanBook")
+          }
+
     body
       div(style='padding:5%')
+        div(class="input-group mb-3")
+          button(class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false") Search
+          ul(class="dropdown-menu")
+            li
+              a(class="dropdown-item" href="#") Title
+            li
+              a(class="dropdown-item" href="#") Author
+            li
+              a(class="dropdown-item" href="#") ISBN
+            li
+              a(class="dropdown-item" href="#") Published Date
+
+          input(type="text" class="form-control" placeholder="..." aria-label="..." aria-describedby="basic-addon1")
+
+
         table(style='width:100%', border='1', )
           tr
             th Image
