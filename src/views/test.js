@@ -16,6 +16,7 @@ function updatePage(bookList) {
         
         const displayImage = document.createElement('th')
         displayImage.addEventListener
+        displayImage.style.
 
         displayImage.scope = "row"
         displayImage.href = bookList[i].imageLink

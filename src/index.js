@@ -41,6 +41,7 @@ app.use(session({
     store: new FileStore(fileStoreOptions)
 }));
 app.use('/uploads', express.static('./uploads'))
+app.use('/static', express.static('./src/static'))
 
 const userSequelizer = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
@@ -117,7 +118,7 @@ async function addBook(userid, book) {
         author: (book?.authors == undefined) ? "Not Provided" : book.authors[0],
         description: (book?.description == undefined) ? "Not Provided" : book.description,
         pageCount: (book?.pageCount == undefined) ? "Not Provided" : book.pageCount,
-        imageLink: (book?.imageLinks?.smallThumbnail == undefined) ? "Not Provided" : book.imageLinks.smallThumbnail,
+        imageLink: (book?.imageLinks?.thumbnail == undefined) ? "Not Provided" : book.imageLinks.thumbnail,
         bookUUID: uuidv4()
     })
     await libraryTags.sync();
@@ -231,6 +232,7 @@ app.post('/auth/signup', loginValidate, async (req, res) => {
 });
 
 app.post('/library/scanBook', async (req, res) => {
+    if (req.body.isbnCode.decodedText == null) { return res.json({error: true}); }
     isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
             
         req.session.book = book;
@@ -251,14 +253,14 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
                 title: req.body.title,
                 isbn: req.body.isbn,
                 imageLinks: {
-                    smallThumbnail: req.file.destination + "/" + req.file.filename
+                    thumbnail: req.file.destination + "/" + req.file.filename
                 }
             }
             req.session.book = tempBook
             res.redirect("/addBook")
         } else {
-            req.session.book.imageLinks = { smallThumbnail: "" };
-            req.session.book.imageLinks.smallThumbnail = req.file.destination + "/" + req.file.filename;
+            req.session.book.imageLinks = { thumbnail: "" };
+            req.session.book.imageLinks.thumbnail = req.file.destination + "/" + req.file.filename;
             addBook(req.session.user, req.session.book)
             req.session.book = undefined;
             res.redirect("/library")

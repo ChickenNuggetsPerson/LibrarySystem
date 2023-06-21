@@ -38,6 +38,16 @@ block layout-content
             data = response
           })
         }
+
+        function overlayBook(i) {
+          bootbox.alert({
+            size: 'small',
+            title: data[i].title,
+            message: "Author: " + data[i].author,
+            callback: function() {  }
+          });
+        }
+
         function updatePage() {
           var mainDiv = document.getElementById("yeet")
           mainDiv.innerHTML = ""
@@ -46,11 +56,22 @@ block layout-content
               const row = document.createElement('tr')
         
               const displayImage = document.createElement('th')
+              const button = document.createElement("button")
+              button.style.width = "fit-content"
+              button.style.padding = "5px";
+              button.style.borderRadius = "5px"
+              button.style.backgroundColor = "wheat"
+
+              button.addEventListener("click", function() {
+                overlayBook(i)
+              });
               const divImage = document.createElement('img')
               displayImage.scope = "row"
               divImage.style.maxWidth = "100px"
               divImage.src = data[i].imageLink
-              displayImage.appendChild(divImage)
+
+              displayImage.appendChild(button)
+              button.appendChild(divImage)
 
               const displayText = document.createElement('td')
               displayText.color = "white"
@@ -92,6 +113,7 @@ block layout-content
               a(class="dropdown-item" href="#") Published Date
 
           input(type="text" class="form-control" placeholder="..." aria-label="..." aria-describedby="basic-addon1")
+
 
         table(class="table align-middle")
           thead

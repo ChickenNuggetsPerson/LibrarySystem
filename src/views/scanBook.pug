@@ -5,7 +5,8 @@ block layout-content
   html
     head
       title Library Indexer
-      script(src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js")
+      // script(src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js")
+      script(src="/static/html5-qrcode.min.js")
     header
     body
       div(id="qr-reader" style="width: 100%")
@@ -79,8 +80,6 @@ block layout-content
           rememberLastUsedCamera: true,
           showTorchButtonIfSupported: true,
           useBarCodeDetectorIfSupported: true,
-
-
         });
         html5QrcodeScanner.render(onScanSuccess);
 
