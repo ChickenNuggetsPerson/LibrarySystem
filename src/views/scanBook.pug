@@ -9,8 +9,38 @@ block layout-content
     header
     body
       div(id="qr-reader" style="width: 100%")
+      div( class="container text-center", id="manual") 
+        div(class="row")
+          div(class="col")
+            br
+            button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Manual ISBN
+    
+     
+      div( class="container text-center", id="manualenter")    
+        h3(id="error", style="color:white")
+        br
+        form(action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
+          h3 Title:
+          input(type='text' name='title' placeholder='title' required='')
+          br
+          br
+          h3 ISBN:
+          input(type='text' name='isbn' placeholder='isbn' required='')
+          br
+          br
+          h3 ImageFile: 
+          input( type="file" name="image" accept="image/*" capture="camera")
+          br
+          br
+          div( class="container text-center") 
+            div(class="row")
+              div(class="col")
+                input(type='submit' value='Submit')
+              div(class="col")
+                a(href='/library') Cancel
 
       script.
+        document.getElementById("manualenter").style.display = "none"
         let lastRead = "";
         function onScanSuccess(decodedText, decodedResult) {
             console.log(`Code scanned = ${decodedText}`, decodedResult);
@@ -26,9 +56,31 @@ block layout-content
             .then(response => {
               if (!response.error) { 
                 window.location.replace('/addBook');
+              } else {
+                document.getElementById("error").innerText = "Could Not Get Data\nEnter Information Manually"
+                document.getElementById("manual").remove()
+                document.getElementById("qr-reader").remove()
+                document.getElementById("manualenter").style.display = ""
               }
             })
-        }
-        var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
+          }
+          function btnClick(option) {
+            if (option == 'manual') {
+              let chosen = window.prompt("Enter ISBN","")
+              if (chosen != "") {
+                onScanSuccess("", chosen);
+              }
+            }
+          } 
+        
+        var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { 
+          fps: 10, 
+          qrbox: 250, 
+          rememberLastUsedCamera: true,
+          showTorchButtonIfSupported: true,
+          useBarCodeDetectorIfSupported: true,
+
+
+        });
         html5QrcodeScanner.render(onScanSuccess);
 

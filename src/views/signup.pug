@@ -3,19 +3,26 @@ extends layout
 block layout-content
   head
     title Create Account
-  h1 Sign Up
-  form(action='/auth/signup' method='post')
-    h3 Username:
-    input(type='text' name='username' placeholder='Username' required='')
-    br
-    br
-    h3 Password:
-    input(type='password' name='password' placeholder='Password' required='')
-    br
-    br
-    h3 First Name:
-    input(type='text' name='firstname' placeholder='First Name' required='')
-    br
-    br
-    input(type='submit' value='Create Account')
-    a(href='/login') Already Have An Account?
+  div( class="container text-center")  
+    div(style="padding: 5%; background-color:wheat; border-radius: 20px;")
+      h1 Sign Up
+      h2= message 
+      form(action='/auth/signup' method='post')
+        h3 Username:
+        input(type='text' name='username' placeholder='Username' required='')
+        br
+        br
+        h3 Password:
+        input(type='password' name='password' placeholder='Password' required='')
+        br
+        br
+        h3 First Name:
+        input(type='text' name='firstname' placeholder='First Name' required='')
+        br
+        br
+        div( class="container text-center") 
+          div(class="row")
+            div(class="col")
+              input(type='submit' value='Create Account')
+            div(class="col")
+              a(href='/login') Already Have An Account?

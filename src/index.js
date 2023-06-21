@@ -7,6 +7,25 @@ const Sequelize = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs')
 const isbn = require('node-isbn');
+const multer  = require('multer')
+
+
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+      cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname)
+    }
+  })
+  
+
+const upload = multer({ storage: storage })
+
+
 
 let fileStoreOptions = {};
 const app = express();
@@ -21,6 +40,7 @@ app.use(session({
     cookie: { secure: false },
     store: new FileStore(fileStoreOptions)
 }));
+app.use('/uploads', express.static('./uploads'))
 
 const userSequelizer = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
@@ -34,6 +54,19 @@ const userTags = userSequelizer.define('tags', {
     userID: Sequelize.STRING,
     firstName: Sequelize.STRING
 })
+const libraryTags = userSequelizer.define('book', {
+    userID: Sequelize.STRING,
+    title: Sequelize.STRING,
+    isbn: Sequelize.STRING,
+    author: Sequelize.STRING,
+    description: Sequelize.STRING,
+    pageCount: Sequelize.STRING,
+    imageLink: Sequelize.STRING,
+    bookUUID: Sequelize.STRING
+}, {
+    tableName: 'libraries'
+  })
+
 
 async function createUser(username, pass, firstName) {
     const id = uuidv4();
@@ -45,27 +78,25 @@ async function createUser(username, pass, firstName) {
         firstName: Buffer.from(firstName).toString('base64')
     })
     await userTags.sync();
-    console.log("Created User " + username);
     return id;
 };
 function deleteUser(id) {
 
 }
 async function userExists(username, pass) {
-    console.log("Checking User " + username)
     await userTags.sync();
     const tag = await userTags.findOne({where: {
         username: Buffer.from(username).toString('base64'), 
         password: Buffer.from(pass).toString('base64')
     }})
     if (tag) {
-        console.log("Logged in " + Buffer.from(tag.firstName, 'base64').toString("utf8"))
         return tag.userID;
     } else {
         return undefined;
     }
 }
 async function getFirstName(id) {
+    if (id == undefined) { return undefined; }
     await userTags.sync();
     const tag = await userTags.findOne({where: {
         userID: id
@@ -76,8 +107,31 @@ async function getFirstName(id) {
         return undefined;
     }
 }
+async function addBook(userid, book) {
+    fs.writeFileSync("lastBook.json", JSON.stringify(book))
+    console.log("Adding Book: " + book.title)
+    await libraryTags.create({
+        userID: userid,
+        title: (book?.title == undefined) ? "Not Provied" : book.title,
+        isbn: (book?.isbn == undefined) ? "Not Provided" : book.isbn,
+        author: (book?.authors == undefined) ? "Not Provided" : book.authors[0],
+        description: (book?.description == undefined) ? "Not Provided" : book.description,
+        pageCount: (book?.pageCount == undefined) ? "Not Provided" : book.pageCount,
+        imageLink: (book?.imageLinks?.smallThumbnail == undefined) ? "Not Provided" : book.imageLinks.smallThumbnail,
+        bookUUID: uuidv4()
+    })
+    await libraryTags.sync();
+}
+async function removeBook(userid, bookID) {
 
-
+}
+async function getLibrary(userid) {
+    await libraryTags.sync();
+    const tags = await libraryTags.findAll({where: {
+        userID: userid
+    }})
+    return tags;
+}
 
 
 // Serve the Pages
@@ -99,10 +153,17 @@ app.get('/logout', (req, res) => {
 });
 app.get('/library', (req, res) => {
     if (!req.session.user) {
-        console.log("not authed")
         return res.render('login');
     }
     res.render('library', { name: req.session.firstName });
+})
+app.get('/fetchLibrary', async (req, res) => {
+    if (!req.session.user) {
+        res.status(400);
+        return res.send('None shall pass');
+    }
+
+    res.json(await getLibrary(req.session.user))
 })
 app.get('/scanBook', (req, res) => {
     if (!req.session.user) {
@@ -119,7 +180,9 @@ app.get('/addBook', (req, res) => {
     } else {
         res.redirect('/scanBook');
     }
-    
+})
+app.get('/uploads', (req, res) => {
+    console.log(req.baseUrl)
 })
 
 
@@ -146,30 +209,16 @@ let loginValidate = [
 // Handle the login post
 // Process User Input
 app.post('/auth/login', loginValidate, async (req, res) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-        //return res.status(422).json({ errors: errors.array() });
-        //return res.sendFile(__dirname + '/web/login.html');
-    }
-	
     // Insert Login Code Here
     let id = await userExists(req.body.username, req.body.password);
     req.session.user = id;
     let name = await getFirstName(id);
     req.session.firstName = name;
-    console.log(req.body)
     setTimeout(() => {
         res.redirect('/library');
     }, 500);
-	
 });
 app.post('/auth/signup', loginValidate, async (req, res) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-        //return res.sendFile(__dirname + '/web/createAccount.html');
-    }
-        // Insert Login Code Here
-
     let id = await createUser(req.body.username, req.body.password, req.body.firstname);
     req.session.user = id;
     let name = await getFirstName(id);
@@ -180,27 +229,58 @@ app.post('/auth/signup', loginValidate, async (req, res) => {
     
 	
 });
+
 app.post('/library/scanBook', async (req, res) => {
     isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
             
         req.session.book = book;
+        req.session.book.isbn = req.body.isbnCode.decodedText
         res.json({error: false});
 
     }).catch(function (err) {
-        console.log('Book not found', err);
+        //console.log(err)
         res.json({error: true});
     });
+})
+app.post('/library/manualScanBook', upload.single('image'), async (req, res) => {
+    //console.log(req.body)
+    //console.log(req.file.destination + "/" + req.file.filename)
+    try {
+        if (req.session?.book == undefined) {
+            const tempBook = {
+                title: req.body.title,
+                isbn: req.body.isbn,
+                imageLinks: {
+                    smallThumbnail: req.file.destination + "/" + req.file.filename
+                }
+            }
+            req.session.book = tempBook
+            res.redirect("/addBook")
+        } else {
+            req.session.book.imageLinks = { smallThumbnail: "" };
+            req.session.book.imageLinks.smallThumbnail = req.file.destination + "/" + req.file.filename;
+            addBook(req.session.user, req.session.book)
+            req.session.book = undefined;
+            res.redirect("/library")
+        }
+    } catch (err) {
+        console.log(err)
+        req.session.book = undefined;
+        res.redirect("/library")
+    }
+    
+
+    
 })
 app.post('/library/addBook', async (req, res) => {
     if (req.body.answerResult) {
 
         // Add Book
-        console.log("adding book")
+        addBook(req.session.user, req.session.book)
         req.session.book = undefined;
         res.send("Acknoledged")
 
     } else {
-        console.log("not adding book")
         req.session.book = undefined;
         res.send("Acknoledged")
     }
@@ -210,5 +290,6 @@ app.post('/library/addBook', async (req, res) => {
 app.listen(8888, () => {
     console.log('The application is listening on port 8888');
     userTags.sync();
+    libraryTags.sync();
 })
     

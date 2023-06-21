@@ -5,19 +5,79 @@ block layout-content
   html
     head
       title Library Indexer
-    header
-      h2 Hello #{name}
-      div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
-        button(type="button" class="btn btn-success" onclick="headerBtnClick('scan')") Scan Book
-        button(type="button" class="btn btn-danger" onclick="headerBtnClick('')") Remove Book
+
       
+      
+
       script.
         function headerBtnClick(parm) {
-          if (parm == 'scan')
+          if (parm == 'scan') {
             window.location.replace("/scanBook")
           }
+          if (parm == 'logout') {
+            window.location.replace("/logout")
+          }
+          if (parm == 'test') {
+            bootbox.alert("Hellow World")
+          }
+        }
+        
+        let data = {}
+        async function getData() {
+          fetch('/fetchLibrary', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+          })
+          .then(response => response.json())
+          .then(response => {
+            if (response.error) {
+              return console.log(response)  
+            }
+            data = response
+          })
+        }
+        function updatePage() {
+          var mainDiv = document.getElementById("yeet")
+          mainDiv.innerHTML = ""
 
-    body
+          for (let i = 0; i < data.length; i++) {
+              const row = document.createElement('tr')
+        
+              const displayImage = document.createElement('th')
+              const divImage = document.createElement('img')
+              displayImage.scope = "row"
+              divImage.style.maxWidth = "100px"
+              divImage.src = data[i].imageLink
+              displayImage.appendChild(divImage)
+
+              const displayText = document.createElement('td')
+              displayText.color = "white"
+              displayText.innerText = data[i].title
+
+              row.appendChild(displayImage)
+              row.appendChild(displayText)
+              mainDiv.appendChild(row)
+          }
+        }
+
+        async function myFunction() {
+          getData()
+          setTimeout(() => {
+            updatePage();
+          }, 1000);
+        }
+
+
+    header
+      h2(style="color:white;") Hello #{name}
+      div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+        button(type="button" class="btn btn-success" onclick="headerBtnClick('scan')") Scan Book
+        div(style="width:50px")
+        button(type="button" class="btn btn-danger" onclick="headerBtnClick('logout')") Logout        
+
+    body(onload="myFunction()")
       div(style='padding:5%')
         div(class="input-group mb-3")
           button(class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false") Search
@@ -33,21 +93,14 @@ block layout-content
 
           input(type="text" class="form-control" placeholder="..." aria-label="..." aria-describedby="basic-addon1")
 
+        table(class="table align-middle")
+          thead
+            tr
+              th(scope="col") Image
+              th(scope="col") Title
+          tbody(id="yeet" style="color:white" class="table-group-divider")
+          
+        
 
-        table(style='width:100%', border='1', )
-          tr
-            th Image
-            th Title
-            th Author
-          tr
-            td 001
-            td Adam
-            td 25
-          tr
-            td 002
-            td rahul
-            td 27
-          tr
-            td 003
-            td john
-            td 80
+
+

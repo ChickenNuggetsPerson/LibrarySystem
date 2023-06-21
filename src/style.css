@@ -3,14 +3,17 @@ body {
 }
 h1 {
     
-    color: white;
+    color: black;
+    font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif
 }
 h2 {
   
-  color: white;
-  
+  color: black;
+  font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif
 }
-
+h3 {
+  color: white;
+}
 
 header {
   align-items: center;

@@ -12,9 +12,18 @@ block layout-content
             div(class="container text-center", style="border:5px; border-radius: 20px; border-style: solid; border-color: wheat; padding:4%")
                 div(class="row align-items-start")
                     div(class="col")
-                       image(id="cover")
+                        div(id="noImage")
+                            form(action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
+                                h3 No Image
+                                input( type="file" name="image" accept="image/*" capture="camera")
+                                div( class="container text-center") 
+                                    div(class="row")
+                                    div(class="col")
+                                        input(type='submit' value='Submit')
+
+                        image(id="cover", style="max-width:100px")
                     div(class="col")
-                        h2(id="title", style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif") Title
+                        h2(id="title", style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; color:white;") Title
                 div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
                     button(type="button" class="btn btn-danger" onclick="btnClicked(false)") Cancel
                     button(type="button" class="btn btn-success" onclick="btnClicked(true)") Add
@@ -27,7 +36,10 @@ block layout-content
 
             document.getElementById("title").innerText = book.title;
             document.getElementById("cover").src = book.imageLinks.smallThumbnail;
-
+            
+            if (document.getElementById("cover").src != "") {
+                document.getElementById("noImage").innerHTML = ""
+            }
 
             function btnClicked(answer){
                 
