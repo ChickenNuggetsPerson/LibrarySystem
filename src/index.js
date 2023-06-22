@@ -1,4 +1,6 @@
 const express = require('express')
+let pem = require('pem');
+const https = require('https')
 const session = require('express-session');
 let FileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser')
@@ -8,7 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs')
 const isbn = require('node-isbn');
 const multer  = require('multer')
-
+const cron = require('node-cron');
 
 
 
@@ -20,7 +22,7 @@ const storage = multer.diskStorage({
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
       cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname)
     }
-  })
+})
   
 
 const upload = multer({ storage: storage })
@@ -49,7 +51,7 @@ const userSequelizer = new Sequelize('database', 'user', 'password', {
 	logging: false,
 	storage: 'users/users.sqlite',
 });
-const userTags = userSequelizer.define('tags', {
+const userTags = userSequelizer.define('user', {
     username: Sequelize.STRING,
     password: Sequelize.STRING,
     userID: Sequelize.STRING,
@@ -63,15 +65,25 @@ const libraryTags = userSequelizer.define('book', {
     description: Sequelize.STRING,
     pageCount: Sequelize.STRING,
     imageLink: Sequelize.STRING,
+    categories: Sequelize.STRING,
     bookUUID: Sequelize.STRING
 }, {
     tableName: 'libraries'
-  })
+})
+const checkoutTags = userSequelizer.define('checkout', {
+    userID: Sequelize.STRING,
+    checkoutID: Sequelize.STRING,
+    student: Sequelize.STRING,
+    bookUUID: Sequelize.STRING,
+    bookOBJ: Sequelize.STRING,
+    returnDate: Sequelize.STRING
+}, {
+    tableName: 'checkouts'
+})
 
 
 async function createUser(username, pass, firstName) {
     const id = uuidv4();
-    fs.mkdirSync("users/" + id);
     await userTags.create({
         username: Buffer.from(username).toString('base64'),
         password: Buffer.from(pass).toString('base64'),
@@ -110,7 +122,6 @@ async function getFirstName(id) {
 }
 async function addBook(userid, book) {
     fs.writeFileSync("lastBook.json", JSON.stringify(book))
-    console.log("Adding Book: " + book.title)
     await libraryTags.create({
         userID: userid,
         title: (book?.title == undefined) ? "Not Provied" : book.title,
@@ -119,12 +130,24 @@ async function addBook(userid, book) {
         description: (book?.description == undefined) ? "Not Provided" : book.description,
         pageCount: (book?.pageCount == undefined) ? "Not Provided" : book.pageCount,
         imageLink: (book?.imageLinks?.thumbnail == undefined) ? "Not Provided" : book.imageLinks.thumbnail,
+        categories: JSON.stringify(book.categories),
         bookUUID: uuidv4()
     })
     await libraryTags.sync();
 }
 async function removeBook(userid, bookID) {
-
+    await libraryTags.sync();
+    const tag = await libraryTags.destroy({where: {
+        userID: userid,
+        bookUUID: bookID
+    }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+        if(rowDeleted === 1){
+            return true;
+            }
+        }, function(err){
+            console.log(err); 
+            return false;
+        });
 }
 async function getLibrary(userid) {
     await libraryTags.sync();
@@ -133,7 +156,81 @@ async function getLibrary(userid) {
     }})
     return tags;
 }
+async function getBook(bookID) {
+    libraryTags.sync();
+    return await libraryTags.findOne({ where: {
+        bookUUID: bookID
+    }})
+}
+async function checkoutBook(userid, book, student, checkoutday) {
+    const date = new Date(checkoutday);
+    const minutes = 0
+    const hours = 8;
+    const days = date.getDate();
+    const months = date.getMonth() + 1;
+    const dayOfWeek = date.getDay();
 
+    const cronString = `${minutes} ${hours} ${days} ${months} ${dayOfWeek}`;
+
+    await checkoutTags.create({
+        userID: userid,
+        checkoutID: uuidv4(),
+        student: student,
+        bookUUID: book.bookUUID,
+        bookOBJ: JSON.stringify(book),
+        returnDate: cronString
+    })
+
+    restartNots();
+}
+async function removeCheckoutCheckID(checkoutID) {
+    await checkoutTags.sync();
+    const tag = await checkoutTags.destroy({where: {
+        checkoutID: checkoutID,
+    }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+        if(rowDeleted === 1){
+            restartNots()
+            return true;
+            }
+        }, function(err){
+            console.log(err); 
+            restartNots()
+            return false;
+        });
+}
+async function removeCheckoutBookID(bookUUID) {
+    await checkoutTags.sync();
+    const tag = await checkoutTags.destroy({where: {
+        bookUUID: bookUUID,
+    }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+        if(rowDeleted === 1){
+            restartNots()
+            return true;
+            }
+        }, function(err){
+            console.log(err); 
+            restartNots()
+            return false;
+        });
+}
+async function getCheckouts(userID) {
+   await checkoutTags.sync();
+   const tags = await checkoutTags.findAll({ where: {
+    userID: userID
+   }})
+   return tags;
+}
+async function isCheckedout(bookUUID) {
+    await checkoutTags.sync();
+    const tag = await checkoutTags.findOne({where: {
+        bookUUID: bookUUID
+    }})
+    if (tag) {
+        return tag;
+    } else {
+        return undefined;
+    }
+}
 
 // Serve the Pages
 app.get('/', (req, res) => {
@@ -156,6 +253,7 @@ app.get('/library', (req, res) => {
     if (!req.session.user) {
         return res.render('login');
     }
+    if (req.session.checkout) { req.session.checkout = undefined; }
     res.render('library', { name: req.session.firstName });
 })
 app.get('/fetchLibrary', async (req, res) => {
@@ -165,6 +263,14 @@ app.get('/fetchLibrary', async (req, res) => {
     }
 
     res.json(await getLibrary(req.session.user))
+})
+app.get('/fetchCheckouts', async (req, res) => {
+    if (!req.session.user) {
+        res.status(400);
+        return res.send('None shall pass');
+    }
+
+    res.json(await getCheckouts(req.session.user))
 })
 app.get('/scanBook', (req, res) => {
     if (!req.session.user) {
@@ -184,6 +290,16 @@ app.get('/addBook', (req, res) => {
 })
 app.get('/uploads', (req, res) => {
     console.log(req.baseUrl)
+})
+app.get('/checkout', (req, res) => {
+    if (!req.session.user) {
+        return res.render('login');
+    }
+    if (req.session.checkout) {
+        res.render('checkout', {book: JSON.stringify(req.session.checkout)});
+    } else {
+        res.redirect('/library');
+    }
 })
 
 
@@ -231,7 +347,11 @@ app.post('/auth/signup', loginValidate, async (req, res) => {
 	
 });
 
+
 app.post('/library/scanBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
     if (req.body.isbnCode.decodedText == null) { return res.json({error: true}); }
     isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
             
@@ -245,8 +365,7 @@ app.post('/library/scanBook', async (req, res) => {
     });
 })
 app.post('/library/manualScanBook', upload.single('image'), async (req, res) => {
-    //console.log(req.body)
-    //console.log(req.file.destination + "/" + req.file.filename)
+    
     try {
         if (req.session?.book == undefined) {
             const tempBook = {
@@ -270,11 +389,11 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
         req.session.book = undefined;
         res.redirect("/library")
     }
-    
-
-    
 })
 app.post('/library/addBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.send("afds");
+    }
     if (req.body.answerResult) {
 
         // Add Book
@@ -289,9 +408,99 @@ app.post('/library/addBook', async (req, res) => {
 })
 
 
-app.listen(8888, () => {
+app.post('/library/removeBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    let result = await removeBook(req.session.user, req.body.bookID);
+    res.json({error: result});
+})
+
+
+app.post('/library/checkoutBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    req.session.checkout = await getBook(req.body.bookID)
+    res.json({error: false});
+})
+app.post('/library/checkoutConfirm', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    if (!req.session.checkout) {
+        return res.json({error: true});
+    }
+    await checkoutBook(req.session.user, req.session.checkout, req.body.student, req.body.returnDate);
+    res.json({error: false});
+})
+app.post('/library/returnBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    res.json({error: !removeCheckoutBookID(req.body.bookID)});
+})
+
+
+
+// Checkout reminder system
+let notifications = []
+async function restartNots() {
+    console.log("")
+    if (notifications.length != 0) {
+        console.log("Stopping Cron Tasks")
+        for (let i = 0; i < notifications.length; i++) {
+            notifications[i].stop()
+        }
+    }
+    notifications = []
+    const checkouts = await checkoutTags.findAll();
+    let i = 0;
+    console.log("Starting Cron Tasks")
+    checkouts.forEach( checkout => {
+        if (cron.validate(checkout.dataValues.returnDate)) {
+            notifications[i] = cron.schedule(checkout.dataValues.returnDate, function(){
+                announceNot(checkout.dataValues.checkoutID)
+            })
+        } else {
+            console.log("Skipping Checkout: " + checkout.dataValues.checkoutID)
+        }
+        
+        
+        i++;
+    })
+}
+
+function announceNot(notID) {
+    console.log("announce: " + notID)
+    //removeCheckoutCheckID(notID);
+}
+
+
+
+app.listen(8888, async () => {
     console.log('The application is listening on port 8888');
-    userTags.sync();
-    libraryTags.sync();
+    await userTags.sync();
+    await libraryTags.sync();
+    await checkoutTags.sync();
+    restartNots()
 })
     
+/*
+function startHTTPS(hostname, port) {
+	pem.createCertificate({ days: 365, selfSigned: true, commonName: hostname }, function (err, keys) {
+		if (err) {
+			return console.log(err);
+		}
+
+		https.createServer({ key: keys.serviceKey, cert: keys.certificate }, app)
+		.listen(port, () => {
+			console.log('Https Server is running on port: ', port);
+		});
+	});
+}
+
+startHTTPS("192.168.50.197", 8888);
+*/
+
+

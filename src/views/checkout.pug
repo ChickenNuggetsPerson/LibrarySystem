@@ -1,0 +1,94 @@
+extends layout
+
+block layout-content
+
+  html
+    head
+      title Library Indexer
+
+    header
+
+
+      script.
+
+        var book = !{book};
+        console.log(book)
+
+        function refreshPage() {
+            document.getElementById("title").innerText = book.title;
+            document.getElementById("cover").src = book.imageLink;
+        }
+        function btnClicked(parm) {
+            if (parm) {
+                // Checkout
+                bootbox.prompt({
+                    title: 'Enter Student Number',
+                    inputType: 'number',
+                    callback: function (studentresult) {
+                        if (studentresult) {
+                            bootbox.prompt({
+                                title: 'Pick a Return Date',
+                                inputType: 'date',
+                                callback: function (result) {
+                                    checkoutConfirm(studentresult, result)
+                                }
+                            });
+                        }
+                    }
+                });
+                
+            } else {
+                // Cancel
+                window.location.replace("/library")
+            }
+        }
+        
+        function checkoutConfirm(studentNum, returnDay) {
+            fetch('/library/checkoutConfirm', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                },
+                    body: JSON.stringify({student: studentNum, returnDate: returnDay})
+                }).then(response => response.json())
+                .then(response => {
+                    if (!response.error) { 
+                        bootbox.dialog({
+                            backdrop: true,
+                            message: "Student " + studentNum + " checked out " + book.title,
+                            callback: function (result) {
+                                window.location.replace("/library")
+                            },
+                            buttons: {
+                                cancel: {
+                                    label: "Close",
+                                    className: 'btn-primary',
+                                    callback: function(){
+                                        window.location.replace("/library")
+                                    }
+                                }
+                            }
+                        });
+                        
+                    } else {
+                        bootbox.alert('There was an error in the server');
+                        window.location.replace("/library")
+                    }
+                })
+        }
+
+
+        
+
+
+    body(onload="refreshPage()")
+      div(style="padding:10%")
+            div(class="container text-center", style="border:5px; border-radius: 20px; border-style: solid; border-color: wheat; padding:4%")
+                div(class="row align-items-start")
+                    div(class="col")
+                        image(id="cover", style="max-width:100px")
+                    div(class="col")
+                        h2(id="title", style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; color:white;") Title
+                div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+                    button(type="button" class="btn btn-danger" onclick="btnClicked(false)") Cancel
+                    button(type="button" class="btn btn-success" onclick="btnClicked(true)") Checkout
