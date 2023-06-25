@@ -541,9 +541,6 @@ app.get('/scanBook', (req, res) => {
     if (!req.session.user) {
         return res.render('login');
     }
-    if (req.session.book) {
-        return res.render('addBook', {book: JSON.stringify(req.session.book)});
-    }
     res.render('scanBook');
 })
 app.get('/addBook', (req, res) => {
