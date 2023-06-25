@@ -793,7 +793,7 @@ function announceNot(notID) {
 
 
 app.listen(8080, async () => {
-    console.log('The application is listening on port 9999');
+    console.log('The application is listening on port 8080');
     await userTags.sync();
     await libraryTags.sync();
     await checkoutTags.sync();
@@ -801,6 +801,25 @@ app.listen(8080, async () => {
     restartNots()
 })
     
+const http = require('http');
+
+const redirectServer = http.createServer((req, res) => {
+  const { headers, method, url } = req;
+
+  // Redirect all requests to port 8080
+  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
+
+  // Set the appropriate status code and Location header for redirection
+  res.writeHead(301, { Location: location });
+  res.end();
+});
+
+redirectServer.listen(80, () => {
+  console.log('Redirect server running on port 80');
+});
+
+
+
 /*
 function startHTTPS(hostname, port) {
 	pem.createCertificate({ days: 365, selfSigned: true, commonName: hostname }, function (err, keys) {
