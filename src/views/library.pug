@@ -4,303 +4,32 @@ block layout-content
 
   html
     head
+
       title Library Indexer
-
       
-      
-
-      script.
-        function headerBtnClick(parm) {
-          if (parm == 'scan') {
-            window.location.replace("/scanBook")
-          }
-          if (parm == 'logout') {
-            window.location.replace("/logout")
-          }
-        }
-        
-        let data = {}
-        let checkoutData = {}
-        async function getData() {
-          await fetch('/fetchLibrary', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-            },
-          })
-          .then(response => response.json())
-          .then(response => {
-            if (response.error) {
-              console.log(response)  
-            } else {
-              data = response
-            }
-          })
-          await fetch('/fetchCheckouts', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-            },
-          })
-          .then(response => response.json())
-          .then(response => {
-            if (response.error) {
-              console.log(response)  
-            } else {
-              checkoutData = response
-            }
-          })
-        }
-
-        function findStringInArray(str, array) {
-          for (let i = 0; i < array.length; i++) {
-            if (str === array[i]) {
-              return { match: true, index: i }; // Found a match with index
-            }
-          }
-          return { match: false, index: -1 }; // No match found with -1 index
-        }
-
-        function processData() {
-          let checkoutArray = []
-          for (let i = 0; i < checkoutData.length; i++) {
-            checkoutArray.push(checkoutData[i].bookUUID)
-          }
-          
-
-          for (let i = 0; i < data.length; i++) {
-            let result = findStringInArray(data[i].bookUUID, checkoutArray)
-            data[i].checkoutMatch = result.index
-          }
-        }
-
-        function removeBook(bookID, bookName) {
-          console.log("remove book " + bookID)
-          fetch('/library/removeBook', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json'
-          },
-            body: JSON.stringify({bookID: bookID})
-          }).then(response => response.json())
-          .then(response => {
-            if (!response.error) { 
-              bootbox.dialog({
-                backdrop: true,
-                message: 'Removed ' + bookName,
-                buttons: {
-                  cancel: {
-                    label: "Close",
-                    className: 'btn-primary'
-                  }
-                }
-              });
-              refreshPage()
-            } else {
-              bootbox.alert('There was an error in the server');
-            }
-          })
-        }
-
-        function checkout(bookID) {
-          console.log("Checkout Book " + bookID)
-          fetch('/library/checkoutBook', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json'
-          },
-            body: JSON.stringify({bookID: bookID})
-          }).then(response => response.json())
-          .then(response => {
-            if (!response.error) { 
-              window.location.replace("/checkout")
-            } else {
-              bootbox.alert('There was an error in the server');
-            }
-          })
-        }
-        function returnBook(bookID) {
-          console.log("Return Book " + bookID)
-          fetch('/library/returnBook', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json'
-          },
-            body: JSON.stringify({bookID: bookID})
-          }).then(response => response.json())
-          .then(response => {
-            if (!response.error) { 
-              refreshPage();
-            } else {
-              bootbox.alert('There was an error in the server');
-            }
-          })
-        }
-
-
-        function overlayBook(index) {
-          let book = data[index]
-
-          let message = "<strong>Author: </strong>" + book.author + "<br><br><strong>Categories:</strong>"
-          let categories = JSON.parse(book.categories)
-          for (let i = 0; i < categories.length; i++) {
-            message += ("<br>- " + categories[i])
-          }
-
-
-          let checkoutLabel;
-          let checkoutClassName;
-          
-          if (book.checkoutMatch == -1) {
-            checkoutLabel = "Checkout"
-            checkoutClassName = 'btn-primary'
-            function checkoutCallback() { checkout(book.bookUUID) }
-          } else {
-            checkoutLabel = "Return Book"
-            checkoutClassName = 'btn-success'
-            function checkoutCallback() { returnBook(book.bookUUID) }
-          }
-          
-            
-
-          bootbox.dialog({
-            size: 'medium',
-            backdrop: true,
-            title: book.title,
-            message: message,
-            buttons: {
-              cancel: {
-                label: "Remove Book",
-                className: 'btn-danger',
-                callback: function(){
-                  bootbox.confirm({
-                    message: 'Are You Sure You Want To Delete?',
-                    buttons: {
-                      confirm: {
-                        label: 'Yes',
-                        className: 'btn-success'
-                      },
-                      cancel: {
-                        label: 'No',
-                        className: 'btn-danger'
-                      }
-                      },
-                      callback: function (result) {
-                        if (result) {
-                          removeBook(book.bookUUID, book.title)
-                        }
-                      }
-                    });
-                  
-                }
-              },
-              noclose: {
-                label: checkoutLabel,
-                className: checkoutClassName,
-                callback: checkoutCallback
-              },
-              ok: {
-                label: "Close",
-                className: 'btn-info',
-                
-              }
-            }
-          });
-        }
-
-        function updatePage() {
-          var mainDiv = document.getElementById("yeet")
-          mainDiv.innerHTML = ""
-
-          for (let i = 0; i < data.length; i++) {
-              const row = document.createElement('tr')
-        
-              const displayImage = document.createElement('th')
-              const button = document.createElement("button")
-              button.style.width = "fit-content"
-              button.style.padding = "5px";
-              button.style.borderRadius = "5px"
-              button.style.backgroundColor = "wheat"
-
-              button.addEventListener("click", function() {
-                overlayBook(i) 
-              });
-
-              const divImage = document.createElement('img')
-              displayImage.scope = "row"
-              divImage.style.maxWidth = "100px"
-              divImage.src = data[i].imageLink
-
-              displayImage.appendChild(button)
-              button.appendChild(divImage)
-
-
-
-              const displayText = document.createElement('td')
-
-              const mainTxt = document.createElement('h3')
-              mainTxt.color = "white"
-              mainTxt.innerText = data[i].title
-
-              const altTxt = document.createElement("h4")
-              if (data[i].checkoutMatch != -1) {
-                altTxt.style.color = "#e05836"
-                altTxt.innerText = "\n(Checked Out)"
-              }
-              displayText.appendChild(mainTxt)
-              displayText.appendChild(altTxt)
-              
-
-              row.appendChild(displayImage)
-              row.appendChild(displayText)
-              mainDiv.appendChild(row)
-          }
-        }
-
-        async function refreshPage() {
-          console.log("Fetching Data")
-          await getData()
-          console.log("Processing Data")
-          processData();
-          console.log("Updating Page")
-          updatePage();
-        }
-
-        
-
+    
 
     header
       h2(style="color:white;") Hello #{name}
       div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
         button(type="button" class="btn btn-success" onclick="headerBtnClick('scan')") Scan Book
-        div(style="width:50px")
+        div(style="width:5%")
+        button(type="button" class="btn btn-warning" onclick="headerBtnClick('categories')") Edit Categories   
+        div(style="width:5%")
         button(type="button" class="btn btn-danger" onclick="headerBtnClick('logout')") Logout        
 
+
     body(onload="refreshPage()")
+
       div(style='padding:5%')
-        div(class="input-group mb-3")
-          button(class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false") Search
-          ul(class="dropdown-menu")
-            li
-              a(class="dropdown-item" href="#") Title
-            li
-              a(class="dropdown-item" href="#") Author
-            li
-              a(class="dropdown-item" href="#") ISBN
-            li
-              a(class="dropdown-item" href="#") Published Date
 
-          input(type="text" class="form-control" placeholder="..." aria-label="..." aria-describedby="basic-addon1")
-
-
-        table(class="table align-middle")
+        table(id="myTable" class="display")
           thead
-            tr
-              th(scope="col") Image
-              th(scope="col") Title
+              tr
+                th Image
+                th Title
+                th Categories
+
           tbody(id="yeet" style="color:white" class="table-group-divider")
-          
         
-
-
-
+      script(src="/static/library.js")

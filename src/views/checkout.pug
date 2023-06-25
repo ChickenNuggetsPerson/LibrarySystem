@@ -23,11 +23,13 @@ block layout-content
                 // Checkout
                 bootbox.prompt({
                     title: 'Enter Student Number',
+                    required: true,
                     inputType: 'number',
                     callback: function (studentresult) {
                         if (studentresult) {
                             bootbox.prompt({
                                 title: 'Pick a Return Date',
+                                required: true,
                                 inputType: 'date',
                                 callback: function (result) {
                                     checkoutConfirm(studentresult, result)

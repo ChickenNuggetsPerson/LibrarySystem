@@ -1,0 +1,197 @@
+extends layout
+
+block layout-content
+
+  html
+    head
+      title Library Indexer
+
+      
+      
+      script.
+        
+        let data = {}
+        async function getData() {
+          await fetch('/fetchCategories', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+          })
+          .then(response => response.json())
+          .then(response => {
+            if (response.error) {
+              console.log(response)  
+            } else {
+              data = response
+            }
+          })
+        }
+
+        function addCatButton() {
+            bootbox.prompt('New Category Name',
+                function(result) {
+                    if (result) {
+                        addCat(result)
+                    }
+                }
+            );
+        }
+
+        function removeCat(catID) {
+          fetch('/categories/remove', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+          },
+            body: JSON.stringify({catID: catID})
+          }).then(response => response.json())
+          .then(response => {
+            if (!response.error) { 
+              refreshPage();
+            } else {
+              bootbox.alert('There was an error in the server');
+            }
+          })
+        }
+        function addCat(name) {
+          fetch('/categories/add', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+          },
+            body: JSON.stringify({name: name})
+          }).then(response => response.json())
+          .then(response => {
+            if (!response.error) { 
+              refreshPage();
+            } else {
+              bootbox.alert('There was an error in the server');
+            }
+          })
+        }
+
+
+        function overlayCat(index) {
+          let book = data[index]
+            
+
+          bootbox.dialog({
+            size: 'medium',
+            backdrop: true,
+            title: book.name,
+            message: "Do You Want To Delete " + book.name + "?",
+            buttons: {
+              remove: {
+                label: "Delete Category",
+                className: 'btn-danger',
+                callback: function(){
+                  bootbox.confirm({
+                    message: 'Are You Sure You Want To Delete?',
+                    buttons: {
+                      confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                      },
+                      cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                      }
+                      },
+                      callback: function (result) {
+                        if (result) {
+                          removeCat(book.categoryUUID)
+                        }
+                      }
+                    });
+                  
+                }
+              },
+              close: {
+                label: "Close",
+                className: 'btn-info',
+                
+              }
+            }
+          });
+        }
+
+        function updatePage() {
+          var mainDiv = document.getElementById("yeet")
+          mainDiv.innerHTML = ""
+
+          for (let i = 0; i < data.length; i++) {
+              const row = document.createElement('tr')
+        
+              const displayImage = document.createElement('th')
+              const button = document.createElement("button")
+              button.style.width = "fit-content"
+              button.style.padding = "5px";
+              button.style.borderRadius = "5px"
+              button.style.backgroundColor = "wheat"
+
+              button.addEventListener("click", function() {
+                overlayCat(i)
+              });
+
+              const divImage = document.createElement('h2')
+              displayImage.scope = "row"
+              //divImage.style.maxWidth = "100px"
+              divImage.style.color = "black"
+              divImage.innerHTML = data[i].name
+
+              displayImage.appendChild(button)
+              button.appendChild(divImage)
+
+
+
+              const displayText = document.createElement('td')
+              const mainTxt = document.createElement('h3')
+              mainTxt.color = "white"
+              mainTxt.innerText = JSON.parse(data[i].books).length + " books in category"
+              mainTxt.onclick = function() {  
+                window.location.replace("/library?search=" + data[i].name)
+            }
+
+              const altTxt = document.createElement("h4")
+              
+              displayText.appendChild(mainTxt)
+              displayText.appendChild(altTxt)
+              
+
+              row.appendChild(displayImage)
+              row.appendChild(displayText)
+              mainDiv.appendChild(row)
+          }
+        }
+
+        async function refreshPage() {
+          console.log("Fetching Data")
+          await getData()
+          console.log("Updating Page")
+          updatePage();
+        }
+
+        
+
+
+    header
+      h2(style="color:white;") Edit Categories
+      div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+        button(type="button" class="btn btn-primary" onclick="window.location.replace('/library')") Back To Library
+        button(type="button" class="btn btn-success" onclick="addCatButton()") Add Category          
+
+
+    body(onload="refreshPage()")
+      div(style='padding:5%')
+        table(class="table align-middle")
+          thead
+            tr
+              th(scope="col") Categories
+              th(scope="col") Category Size
+          tbody(id="yeet" style="color:white" class="table-group-divider")
+          
+        
+
+
+

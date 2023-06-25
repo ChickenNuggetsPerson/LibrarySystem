@@ -76,9 +76,16 @@ const checkoutTags = userSequelizer.define('checkout', {
     student: Sequelize.STRING,
     bookUUID: Sequelize.STRING,
     bookOBJ: Sequelize.STRING,
-    returnDate: Sequelize.STRING
+    returnDate: Sequelize.STRING,
+    rawReturnDate: Sequelize.STRING
 }, {
     tableName: 'checkouts'
+})
+const categoryTags = userSequelizer.define('category', {
+    userID: Sequelize.STRING,
+    name: Sequelize.STRING,
+    categoryUUID: Sequelize.STRING,
+    books: Sequelize.STRING
 })
 
 
@@ -93,8 +100,20 @@ async function createUser(username, pass, firstName) {
     await userTags.sync();
     return id;
 };
-function deleteUser(id) {
-
+async function deleteUser(id) {
+    await userTags.sync();
+    await userTags.destroy({where: {
+        userID: id,
+    }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+        if(rowDeleted === 1){
+            userTags.sync();
+            return true;
+            }
+        }, function(err){
+            console.log(err);
+            userTags.sync(); 
+            return false;
+    });
 }
 async function userExists(username, pass) {
     await userTags.sync();
@@ -130,12 +149,26 @@ async function addBook(userid, book) {
         description: (book?.description == undefined) ? "Not Provided" : book.description,
         pageCount: (book?.pageCount == undefined) ? "Not Provided" : book.pageCount,
         imageLink: (book?.imageLinks?.thumbnail == undefined) ? "Not Provided" : book.imageLinks.thumbnail,
-        categories: JSON.stringify(book.categories),
+        categories: JSON.stringify([]),
         bookUUID: uuidv4()
     })
     await libraryTags.sync();
 }
 async function removeBook(userid, bookID) {
+    await libraryTags.sync();
+    const book = await libraryTags.findOne({where: {
+        userID: userid,
+        bookUUID: bookID
+    }})
+    JSON.parse(book.dataValues.categories).forEach((cat) => {
+        console.log(cat)
+        removeBookFromCategoryName(bookID, cat, userid)
+    })
+
+    if (book.dataValues.imageLink.startsWith("/uploads")) {
+        fs.unlinkSync("." + book.dataValues.imageLink);
+    }
+
     await libraryTags.sync();
     const tag = await libraryTags.destroy({where: {
         userID: userid,
@@ -156,12 +189,35 @@ async function getLibrary(userid) {
     }})
     return tags;
 }
-async function getBook(bookID) {
+async function getBook(bookID, userid) {
     libraryTags.sync();
     return await libraryTags.findOne({ where: {
-        bookUUID: bookID
+        bookUUID: bookID,
+        userID: userid
     }})
 }
+async function updateBook(bookID, userid, newBookItems) {
+    console.log(newBookItems)
+    let book = await libraryTags.findOne({ where: { userID: userid, bookUUID: bookID } })
+    if (book) {
+        console.log("yess book")
+        await book.update({
+            title: (newBookItems?.title == undefined) ? book.dataValues.title : newBookItems.title,
+            isbn: (newBookItems?.isbn == undefined) ? book.dataValues.isbn : newBookItems.isbn,
+            author: (newBookItems?.authors == undefined) ? book.dataValues.author : newBookItems.author,
+            description: (newBookItems?.description == undefined) ? book.dataValues.description : newBookItems.description,
+            pageCount: (newBookItems?.pageCount == undefined) ? book.dataValues.pageCount : newBookItems.pageCount,
+            imageLink: (newBookItems?.imageLinks?.thumbnail == undefined) ? book.dataValues.imageLink : newBookItems.imageLink,
+            categories: (newBookItems?.categories == undefined) ? book.dataValues.categories : JSON.stringify(newBookItems.categories),
+        })
+        await libraryTags.sync()
+        return true;
+    }
+    return false;
+}
+
+
+
 async function checkoutBook(userid, book, student, checkoutday) {
     const date = new Date(checkoutday);
     const minutes = 0
@@ -178,7 +234,8 @@ async function checkoutBook(userid, book, student, checkoutday) {
         student: student,
         bookUUID: book.bookUUID,
         bookOBJ: JSON.stringify(book),
-        returnDate: cronString
+        returnDate: cronString,
+        rawReturnDate: checkoutday
     })
 
     restartNots();
@@ -232,6 +289,178 @@ async function isCheckedout(bookUUID) {
     }
 }
 
+
+async function createCategory(name, userID) {
+    await categoryTags.create({
+        userID: userID,
+        name: name,
+        categoryUUID: uuidv4(),
+        books: JSON.stringify([])
+    })
+    await categoryTags.sync();
+    return true;
+}
+async function removeCategory(categoryID, userID) {
+    await categoryTags.sync();
+    
+    const category = await categoryTags.findOne({where: {
+        categoryUUID: categoryID,
+        userID: userID
+    }})
+    let books = JSON.parse(category.dataValues.books)
+    for (let i = 0; i < books.length; i++) {
+        removeCatFromBook(books[i], category.dataValues.name, userID)
+    }
+
+    await categoryTags.sync();
+    const tag = await categoryTags.destroy({where: {
+        categoryUUID: categoryID,
+        userID: userID
+    }}).then(async function(rowDeleted){ // rowDeleted will return number of rows deleted
+        if(rowDeleted === 1){
+            await categoryTags.sync();
+            return true;
+            }
+        }, async function(err){
+            console.log(err); 
+            await categoryTags.sync();
+            return false;
+        });
+}
+async function getCategories(userID) {
+    await categoryTags.sync();
+    const categorys = await categoryTags.findAll({where: {
+        userID: userID
+    }})
+    return categorys;
+}
+async function getBooksInCategory(categoryID, userID) {
+    await categoryTags.sync();
+    const category = await categoryTags.findAll({where: {
+        userID: userID,
+        categoryUUID: categoryID
+    }})
+    let bookIds = JSON.parse(category.dataValues.books)
+    let books = []
+
+    bookIds.forEach(async (id) => {
+        books.push(await getBook(id, userID))
+    })
+
+    return books;
+}
+async function addBookToCategory(bookID, categoryID, userID) {
+    let category = await categoryTags.findOne({ where: { userID: userID, categoryUUID: categoryID } })
+    if (category) {
+        let array = JSON.parse(category.dataValues.books)
+        array.push(bookID)
+        category.update({
+            books: JSON.stringify(array)
+        })
+        await categoryTags.sync()
+
+        await addCatToBook(bookID, category.dataValues.name, userID);
+        
+        return true;
+    }
+    return false;
+
+}
+async function removeBookFromCategory(bookID, categoryID, userID) {
+    let category = await categoryTags.findOne({ where: { userID: userID, categoryUUID: categoryID } })
+
+    if (category) {
+        let newarray = JSON.parse(category.dataValues.books)
+        newarray.splice(newarray.indexOf(bookID), 1)
+        category.update({
+            books: JSON.stringify(newarray)
+        })
+        await categoryTags.sync()
+
+        await removeCatFromBook(bookID, category.dataValues.name, userID)
+
+        return true;
+    }
+    return false;
+
+}
+async function removeBookFromCategoryName(bookID, categoryName, userID) {
+    console.log('aklsdjfhlkasdjf')
+    let category = await categoryTags.findOne({ where: { userID: userID, name: categoryName } })
+
+    if (category) {
+        let newarray = JSON.parse(category.dataValues.books)
+        newarray.splice(newarray.indexOf(bookID), 1)
+        category.update({
+            books: JSON.stringify(newarray)
+        })
+        await categoryTags.sync()
+
+        return true;
+    }
+    return false;
+
+}
+
+
+
+function removeDuplicates(array) {
+    const encountered = [];
+    for (let i = 0; i < array.length; i++) {
+        if (!encountered.includes(array[i])) {
+            encountered.push(array[i])
+        }
+    }
+    return encountered
+}
+function findStringInArray(str, array) {
+    for (let i = 0; i < array.length; i++) {
+      if (str === array[i]) {
+        return { match: true, index: i }; // Found a match with index
+      }
+    }
+    return { match: false, index: -1 }; // No match found with -1 index
+}
+async function refreshDisplayCategories(bookID, userID) {
+    let newCategories = [];
+    let categories = await getCategories(userID)
+    for (let i = 0; i < categories.length; i++) {
+        let array = JSON.parse(categories[i].dataValues.books)
+        if (findStringInArray(bookID, array).match) {
+            newCategories.push(categories[i].dataValues.name)
+        }
+    }
+    await updateBook(bookID, userID, {categories: removeDuplicates(newCategories)})
+}
+async function fixLibrary(userID) {
+    let library = await getLibrary(userID)
+    library.forEach(async (book) => {
+        await refreshDisplayCategories(book.bookUUID, userID);
+    })
+}
+
+async function addCatToBook(bookID, catName, userID) {
+    try {
+        let book = await getBook(bookID, userID)
+        let bookCats = JSON.parse(book.dataValues.categories)
+        bookCats.push(catName)
+        await updateBook(bookID, userID, { categories: removeDuplicates(bookCats)});
+        await refreshDisplayCategories(bookID, userID)
+    } catch(err) {}
+    
+}
+async function removeCatFromBook(bookID, catName, userID) {
+    try {
+        let book = await getBook(bookID, userID)
+        let bookCats = JSON.parse(book.dataValues.categories)
+        bookCats.splice(bookCats.indexOf(catName), 1)
+        await updateBook(bookID, userID, { categories: removeDuplicates(bookCats)});
+        await refreshDisplayCategories(bookID, userID)
+    } catch(err) {}
+}
+
+
+
 // Serve the Pages
 app.get('/', (req, res) => {
     if (!req.session.user) {
@@ -272,6 +501,14 @@ app.get('/fetchCheckouts', async (req, res) => {
 
     res.json(await getCheckouts(req.session.user))
 })
+app.get('/fetchCategories', async (req, res) => {
+    if (!req.session.user) {
+        res.status(400);
+        return res.send('None shall pass');
+    }
+
+    res.json(await getCategories(req.session.user))
+})
 app.get('/scanBook', (req, res) => {
     if (!req.session.user) {
         return res.render('login');
@@ -301,7 +538,23 @@ app.get('/checkout', (req, res) => {
         res.redirect('/library');
     }
 })
+app.get('/editBook/:bookID', async (req, res) => {
+    if (!req.session.user) {
+        return res.render('login');
+    }
+    if (req.params.bookID) {
+        res.render('editBook', {book: JSON.stringify(await getBook(req.params.bookID, req.session.user))});
+    } else {
+        res.redirect('/library');
+    }
+})
+app.get('/categories', async (req, res) => {
+    if (!req.session.user) {
+        return res.render('login');
+    }
 
+    res.render('categories');
+})
 
 app.get('/style.css', (req, res) => {
     res.sendFile(__dirname + '/style.css');
@@ -313,7 +566,24 @@ app.get('/debug', function(req, res) {
 	let text = data.join("\n");
 	res.send(text)
 });
+app.get('/library/fix', async function(req, res) {
+    if (!req.session.user) {
+        return res.render('login');
+    }
+    await fixLibrary(req.session.user)
+    res.redirect('/library');
+}) 
 
+app.get('/library/search/category/:categoryID', async (req, res) => {
+    if (!req.session.user) {
+        return res.render('login');
+    }
+    if (req.params.categoryID) {
+        res.json(await getBooksInCategory(req.params.categoryID, req.session.user));
+    } else {
+        res.json([])
+    }
+})
 
 // Validation rules.
 let loginValidate = [
@@ -352,7 +622,7 @@ app.post('/library/scanBook', async (req, res) => {
     if (!req.session.user) {
         return res.json({error: true});
     }
-    if (req.body.isbnCode.decodedText == null) { return res.json({error: true}); }
+    if (!req?.body?.isbnCode?.decodedText) { return res.json({error: true}); }
     isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
             
         req.session.book = book;
@@ -365,21 +635,20 @@ app.post('/library/scanBook', async (req, res) => {
     });
 })
 app.post('/library/manualScanBook', upload.single('image'), async (req, res) => {
-    
     try {
         if (req.session?.book == undefined) {
             const tempBook = {
                 title: req.body.title,
                 isbn: req.body.isbn,
                 imageLinks: {
-                    thumbnail: req.file.destination + "/" + req.file.filename
+                    thumbnail: (req.file.destination + "/" + req.file.filename).substring(1)
                 }
             }
             req.session.book = tempBook
             res.redirect("/addBook")
         } else {
             req.session.book.imageLinks = { thumbnail: "" };
-            req.session.book.imageLinks.thumbnail = req.file.destination + "/" + req.file.filename;
+            req.session.book.imageLinks.thumbnail = (req.file.destination + "/" + req.file.filename).substring(1);
             addBook(req.session.user, req.session.book)
             req.session.book = undefined;
             res.redirect("/library")
@@ -395,7 +664,6 @@ app.post('/library/addBook', async (req, res) => {
         return res.send("afds");
     }
     if (req.body.answerResult) {
-
         // Add Book
         addBook(req.session.user, req.session.book)
         req.session.book = undefined;
@@ -413,6 +681,7 @@ app.post('/library/removeBook', async (req, res) => {
         return res.json({error: true});
     }
     let result = await removeBook(req.session.user, req.body.bookID);
+    await removeCheckoutBookID(req.body.bookID)
     res.json({error: result});
 })
 
@@ -421,7 +690,7 @@ app.post('/library/checkoutBook', async (req, res) => {
     if (!req.session.user) {
         return res.json({error: true});
     }
-    req.session.checkout = await getBook(req.body.bookID)
+    req.session.checkout = await getBook(req.body.bookID, req.session.user)
     res.json({error: false});
 })
 app.post('/library/checkoutConfirm', async (req, res) => {
@@ -441,6 +710,51 @@ app.post('/library/returnBook', async (req, res) => {
     res.json({error: !removeCheckoutBookID(req.body.bookID)});
 })
 
+app.post('/library/editBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    let book = await libraryTags.findOne({ where: { userID: req.session.user, bookUUID: req.body.bookUUID } })
+    if (book) {
+        await book.update({
+            title: req.body.title,
+            author: req.body.author,
+        })
+        await libraryTags.sync()
+    }
+    res.redirect("/library")
+})
+
+
+
+app.post('/categories/add', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    let result = await createCategory(req.body.name, req.session.user);
+    res.json({error: !result});
+})
+app.post('/categories/remove', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    let result = await removeCategory(req.body.catID, req.session.user);
+    res.json({error: result});
+})
+app.post('/categories/addBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    let result = await addBookToCategory(req.body.bookID, req.body.catID, req.session.user);
+    res.json({error: !result});
+})
+app.post('/categories/removeBook', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    let result = await removeBookFromCategory(req.body.bookID, req.body.catID, req.session.user);
+    res.json({error: !result});
+})
 
 
 // Checkout reminder system
@@ -483,6 +797,7 @@ app.listen(8888, async () => {
     await userTags.sync();
     await libraryTags.sync();
     await checkoutTags.sync();
+    await categoryTags.sync();
     restartNots()
 })
     

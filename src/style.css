@@ -24,3 +24,11 @@ header {
 table {
   color: white;
 }
+
+
+.search label {
+
+  background-color: #fcfcfc;
+  border-radius: 5px;
+
+}

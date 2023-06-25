@@ -1,0 +1,43 @@
+extends layout
+
+block layout-content
+
+  html
+    head
+      title Library Indexer
+    header
+    body
+
+        div(style="padding:10%")
+            div(class="container text-center", style="border:5px; border-radius: 20px; border-style: solid; border-color: wheat; padding:4%; color:white")
+                image(id="cover", style="max-width:100px;")
+                br 
+                br
+                form(action='/library/editBook' method='post')
+                    div(class="form-group")
+                        h3(for="title") Book Title
+                        input(type="text", class="form-control" id="title" placeholder="Title" name="title") 
+                        br
+                        h3(for="author") Author
+                        input(type="text", class="form-control" id="author" placeholder="Author" name="author") 
+                        
+                        input(type="hidden" name="bookUUID" id="bookUUID" value="value")
+
+                    div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+                        button(type="button" class="btn btn-danger" onclick="window.location.replace('/library')") Cancel
+                        button(type="submit" class="btn btn-success") Save Changes
+
+        script.
+            var book = !{book};
+            console.log(book)
+
+
+            document.getElementById("cover").src = book.imageLink;
+            document.getElementById("title").value = book.title;
+            document.getElementById("author").value = book.author;          
+            document.getElementById("bookUUID").value = book.bookUUID;          
+
+            
+
+
+      
