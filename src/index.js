@@ -47,6 +47,7 @@ app.use(session({
 }));
 app.use('/uploads', express.static('./uploads'))
 app.use('/static', express.static('./src/static'))
+app.use('/', express.static('./rootFiles'))
 
 
 // create a rotating write stream
@@ -182,6 +183,7 @@ async function removeBook(userid, bookID) {
         userID: userid,
         bookUUID: bookID
     }})
+    if (!book) {return false;}
     JSON.parse(book.dataValues.categories).forEach((cat) => {
         removeBookFromCategoryName(bookID, cat, userid)
     })
@@ -220,7 +222,6 @@ async function getBook(bookID, userid) {
 async function updateBook(bookID, userid, newBookItems) {
     let book = await libraryTags.findOne({ where: { userID: userid, bookUUID: bookID } })
     if (book) {
-        console.log("yess book")
         await book.update({
             title: (newBookItems?.title == undefined) ? book.dataValues.title : newBookItems.title,
             isbn: (newBookItems?.isbn == undefined) ? book.dataValues.isbn : newBookItems.isbn,
@@ -834,7 +835,7 @@ const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
 
   // Redirect all requests to port 8080
-  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080`;
+  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
   //const location = `http://${headers.host}:8080`;
 
   //const hostname = req.headers.host.split(':')[0]; // Extract hostname without the port
