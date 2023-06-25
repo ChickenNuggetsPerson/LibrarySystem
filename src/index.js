@@ -491,16 +491,20 @@ app.get('/', (req, res) => {
     res.redirect('/library');
 });
 app.get('/login', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.render('login');
 });
 app.get('/signup', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.render('signup');
 });
 app.get('/logout', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     req.session.destroy(() => {});
     res.redirect('/');
 });
 app.get('/library', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
     }
@@ -533,12 +537,17 @@ app.get('/fetchCategories', async (req, res) => {
     res.json(await getCategories(req.session.user))
 })
 app.get('/scanBook', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
+    }
+    if (req.session.book) {
+        return res.render('addBook', {book: JSON.stringify(req.session.book)});
     }
     res.render('scanBook');
 })
 app.get('/addBook', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
     }
@@ -552,6 +561,7 @@ app.get('/uploads', (req, res) => {
     console.log(req.baseUrl)
 })
 app.get('/checkout', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
     }
@@ -562,6 +572,7 @@ app.get('/checkout', (req, res) => {
     }
 })
 app.get('/editBook/:bookID', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
     }
@@ -572,6 +583,7 @@ app.get('/editBook/:bookID', async (req, res) => {
     }
 })
 app.get('/categories', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
     }
