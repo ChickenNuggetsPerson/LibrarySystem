@@ -813,9 +813,8 @@ const redirectServer = http.createServer((req, res) => {
   const location = `http://${headers.host}:8080`;
 
   // Set the appropriate status code and Location header for redirection
-  res.writeHead(301, { Location: location });
+  res.writeHead(302, { Location: location });
   res.end();
-    //res.writeHead(301, {location: headers.host})
 });
 
 redirectServer.listen(80, () => {
