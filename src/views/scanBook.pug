@@ -18,9 +18,9 @@ block layout-content
             br
             button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Manual ISBN
     
-     
+      h3(id="error", style="color:white")
       div( class="container text-center", id="manualenter")    
-        h3(id="error", style="color:white")
+        
         br
         form(action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
           h3 Title:
@@ -57,11 +57,12 @@ block layout-content
               body: JSON.stringify({isbnCode: decodedResult})
             }).then(response => response.json())
             .then(response => {
+              console.log(response)
               if (!response.error) { 
                 window.location.replace('/addBook');
               } else {
                 document.getElementById("error").innerText = "Could Not Get Data\nEnter Information Manually"
-                document.getElementById("manual").remove()
+                
                 document.getElementById("qr-reader").remove()
                 document.getElementById("manualenter").style.display = ""
               }

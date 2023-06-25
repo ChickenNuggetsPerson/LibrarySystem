@@ -11,7 +11,7 @@ const fs = require('fs')
 const isbn = require('node-isbn');
 const multer  = require('multer')
 const cron = require('node-cron');
-
+const fetch = require('node-fetch');
 var path = require('path')
 var morgan = require('morgan')
 var rfs = require('rotating-file-stream') 
@@ -55,6 +55,16 @@ var accessLogStream = rfs.createStream('access.log', {
     path: "./logs"
   })
 app.use(morgan('combined', { stream: accessLogStream }));
+
+
+
+async function searchBook(isbn) {
+    const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+    let settings = { method: "Get" };
+    const response = await fetch(url, settings)
+    const data = await response.json()
+    return data[`ISBN:${isbn}`]
+}
 
 
 const userSequelizer = new Sequelize('database', 'user', 'password', {
@@ -157,10 +167,10 @@ async function addBook(userid, book) {
         userID: userid,
         title: (book?.title == undefined) ? "Not Provied" : book.title,
         isbn: (book?.isbn == undefined) ? "Not Provided" : book.isbn,
-        author: (book?.authors == undefined) ? "Not Provided" : book.authors[0],
-        description: (book?.description == undefined) ? "Not Provided" : book.description,
-        pageCount: (book?.pageCount == undefined) ? "Not Provided" : book.pageCount,
-        imageLink: (book?.imageLinks?.thumbnail == undefined) ? "Not Provided" : book.imageLinks.thumbnail,
+        author: (book?.authors == undefined) ? "Not Provided" : book.authors[0].name,
+        description: (book?.excerpts == undefined) ? "Not Provided" : book.excerpts[0].text,
+        pageCount: (book?.number_of_pages == undefined) ? "Not Provided" : book.number_of_pages,
+        imageLink: (book?.cover?.large == undefined) ? "Not Provided" : book.cover.large,
         categories: JSON.stringify([]),
         bookUUID: uuidv4()
     })
@@ -633,18 +643,21 @@ app.post('/library/scanBook', async (req, res) => {
     if (!req.session.user) {
         return res.json({error: true});
     }
-    if (!req?.body?.isbnCode?.decodedText) { return res.json({error: true}); }
-    console.log("Checking: ", req.body.isbnCode.decodedText)
-    isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
-            
-        req.session.book = book;
-        req.session.book.isbn = req.body.isbnCode.decodedText
-        res.json({error: false});
+    if (!req?.body?.isbnCode) { 
+        return res.json({error: true}); 
+    }
 
-    }).catch(function (err) {
-        console.log(err)
-        res.json({error: true});
-    });
+    const book = await searchBook(req.body.isbnCode.decodedText)
+
+    if (!book?.title) {
+        return res.json({error: true})
+    }
+            
+    req.session.book = book;
+    req.session.book.isbn = req.body.isbnCode.decodedText
+    res.json({error: false});
+
+   
 })
 app.post('/library/manualScanBook', upload.single('image'), async (req, res) => {
     try {

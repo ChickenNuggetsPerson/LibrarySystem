@@ -35,7 +35,7 @@ block layout-content
 
 
             document.getElementById("title").innerText = book.title;
-            document.getElementById("cover").src = book.imageLinks.smallThumbnail;
+            document.getElementById("cover").src = book.cover.large;
             
             if (document.getElementById("cover").src != "") {
                 document.getElementById("noImage").innerHTML = ""
