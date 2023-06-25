@@ -634,7 +634,7 @@ app.post('/library/scanBook', async (req, res) => {
         return res.json({error: true});
     }
     if (!req?.body?.isbnCode?.decodedText) { return res.json({error: true}); }
-    console.log("Checking: " req.body.isbnCode.decodedText)
+    console.log("Checking: ", req.body.isbnCode.decodedText)
     isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
             
         req.session.book = book;
