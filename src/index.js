@@ -792,8 +792,8 @@ function announceNot(notID) {
 
 
 
-app.listen(8888, async () => {
-    console.log('The application is listening on port 8888');
+app.listen(9999, async () => {
+    console.log('The application is listening on port 9999');
     await userTags.sync();
     await libraryTags.sync();
     await checkoutTags.sync();
