@@ -810,7 +810,7 @@ const redirectServer = http.createServer((req, res) => {
 
   // Redirect all requests to port 8080
   //const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
-  const location = `http://${headers.host}:8080${url}`;
+  const location = `http://${headers.host}:8080`;
 
   // Set the appropriate status code and Location header for redirection
   res.writeHead(301, { Location: location });
