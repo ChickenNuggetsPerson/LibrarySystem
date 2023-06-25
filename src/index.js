@@ -801,17 +801,21 @@ app.listen(8080, async () => {
     restartNots()
 })
     
+
+
 const http = require('http');
 
 const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
 
   // Redirect all requests to port 8080
-  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
+  //const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
+  const location = `http://${headers.host}:8080${url}`;
 
   // Set the appropriate status code and Location header for redirection
   res.writeHead(301, { Location: location });
   res.end();
+    //res.writeHead(301, {location: headers.host})
 });
 
 redirectServer.listen(80, () => {
