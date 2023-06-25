@@ -12,6 +12,9 @@ const isbn = require('node-isbn');
 const multer  = require('multer')
 const cron = require('node-cron');
 
+var path = require('path')
+var morgan = require('morgan')
+var rfs = require('rotating-file-stream') 
 
 
 const storage = multer.diskStorage({
@@ -44,6 +47,15 @@ app.use(session({
 }));
 app.use('/uploads', express.static('./uploads'))
 app.use('/static', express.static('./src/static'))
+
+
+// create a rotating write stream
+var accessLogStream = rfs.createStream('access.log', {
+    interval: '1d', // rotate daily
+    path: "./logs"
+  })
+app.use(morgan('combined', { stream: accessLogStream }));
+
 
 const userSequelizer = new Sequelize('database', 'user', 'password', {
 	host: 'localhost',
@@ -161,7 +173,6 @@ async function removeBook(userid, bookID) {
         bookUUID: bookID
     }})
     JSON.parse(book.dataValues.categories).forEach((cat) => {
-        console.log(cat)
         removeBookFromCategoryName(bookID, cat, userid)
     })
 
@@ -197,7 +208,6 @@ async function getBook(bookID, userid) {
     }})
 }
 async function updateBook(bookID, userid, newBookItems) {
-    console.log(newBookItems)
     let book = await libraryTags.findOne({ where: { userID: userid, bookUUID: bookID } })
     if (book) {
         console.log("yess book")
@@ -385,7 +395,6 @@ async function removeBookFromCategory(bookID, categoryID, userID) {
 
 }
 async function removeBookFromCategoryName(bookID, categoryName, userID) {
-    console.log('aklsdjfhlkasdjf')
     let category = await categoryTags.findOne({ where: { userID: userID, name: categoryName } })
 
     if (category) {
@@ -466,6 +475,7 @@ app.get('/', (req, res) => {
     if (!req.session.user) {
         return res.render('login');
     }
+
     res.redirect('/library');
 });
 app.get('/login', (req, res) => {
@@ -482,6 +492,7 @@ app.get('/library', (req, res) => {
     if (!req.session.user) {
         return res.render('login');
     }
+
     if (req.session.checkout) { req.session.checkout = undefined; }
     res.render('library', { name: req.session.firstName });
 })
@@ -809,8 +820,14 @@ const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
 
   // Redirect all requests to port 8080
-  //const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
-  const location = `http://${headers.host}:8080`;
+  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080`;
+  //const location = `http://${headers.host}:8080`;
+
+  //const hostname = req.headers.host.split(':')[0]; // Extract hostname without the port
+  //const port = req.socket.localPort;
+  //const uri = `${hostname}:${port}${req.ur}`;
+
+  //console.log('Raw HTTP Request URI:', uri);
 
   // Set the appropriate status code and Location header for redirection
   res.writeHead(302, { Location: location });
