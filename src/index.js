@@ -634,6 +634,7 @@ app.post('/library/scanBook', async (req, res) => {
         return res.json({error: true});
     }
     if (!req?.body?.isbnCode?.decodedText) { return res.json({error: true}); }
+    console.log("Checking: " req.body.isbnCode.decodedText)
     isbn.resolve(req.body.isbnCode.decodedText).then(function (book) {
             
         req.session.book = book;
@@ -641,7 +642,7 @@ app.post('/library/scanBook', async (req, res) => {
         res.json({error: false});
 
     }).catch(function (err) {
-        //console.log(err)
+        console.log(err)
         res.json({error: true});
     });
 })
@@ -839,22 +840,5 @@ redirectServer.listen(80, () => {
 });
 
 
-
-/*
-function startHTTPS(hostname, port) {
-	pem.createCertificate({ days: 365, selfSigned: true, commonName: hostname }, function (err, keys) {
-		if (err) {
-			return console.log(err);
-		}
-
-		https.createServer({ key: keys.serviceKey, cert: keys.certificate }, app)
-		.listen(port, () => {
-			console.log('Https Server is running on port: ', port);
-		});
-	});
-}
-
-startHTTPS("192.168.50.197", 8888);
-*/
 
 
