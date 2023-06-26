@@ -844,8 +844,8 @@ app.listen(port, async () => {
 })
 
 const options = {
-    key: fs.readFileSync('/etc/letsencrypt/live/library.steeleinnovations.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/library.steeleinnovations.com/fullchain.pem')
+    key: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/privkey.pem'),
+    cert: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/cert.pem')
 };
 const server = https.createServer(options, app);
 server.listen(port, () => {
