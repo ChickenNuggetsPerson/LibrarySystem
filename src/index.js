@@ -835,28 +835,14 @@ async function initTags() {
     restartNots()
 }
 initTags();
-/*
-app.listen(8080, async () => {
-    console.log('The application is listening on port 8080');
-    await initTags();
-})
-*/
+
+
 
 let port = 8080
-require("greenlock-express")
-.init({
-    packageRoot: "./",
-    configDir: "./greenlock.d",
-
-    // contact for security and critical bug notices
-    maintainerEmail: "haydenallensteele@gmail.com",
-
-    // whether or not to run at cloudscale
-    cluster: false
+app.listen(port, async () => {
+    console.log('The application is listening on port 8080');
 })
-// Serves on 80 and 443
-// Get's SSL certificates magically!
-.serve(httpsWorker);
+
 
 function httpsWorker(glx) {
     //
@@ -887,14 +873,14 @@ const http = require('http');
 
 const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
-  const location = `https://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
+  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
   res.writeHead(302, { Location: location });
   res.end();
 });
 
-//redirectServer.listen(80, () => {
-//  console.log('Redirect server running on port 80');
-//});
+redirectServer.listen(80, () => {
+  console.log('Redirect server running on port 80');
+});
 
 
 
