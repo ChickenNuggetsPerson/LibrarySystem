@@ -834,6 +834,7 @@ async function initTags() {
     await categoryTags.sync();
     restartNots()
 }
+initTags();
 /*
 app.listen(8080, async () => {
     console.log('The application is listening on port 8080');
@@ -867,7 +868,7 @@ function httpsWorker(glx) {
         res.end("Hello, Encrypted World!");
     });
 
-    httpsServer.listen(443, "0.0.0.0", function() {
+    httpsServer.listen(8080, "0.0.0.0", function() {
         console.info("Listening on ", httpsServer.address());
     });
 
