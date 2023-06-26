@@ -839,10 +839,6 @@ initTags();
 
 
 let port = 8080
-app.listen(port, async () => {
-    console.log('The application is listening on port 8080');
-})
-
 const options = {
     key: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/privkey.pem'),
     cert: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/cert.pem')
