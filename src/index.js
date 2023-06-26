@@ -839,14 +839,22 @@ initTags();
 
 
 let port = 8080
-const options = {
-    key: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/privkey.pem'),
-    cert: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/cert.pem')
-};
-const server = https.createServer(options, app);
-server.listen(port, () => {
-  console.log('Server running on port: ' + port);
-});  
+
+if (process.platform == "linux") {
+    const options = {
+        key: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/privkey.pem'),
+        cert: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/cert.pem')
+    };
+    const server = https.createServer(options, app);
+    server.listen(port, () => {
+      console.log('Production server running on port: ' + port);
+    });  
+} else {
+    app.listen(port, () => {
+        console.log('Dev Server running on port: ' + port);
+    })
+}
+
 
 
 
