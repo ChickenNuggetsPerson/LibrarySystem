@@ -510,6 +510,7 @@ app.get('/library', (req, res) => {
     }
 
     if (req.session.checkout) { req.session.checkout = undefined; }
+
     res.render('library', { name: req.session.firstName });
 })
 app.get('/fetchLibrary', async (req, res) => {
@@ -701,7 +702,7 @@ app.post('/library/addBook', async (req, res) => {
     }
     if (req.body.answerResult) {
         // Add Book
-        addBook(req.session.user, req.session.book)
+        await addBook(req.session.user, req.session.book)
         req.session.book = undefined;
         res.send("Acknoledged")
 
@@ -826,42 +827,49 @@ function announceNot(notID) {
     //removeCheckoutCheckID(notID);
 }
 
-
-
-app.listen(8080, async () => {
-    console.log('The application is listening on port 8080');
+async function initTags() {
     await userTags.sync();
     await libraryTags.sync();
     await checkoutTags.sync();
     await categoryTags.sync();
     restartNots()
+}
+/*
+app.listen(8080, async () => {
+    console.log('The application is listening on port 8080');
+    await initTags();
 })
-    
+*/
+
+let port = 8080
+require("greenlock-express")
+.init({
+    packageRoot: "./",
+    configDir: "./greenlock.d",
+
+    // contact for security and critical bug notices
+    maintainerEmail: "haydenallensteele@gmail.com",
+
+    // whether or not to run at cloudscale
+    cluster: false
+})
+// Serves on 80 and 443
+// Get's SSL certificates magically!
+.serve(app);
 
 
 const http = require('http');
 
 const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
-
-  // Redirect all requests to port 8080
-  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
-  //const location = `http://${headers.host}:8080`;
-
-  //const hostname = req.headers.host.split(':')[0]; // Extract hostname without the port
-  //const port = req.socket.localPort;
-  //const uri = `${hostname}:${port}${req.ur}`;
-
-  //console.log('Raw HTTP Request URI:', uri);
-
-  // Set the appropriate status code and Location header for redirection
+  const location = `https://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
   res.writeHead(302, { Location: location });
   res.end();
 });
 
-redirectServer.listen(80, () => {
-  console.log('Redirect server running on port 80');
-});
+//redirectServer.listen(80, () => {
+//  console.log('Redirect server running on port 80');
+//});
 
 
 
