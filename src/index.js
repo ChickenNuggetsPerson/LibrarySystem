@@ -217,7 +217,7 @@ async function getFirstName(id, pass) {
     }
 }
 async function addBook(userid, book) {
-    fs.writeFileSync("lastBook.json", JSON.stringify(book))
+    //fs.writeFileSync("lastBook.json", JSON.stringify(book))
     await libraryTags.create({
         userID: userid,
         title: (book?.title == undefined) ? "Not Provied" : book.title,
