@@ -688,10 +688,11 @@ let loginValidate = [
 
 
 function isSignupCode(code) {
-    let codes = [
-        "yeet",
-        "bestieKyle"
-    ]
+    if (process.platform != 'linux') {
+        return true;
+    }
+    
+    let codes = JSON.parse(fs.readFileSync('/home/hayden/Desktop/LibrarySystem/signupCodes.json'))
 
 
     for (let i = 0; i < codes.length; i++) {
