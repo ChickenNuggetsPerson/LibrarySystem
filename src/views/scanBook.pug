@@ -91,6 +91,19 @@ block layout-content
           rememberLastUsedCamera: true,
           showTorchButtonIfSupported: true,
           useBarCodeDetectorIfSupported: true,
+          showZoomSliderIfSupported: true,
+          defaultZoomValueIfSupported: 2
         });
         html5QrcodeScanner.render(onScanSuccess);
+
+        
+        //const config = { 
+        //  fps: 10, 
+        //  qrbox: 250, 
+        //  rememberLastUsedCamera: true,
+        //  showTorchButtonIfSupported: true,
+        //  useBarCodeDetectorIfSupported: true,
+        //};
+        //const html5QrCode = new Html5Qrcode("qr-reader", config);
+        //html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
 
