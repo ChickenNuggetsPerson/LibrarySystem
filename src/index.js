@@ -712,7 +712,6 @@ app.post('/library/addBook', async (req, res) => {
     }
 })
 
-
 app.post('/library/removeBook', async (req, res) => {
     if (!req.session.user) {
         return res.json({error: true});
