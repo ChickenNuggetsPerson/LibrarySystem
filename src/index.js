@@ -697,7 +697,7 @@ function isSignupCode(code) {
 
     for (let i = 0; i < codes.length; i++) {
         if (code === codes[i]) {
-            console.log("Signup Code Used: ", code[i])
+            console.log("Signup Code Used: " + code[i])
             return true
         }
     }
