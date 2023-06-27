@@ -689,7 +689,8 @@ let loginValidate = [
 
 function isSignupCode(code) {
     let codes = [
-        "yeet"
+        "yeet",
+        "bestieKyle"
     ]
 
 
