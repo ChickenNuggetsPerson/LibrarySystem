@@ -26,8 +26,6 @@ const storage = multer.diskStorage({
       cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname)
     }
 })
-  
-
 const upload = multer({ storage: storage })
 
 
@@ -54,7 +52,7 @@ app.use('/', express.static('./rootFiles'))
 var accessLogStream = rfs.createStream('access.log', {
     interval: '1d', // rotate daily
     path: "./logs"
-  })
+})
 app.use(morgan('combined', { stream: accessLogStream }));
 
 
@@ -75,7 +73,6 @@ const userSequelizer = new Sequelize('database', 'user', 'password', {
 	storage: 'users/users.sqlite',
 });
 const userTags = userSequelizer.define('user', {
-    username: Sequelize.STRING,
     password: Sequelize.STRING,
     userID: Sequelize.STRING,
     firstName: Sequelize.STRING
@@ -112,52 +109,109 @@ const categoryTags = userSequelizer.define('category', {
 })
 
 
+const crypto = require('crypto');
+
+function encrypt(text, password) {
+    const salt = crypto.randomBytes(16);
+    const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha512');
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
+    return salt.toString('hex') + iv.toString('hex') + encrypted + authTag;
+}
+
+function decrypt(encryptedText, password) {
+    try {
+        const salt = Buffer.from(encryptedText.slice(0, 32), 'hex');
+        const iv = Buffer.from(encryptedText.slice(32, 64), 'hex');
+        const encrypted = encryptedText.slice(64, -32);
+        const authTag = Buffer.from(encryptedText.slice(-32), 'hex');
+        const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha512');
+        const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+        decipher.setAuthTag(authTag);
+        let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    } catch(err) { 
+        console.log(err) 
+        return ""
+    }
+}
+
+
 async function createUser(username, pass, firstName) {
     const id = uuidv4();
     await userTags.create({
-        username: Buffer.from(username).toString('base64'),
-        password: Buffer.from(pass).toString('base64'),
+        password: encrypt(username, pass),
         userID: id,
-        firstName: Buffer.from(firstName).toString('base64')
+        firstName: encrypt(firstName, pass)
     })
     await userTags.sync();
     return id;
 };
 async function deleteUser(id) {
+    console.log("Deleting: ", id)
     await userTags.sync();
     await userTags.destroy({where: {
         userID: id,
     }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
-        if(rowDeleted === 1){
             userTags.sync();
-            return true;
-            }
         }, function(err){
             console.log(err);
             userTags.sync(); 
-            return false;
     });
+    await libraryTags.sync();
+    await libraryTags.destroy({where: {
+        userID: id,
+    }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+            libraryTags.sync();
+        }, function(err){
+            console.log(err);
+            libraryTags.sync(); 
+    });
+    await categoryTags.sync();
+    await categoryTags.destroy({where: {
+        userID: id,
+    }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+            categoryTags.sync();
+        }, function(err){
+            console.log(err);
+            categoryTags.sync(); 
+    });
+    await checkoutTags.sync();
+    await checkoutTags.destroy({where: {
+        userID: id,
+    }}).then(function(rowDeleted){ // rowDeleted will return number of rows deleted
+            checkoutTags.sync();
+            restartNots()
+        }, function(err){
+            console.log(err);
+            checkoutTags.sync(); 
+            restartNots()
+    });
+    
 }
 async function userExists(username, pass) {
     await userTags.sync();
-    const tag = await userTags.findOne({where: {
-        username: Buffer.from(username).toString('base64'), 
-        password: Buffer.from(pass).toString('base64')
-    }})
-    if (tag) {
-        return tag.userID;
-    } else {
-        return undefined;
+    let users = await userTags.findAll();
+    for (let i = 0; i < users.length; i++) {
+        let user = users[i]
+        if (decrypt(user.dataValues.password, pass) == username) {
+            return user.dataValues.userID
+        }
     }
+    return undefined; 
 }
-async function getFirstName(id) {
+async function getFirstName(id, pass) {
     if (id == undefined) { return undefined; }
     await userTags.sync();
     const tag = await userTags.findOne({where: {
         userID: id
     }})
     if (tag) {
-        return Buffer.from(tag.firstName, 'base64').toString("utf8");
+        return decrypt(tag.dataValues.firstName, pass);
     } else {
         return undefined;
     }
@@ -189,7 +243,11 @@ async function removeBook(userid, bookID) {
     })
 
     if (book.dataValues.imageLink.startsWith("/uploads")) {
-        fs.unlinkSync("." + book.dataValues.imageLink);
+        try {
+            fs.unlinkSync("." + book.dataValues.imageLink);
+        } catch(err) {
+            console.log(err)
+        }
     }
 
     await libraryTags.sync();
@@ -549,10 +607,11 @@ app.get('/addBook', (req, res) => {
     if (!req.session.user) {
         return res.render('login');
     }
+    
     if (req.session.book) {
         res.render('addBook', {book: JSON.stringify(req.session.book)});
     } else {
-        res.redirect('/scanBook');
+        res.redirect('/scanBook')
     }
 })
 app.get('/uploads', (req, res) => {
@@ -626,29 +685,55 @@ let loginValidate = [
     check('password').isLength({ min: 8 }).withMessage('Password Must Be at Least 8 Characters').matches('[0-9]').withMessage('Password Must Contain a Number').matches('[A-Z]').withMessage('Password Must Contain an Uppercase Letter').trim().escape()
 ];
 
+
+
+function isSignupCode(code) {
+    let codes = [
+        "yeet"
+    ]
+
+
+    for (let i = 0; i < codes.length; i++) {
+        if (code === codes[i]) {
+            console.log("Signup Code Used: ", code[i])
+            return true
+        }
+    }
+    return false
+}
+
 // Handle the login post
-// Process User Input
 app.post('/auth/login', loginValidate, async (req, res) => {
     // Insert Login Code Here
     let id = await userExists(req.body.username, req.body.password);
     req.session.user = id;
-    let name = await getFirstName(id);
+    let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
     setTimeout(() => {
-        res.redirect('/library');
+        res.redirect('/');
     }, 500);
 });
 app.post('/auth/signup', loginValidate, async (req, res) => {
+    if (!isSignupCode(req.body.signupcode)) {
+        return res.redirect('/signup')
+    }
     let id = await createUser(req.body.username, req.body.password, req.body.firstname);
     req.session.user = id;
-    let name = await getFirstName(id);
+    let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
     setTimeout(() => {
-        res.redirect('/library');
+        res.redirect('/');
     }, 500);
     
 	
 });
+app.post('/user/delete', async (req,res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    await deleteUser(req.session.user)
+    res.json({error: false})
+})
 
 
 app.post('/library/scanBook', async (req, res) => {
@@ -677,15 +762,15 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
             const tempBook = {
                 title: req.body.title,
                 isbn: req.body.isbn,
-                imageLinks: {
-                    thumbnail: (req.file.destination + "/" + req.file.filename).substring(1)
+                cover: {
+                    large: (req.file.destination + "/" + req.file.filename).substring(1)
                 }
             }
             req.session.book = tempBook
             res.redirect("/addBook")
         } else {
-            req.session.book.imageLinks = { thumbnail: "" };
-            req.session.book.imageLinks.thumbnail = (req.file.destination + "/" + req.file.filename).substring(1);
+            req.session.book.cover = { large: "" };
+            req.session.book.cover.large = (req.file.destination + "/" + req.file.filename).substring(1);
             addBook(req.session.user, req.session.book)
             req.session.book = undefined;
             res.redirect("/library")
@@ -837,6 +922,8 @@ initTags();
 
 
 
+
+
 let port = 8080
 
 if (process.platform == "linux") {
@@ -860,6 +947,7 @@ if (process.platform == "linux") {
 
 // Redirect Server
 const http = require('http');
+const { buffer } = require('stream/consumers');
 
 const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;

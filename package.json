@@ -40,6 +40,11 @@
     "typescript": "^5.1.3"
   },
   "nodemonConfig": {
-    "ignore": ["logs/*", "sessions/*", "uploads/*", "users/*"]
+    "ignore": [
+      "logs/*",
+      "sessions/*",
+      "uploads/*",
+      "users/*"
+    ]
   }
 }

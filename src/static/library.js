@@ -8,7 +8,29 @@ function headerBtnClick(parm) {
     if (parm == 'categories') {
       window.location.replace("/categories")
     }
-  }
+    if (parm == 'settings') {
+        bootbox.dialog({
+            size: 'medium',
+            backdrop: true,
+            title: "User Settings",
+            message: "As of this moment, the only setting that you can change is deleting your acount.",
+            buttons: {
+              remove: {
+                label: "Delete",
+                className: 'btn-danger',
+                callback: function(){
+                    deleteUser();
+                }
+              },
+              close: {
+                label: "Close",
+                className: 'btn-info',
+                
+              }
+            }
+        });
+    }
+}
 
 let data = {}
 let checkoutData = {}
@@ -117,6 +139,9 @@ function processData() {
     for (let i = 0; i < data.length; i++) {
         data[i].categories = JSON.parse(data[i].categories)
     }
+
+
+    
 }
 function updatePage() {
     var mainDiv = document.getElementById("yeet")
@@ -247,6 +272,7 @@ function removeBook(bookID, bookName) {
     })
 }
 
+
 function checkout(bookID) {
     console.log("Checkout Book " + bookID)
     fetch('/library/checkoutBook', {
@@ -282,6 +308,7 @@ function returnBook(bookID) {
     })
 }
 
+
 function addBookToCat(bookID, catID, bookIndex) {
     fetch('/categories/addBook', {
         method: 'POST',
@@ -314,6 +341,7 @@ function removeBookFromCat(bookID, catID, bookIndex) {
         }
     })
 }
+
 
 let values = []
 function editCategoryMenu(book, bookIndex) {
@@ -449,3 +477,61 @@ function overlayBook(index) {
     });
 }
 
+
+function deleteUser() {
+
+    bootbox.dialog({
+        size: 'medium',
+        backdrop: true,
+        title: "Are you sure you want to delete your account?",
+        message: "This can not be undone",
+        buttons: {
+          remove: {
+            label: "Delete",
+            className: 'btn-danger',
+            callback: function(){
+              bootbox.confirm({
+                message: 'Are you really sure?',
+                buttons: {
+                  confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                  },
+                  cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                  }
+                  },
+                  callback: function (result) {
+                    if (result) {
+                        fetch('/user/delete', {
+                            method: 'POST',
+                            headers: {
+                            'Content-Type': 'application/json'
+                        },
+                            body: JSON.stringify({yeet: "Yeet"})
+                        }).then(response => response.json())
+                        .then(response => {
+                            if (!response.error) { 
+                                window.location.replace("/logout")
+                            } else {
+                                bootbox.alert('There was an error in the server');
+                            }
+                        })
+                    }
+                  }
+                });
+              
+            }
+          },
+          close: {
+            label: "Close",
+            className: 'btn-info',
+            
+          }
+        }
+    });
+
+
+   
+}

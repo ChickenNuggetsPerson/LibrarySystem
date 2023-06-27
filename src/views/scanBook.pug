@@ -27,8 +27,8 @@ block layout-content
           input(type='text' name='title' placeholder='title' required='')
           br
           br
-          h3 ISBN:
-          input(type='text' name='isbn' placeholder='isbn' required='')
+          h3 Author:
+          input(type='text' name='author' placeholder='author' required='')
           br
           br
           h3 ImageFile: 
@@ -47,14 +47,18 @@ block layout-content
         document.getElementById("manualenter").style.display = "none"
         let lastRead = "";
 
+        let dialog;
         function onScanSuccess(decodedText, decodedResult) {
             console.log(`Code scanned = ${decodedText}`, decodedResult);
             html5QrcodeScanner.clear();
             if (decodedResult == lastRead) {return}
-            let dialog = bootbox.dialog({
+            dialog = bootbox.dialog({
                 message: '<p class="text-center mb-0"><i class="fas fa-spin fa-cog"></i> Fetching Data</p>',
                 closeButton: false
             });
+            setTimeout(() => {
+                dialog.modal('hide');   
+            }, 10000);
             fetch('/library/scanBook', {
                 method: 'POST',
                 headers: {
@@ -64,22 +68,24 @@ block layout-content
             }).then(response => response.json())
             .then(response => {
               console.log(response)
+              dialog.modal('hide');   
               if (!response.error) { 
                 dialog.modal('hide');   
                 window.location.replace('/addBook');
               } else {
                 dialog.modal('hide');   
                 document.getElementById("error").innerText = "Could Not Get Data\nEnter Information Manually"
-                
+                dialog.modal('hide');   
                 document.getElementById("qr-reader").remove()
                 document.getElementById("manualenter").style.display = ""
+                dialog.modal('hide');   
               }
             })
           }
           function btnClick(option) {
             if (option == 'manual') {
               let chosen = window.prompt("Enter ISBN","")
-              if (chosen != "") {
+              if (chosen != "" && chosen != null) {
                 onScanSuccess("", chosen);
               }
             }

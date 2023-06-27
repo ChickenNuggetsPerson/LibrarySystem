@@ -20,9 +20,20 @@ block layout-content
         input(type='text' name='firstname' placeholder='First Name' required='')
         br
         br
+        h3(style="color:black;") Signup Code:
+        input(type='text' name='signupcode' placeholder='Signup Code' id="codeInput" required='')
+        br
+        br
         div( class="container text-center") 
           div(class="row")
             div(class="col")
               input(type='submit' value='Create Account')
             div(class="col")
               a(href='/login') Already Have An Account?
+
+  script.
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('code')) {
+      document.getElementById("codeInput").value = urlParams.get('code')
+    }
+    
