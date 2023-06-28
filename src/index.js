@@ -821,11 +821,11 @@ app.post('/library/addBook', async (req, res) => {
         }
 
         delete req.session.book
-        res.send("Acknoledged")
+        res.send({error: false})
 
     } else {
         delete req.session.book;
-        res.send("Acknoledged")
+        res.json({error: false})
     }
 })
 

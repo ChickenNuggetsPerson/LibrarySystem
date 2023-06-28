@@ -99,10 +99,17 @@ block layout-content
                     } catch (error) {
                         console.error(error);
                     }
-
-                    
                 }
-
+                fetch('/library/addBook', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                },
+                    body: JSON.stringify({answerResult: false})
+                }).then(response => response.json())
+                .then(response => {
+                    window.location.replace("/library");
+                })
                 
             }
 
