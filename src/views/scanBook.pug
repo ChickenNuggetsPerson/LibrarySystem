@@ -70,8 +70,11 @@ block layout-content
               console.log(response)
               dialog.modal('hide');   
               if (!response.error) { 
-                dialog.modal('hide');   
-                window.location.replace('/addBook');
+                dialog.modal('hide');  
+                setTimeout(() => {
+                  window.location.replace('/addBook');
+                }, 2000); 
+                
               } else {
                 dialog.modal('hide');   
                 document.getElementById("error").innerText = "Could Not Get Data\nEnter Information Manually"

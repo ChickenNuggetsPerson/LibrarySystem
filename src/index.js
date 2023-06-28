@@ -782,12 +782,12 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
             req.session.book.cover = { large: "" };
             req.session.book.cover.large = (req.file.destination + "/" + req.file.filename).substring(1);
             addBook(req.session.user, req.session.book)
-            req.session.book = undefined;
+            delete req.session.book
             res.redirect("/library")
         }
     } catch (err) {
         console.log(err)
-        req.session.book = undefined;
+        delete req.session.book
         res.redirect("/library")
     }
 })
@@ -798,11 +798,11 @@ app.post('/library/addBook', async (req, res) => {
     if (req.body.answerResult) {
         // Add Book
         await addBook(req.session.user, req.session.book)
-        req.session.book = undefined;
+        delete req.session.book
         res.send("Acknoledged")
 
     } else {
-        req.session.book = undefined;
+        delete req.session.book;
         res.send("Acknoledged")
     }
 })
