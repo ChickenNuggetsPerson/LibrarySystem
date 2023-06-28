@@ -218,6 +218,7 @@ async function getFirstName(id, pass) {
 }
 async function addBook(userid, book) {
     //fs.writeFileSync("lastBook.json", JSON.stringify(book))
+    let uuid = uuidv4()
     await libraryTags.create({
         userID: userid,
         title: (book?.title == undefined) ? "Not Provied" : book.title,
@@ -227,9 +228,10 @@ async function addBook(userid, book) {
         pageCount: (book?.number_of_pages == undefined) ? "Not Provided" : book.number_of_pages,
         imageLink: (book?.cover?.large == undefined) ? "Not Provided" : book.cover.large,
         categories: JSON.stringify([]),
-        bookUUID: uuidv4()
+        bookUUID: uuid
     })
     await libraryTags.sync();
+    return uuid
 }
 async function removeBook(userid, bookID) {
     await libraryTags.sync();
@@ -430,7 +432,9 @@ async function getBooksInCategory(categoryID, userID) {
 }
 async function addBookToCategory(bookID, categoryID, userID) {
     let category = await categoryTags.findOne({ where: { userID: userID, categoryUUID: categoryID } })
+
     if (category) {
+        
         let array = JSON.parse(category.dataValues.books)
         array.push(bookID)
         category.update({
@@ -442,6 +446,7 @@ async function addBookToCategory(bookID, categoryID, userID) {
         
         return true;
     }
+    
     return false;
 
 }
@@ -555,6 +560,13 @@ app.get('/login', (req, res) => {
 app.get('/signup', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.render('signup');
+});
+app.get('/quickLogin/:loginCode', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    if (!req.params.loginCode) {
+        res.redirect('/login');
+    }
+    // Do this
 });
 app.get('/logout', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
@@ -781,7 +793,13 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
         } else {
             req.session.book.cover = { large: "" };
             req.session.book.cover.large = (req.file.destination + "/" + req.file.filename).substring(1);
-            addBook(req.session.user, req.session.book)
+            let bookuuid = await addBook(req.session.user, req.session.book)
+            let cats = JSON.parse(JSON.stringify(req.body))
+            let categories = cats.categories.split(",")
+            for (let i = 0; i < categories.length; i++) {
+                await addBookToCategory(bookuuid, categories[i], req.session.user)
+            }
+
             delete req.session.book
             res.redirect("/library")
         }
@@ -797,7 +815,11 @@ app.post('/library/addBook', async (req, res) => {
     }
     if (req.body.answerResult) {
         // Add Book
-        await addBook(req.session.user, req.session.book)
+        let bookuuid = await addBook(req.session.user, req.session.book)
+        for (let i = 0; i < req.body.categories.length; i++) {
+            await addBookToCategory(bookuuid, req.body.categories[i], req.session.user)
+        }
+
         delete req.session.book
         res.send("Acknoledged")
 

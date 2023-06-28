@@ -13,17 +13,18 @@ block layout-content
                 div(class="row align-items-start")
                     div(class="col")
                         div(id="noImage")
-                            form(action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
+                            form(id="coverSubmitForm" action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
                                 h3 No Image
                                 input( type="file" name="image" accept="image/*" capture="camera")
                                 div( class="container text-center") 
                                     div(class="row")
                                     div(class="col")
-                                        input(type='submit' value='Submit')
+                                    
 
                         image(id="cover", style="max-width:100px")
                     div(class="col")
                         h2(id="title", style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; color:white;") Title
+                        button(type="button" class="btn btn-warning" onclick="categoriesClicked()") Add to Categories
                 div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
                     button(type="button" class="btn btn-danger" onclick="btnClicked(false)") Cancel
                     div(style="width:20px")
@@ -36,25 +37,103 @@ block layout-content
 
 
             document.getElementById("title").innerText = book.title;
-            document.getElementById("cover").src = book.cover.large;
+            try {document.getElementById("cover").src = book.cover.large;} catch(err) {}
             
+            
+            let noCover = true;
             if (document.getElementById("cover").src != "") {
                 document.getElementById("noImage").innerHTML = ""
+                noCover = false
+            }
+            fetchCategories()
+
+            let categoryData = {}
+            let selectedCategories = []
+            async function fetchCategories() {
+                await fetch('/fetchCategories', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.error) {
+                    console.log(response)  
+                    } else {
+                    categoryData = response
+                    }
+                })
             }
 
-            function btnClicked(answer){
-                
-                fetch('/library/addBook', {
+            async function btnClicked(answer){
+                if (answer && !noCover) {
+                    fetch('/library/addBook', {
                         method: 'POST',
                         headers: {
                         'Content-Type': 'application/json'
                     },
-                        body: JSON.stringify({answerResult: answer})
-                }).then(response => response.json())
-                .then(response => {
+                        body: JSON.stringify({answerResult: answer, categories: selectedCategories})
+                    }).then(response => response.json())
+                    .then(response => {
+                        window.location.replace("/library");
+                    })
+                }
+                if (answer && noCover) {
+                    var form = document.getElementById('coverSubmitForm');
+                    const url = form.action;
+                    try {
+                        const formData = new FormData(form);
+
+                        formData.append("categories", selectedCategories)
+
+                        console.log(formData)
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        console.log(response);
+                        window.location.replace("/library");
+
+                    } catch (error) {
+                        console.error(error);
+                    }
+
                     
-                })
-                window.location.replace("/library");
+                }
+
+                
+            }
+
+            let values = []
+            function categoriesClicked() {
+                values = []
+                if (categoryData.length == 0) {
+                    return bootbox.alert('There are no categories to assign this book to');
+                }
+
+                let options = []
+                for (let i = 0; i < categoryData.length; i++) {
+                    options.push({
+                        text: categoryData[i].name,
+                        value: `${i}`
+                    })
+                }
+
+                bootbox.prompt({
+                    title: 'What Categories Does This Book Belong In?',
+                    value: values,
+                    inputType: 'checkbox',
+                    inputOptions: options,
+                        callback: function (changed) { 
+                            if (!changed) { return }
+                            selectedCategories = [] 
+                            for (let i = 0; i < changed.length; i++) {
+                                selectedCategories.push(categoryData[changed[i]].categoryUUID)
+                            }                        
+                        }
+                    });
             }
 
 
