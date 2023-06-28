@@ -232,7 +232,8 @@ async function refreshPage() {
         language: {
             searchPlaceholder: "Search Books",
             search: "",
-        }
+        },
+        aaSorting: [[1, "asc"]]
     });
 
 
@@ -240,6 +241,8 @@ async function refreshPage() {
     if (urlParams.get('search')) { 
         table.search(urlParams.get('search'))
         table.draw()
+    } else {
+        
     }
 }
 
