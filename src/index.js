@@ -742,11 +742,19 @@ app.post('/library/scanBook', async (req, res) => {
     if (!req.session.user) {
         return res.json({error: true});
     }
+
     if (!req?.body?.isbnCode) { 
         return res.json({error: true}); 
     }
 
-    const book = await searchBook(req.body.isbnCode.decodedText)
+    let book;
+    if (req.body.isbnCode.decodedText) {
+        book = await searchBook(req.body.isbnCode.decodedText)
+    } else {
+        book = await searchBook(req.body.isbnCode)
+    }
+
+    
 
     if (!book?.title) {
         return res.json({error: true})
