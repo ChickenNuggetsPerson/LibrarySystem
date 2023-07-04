@@ -689,6 +689,25 @@ app.get('/library/search/category/:categoryID', async (req, res) => {
     }
 })
 
+
+
+function format(seconds){
+    function pad(s){
+      return (s < 10 ? '0' : '') + s;
+    }
+    var hours = Math.floor(seconds / (60*60));
+    var minutes = Math.floor(seconds % (60*60) / 60);
+    var seconds = Math.floor(seconds % 60);
+  
+    return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+}
+  
+
+app.get('/stats', async (req, res) => {
+    var uptime = process.uptime();
+    res.json({running: true, uptime: format(uptime)})
+})
+
 // Validation rules.
 let loginValidate = [
     // Check Username
