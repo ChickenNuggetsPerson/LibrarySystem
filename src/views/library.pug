@@ -7,29 +7,32 @@ block layout-content
       title Library Indexer
     
 
-    header
-      h2(style="color:white;") Hello #{name}
-      div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
-        button(type="button" class="btn btn-success" onclick="headerBtnClick('scan')") Scan Book
-        div(style="width:5%")
-        button(type="button" class="btn btn-warning" onclick="headerBtnClick('categories')") Edit Categories   
-        div(style="width:5%")
-        button(type="button" class="btn btn-danger" onclick="headerBtnClick('logout')") Logout        
-
-
+    
+           
     body(onload="refreshPage()")
 
-      div(style='padding:5%')
+      div( class="swipe-container")
+        div( class="swipe-content swipe-transition")
+          header
+            h2(style="color:white;") Hello #{name}
+            div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+              button(type="button" class="btn btn-success" onclick="headerBtnClick('scan')") Scan Book
+              div(style="width:5%")
+              button(type="button" class="btn btn-warning" onclick="headerBtnClick('categories')") Edit Categories   
+              div(style="width:5%")
+              button(type="button" class="btn btn-danger" onclick="headerBtnClick('logout')") Logout   
 
-        table(id="myTable" class="display")
-          thead
-              tr
-                th Image
-                th Title
-                th Categories
+          div(style='padding:5%')
 
-          tbody(id="yeet" style="color:white" class="table-group-divider")
-      
-      button(type="button", class="btn btn-danger" style="position:relative; bottom:0;" onclick="headerBtnClick('settings')") Settings
+            table(id="myTable" class="display")
+              thead
+                  tr
+                    th Image
+                    th Title
+                    th Categories
+
+              tbody(id="yeet" style="color:white" class="table-group-divider")
+          
+          button(type="button", class="btn btn-danger" style="position:relative; bottom:0;" onclick="headerBtnClick('settings')") Settings
 
       script(src="/static/library.js")
