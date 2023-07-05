@@ -743,6 +743,7 @@ app.post('/auth/login', upload.none(), async (req, res) => {
     req.session.user = id;
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
+    console.log(req.body)
     if (!req.session.user) {
         res.status(401);
         res.send('None shall pass');
