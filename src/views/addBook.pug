@@ -7,33 +7,32 @@ block layout-content
       title Library Indexer
     header
     body
-        div( class="swipe-container")
-            div( class="swipe-content swipe-transition")
-                div(style="padding:10%")
-                    div(class="container text-center", style="border:5px; border-radius: 20px; border-style: solid; border-color: wheat; padding:4%")
-                        div(class="row align-items-start")
-                            div(class="col")
-                                div(id="noImage")
-                                    form(id="coverSubmitForm" action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
-                                        h3 No Image
-                                        input( type="file" name="image" accept="image/*" capture="camera")
-                                        div( class="container text-center") 
-                                            div(class="row")
-                                            div(class="col")
-                                            
 
-                                image(id="cover", style="max-width:100px")
-                            div(class="col")
-                                h2(id="title", style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; color:white;") Title
-                                button(type="button" class="btn btn-warning" onclick="categoriesClicked()") Add to Categories
-                                br
-                                br
-                                div(id="categories")
+        div(style="padding:10%")
+            div(class="container text-center", style="border:5px; border-radius: 20px; border-style: solid; border-color: wheat; padding:4%")
+                div(class="row align-items-start")
+                    div(class="col")
+                        div(id="noImage")
+                            form(id="coverSubmitForm" action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
+                                h3 No Image
+                                input( type="file" name="image" accept="image/*" capture="camera")
+                                div( class="container text-center") 
+                                    div(class="row")
+                                    div(class="col")
+                                    
 
-                        div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
-                            button(type="button" class="btn btn-danger" onclick="btnClicked(false)") Cancel
-                            div(style="width:20px")
-                            button(type="button" class="btn btn-success" onclick="btnClicked(true)") Add
+                        image(id="cover", style="max-width:100px")
+                    div(class="col")
+                        h2(id="title", style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; color:white;") Title
+                        button(type="button" class="btn btn-warning" onclick="categoriesClicked()") Add to Categories
+                        br
+                        br
+                        div(id="categories")
+
+                div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+                    button(type="button" class="btn btn-danger" onclick="btnClicked(false)") Cancel
+                    div(style="width:20px")
+                    button(type="button" class="btn btn-success" onclick="btnClicked(true)") Add
 
 
             script.

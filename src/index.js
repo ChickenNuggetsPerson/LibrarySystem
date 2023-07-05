@@ -620,12 +620,11 @@ app.get('/addBook', (req, res) => {
         return res.render('login');
     }
     
-    //if (req.session.book) {
-        
-    //} else {
-    //    res.redirect('/scanBook')
-    //}
-    res.render('addBook', {book: JSON.stringify(req.session.book)});
+    if (req.session.book) {
+        res.render('addBook', {book: JSON.stringify(req.session.book)});
+    } else {
+        res.redirect('/scanBook')
+    }
 })
 app.get('/uploads', (req, res) => {
     console.log(req.baseUrl)
@@ -737,37 +736,29 @@ function isSignupCode(code) {
 }
 
 // Handle the login post
-app.post('/auth/login', upload.none(), async (req, res) => {
+app.post('/auth/login', loginValidate, async (req, res) => {
     // Insert Login Code Here
     let id = await userExists(req.body.username, req.body.password);
     req.session.user = id;
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
-    if (!req.session.user) {
-        res.status(401);
-        res.send('None shall pass');
-    } else {
-        res.status(200);
-        res.send('Ok');
-    }
+    setTimeout(() => {
+        res.redirect('/');
+    }, 500);
 });
-app.post('/auth/signup', upload.none(), async (req, res) => {
+app.post('/auth/signup', loginValidate, async (req, res) => {
     if (!isSignupCode(req.body.signupcode)) {
-        res.status(401);
-        res.send('None shall pass');
+        return res.redirect('/signup')
     }
     let id = await createUser(req.body.username, req.body.password, req.body.firstname);
     req.session.user = id;
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
+    setTimeout(() => {
+        res.redirect('/');
+    }, 500);
     
-    if (!req.session.user) {
-        res.status(401);
-        res.send('None shall pass');
-    } else {
-        res.status(200);
-        res.send('Ok');
-    }
+	
 });
 app.post('/user/delete', async (req,res) => {
     if (!req.session.user) {

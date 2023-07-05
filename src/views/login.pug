@@ -3,53 +3,22 @@ extends layout
 block layout-content
   head
     title Login
-  div( class="swipe-container")
-    div( class="swipe-content swipe-transition")
-      div( class="container text-center")  
-        div(style="padding: 5%; background-color:wheat; border-radius: 20px;")
-          h1 Login
-          h2(id="message", style="color:red")= message 
-          form(action='/auth/login' method='post' id='loginForm')
-            h3(style="color:black;") Username:
-            input(type='text' name='username' placeholder='Username' required='')
-            br
-            br
-            h3(style="color:black;") Password:
-            input(type='password' name='password' placeholder='Password' required='')
-            br
-            br
-            div( class="container text-center") 
-              div(class="row")
-                div(class="col")
-                  div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
-                    button(type="button" class="btn btn-success" onclick="btnClicked(true)") Login
-                    div(style="width:20px")
-                    button(type="button" class="btn btn-warning" onclick="btnClicked(false)") Create Account
-  script.
-
-    async function btnClicked(result) {
-      if (result) {
-        var form = document.getElementById('loginForm');
-        const url = form.action;
-        try {
-            const formData = new FormData(form);
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.status == 401) {
-              document.getElementById('message').innerText = "Incorrect Login Info"
-            } else {
-              await displayLogo()
-              changePage("/library");
-            }
-
-        } catch (error) {
-            console.error(error);
-        }
-      } else {
-        changePage("/signup");
-      }
-    }
-    
+  div( class="container text-center")  
+    div(style="padding: 5%; background-color:wheat; border-radius: 20px;")
+      h1 Login
+      h2= message 
+      form(action='/auth/login' method='post')
+        h3(style="color:black;") Username:
+        input(type='text' name='username' placeholder='Username' required='')
+        br
+        br
+        h3(style="color:black;") Password:
+        input(type='password' name='password' placeholder='Password' required='')
+        br
+        br
+        div( class="container text-center") 
+          div(class="row")
+            div(class="col")
+              input(type='submit' value='login')
+            div(class="col")
+              a(href='/signup') Create Account

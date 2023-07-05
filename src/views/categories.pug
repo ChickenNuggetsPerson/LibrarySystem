@@ -150,7 +150,7 @@ block layout-content
               mainTxt.color = "white"
               mainTxt.innerText = JSON.parse(data[i].books).length + " books in category"
               mainTxt.onclick = function() {  
-                changePage("/library?search=" + data[i].name)
+                window.location.replace("/library?search=" + data[i].name)
             }
 
               const altTxt = document.createElement("h4")
@@ -166,7 +166,6 @@ block layout-content
         }
 
         async function refreshPage() {
-          swipePageDown()
           console.log("Fetching Data")
           await getData()
           console.log("Updating Page")
@@ -174,21 +173,23 @@ block layout-content
         }
 
         
+
+
+    header
+      h2(style="color:white;") Edit Categories
+      div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+        button(type="button" class="btn btn-primary" onclick="window.location.replace('/library')") Back To Library
+        button(type="button" class="btn btn-success" onclick="addCatButton()") Add Category          
+
+
     body(onload="refreshPage()")
-      div( class="swipe-container")
-        div( class="swipe-content swipe-transition")
-          header
-            h2(style="color:white;") Edit Categories
-            div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
-              button(type="button" class="btn btn-primary" onclick="changePage('/library')") Back To Library
-              button(type="button" class="btn btn-success" onclick="addCatButton()") Add Category          
-          div(style='padding:5%')
-            table(class="table align-middle")
-              thead
-                tr
-                  th(scope="col") Categories
-                  th(scope="col") Category Size
-              tbody(id="yeet" style="color:white" class="table-group-divider")
+      div(style='padding:5%')
+        table(class="table align-middle")
+          thead
+            tr
+              th(scope="col") Categories
+              th(scope="col") Category Size
+          tbody(id="yeet" style="color:white" class="table-group-divider")
           
         
 

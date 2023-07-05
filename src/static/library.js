@@ -1,12 +1,12 @@
 function headerBtnClick(parm) {
     if (parm == 'scan') {
-        changePage("/scanBook")
+      window.location.replace("/scanBook")
     }
     if (parm == 'logout') {
-        changePage("/logout")
+      window.location.replace("/logout")
     }
     if (parm == 'categories') {
-      changePage("/categories")
+      window.location.replace("/categories")
     }
     if (parm == 'settings') {
         bootbox.dialog({
@@ -214,7 +214,7 @@ function updatePage() {
 
 let table;
 async function refreshPage() {
-    swipePageDown()
+
     try {
         table.destroy()
     } catch(err) {}
@@ -287,7 +287,7 @@ function checkout(bookID) {
     }).then(response => response.json())
     .then(response => {
         if (!response.error) { 
-        changePage("/checkout")
+        window.location.replace("/checkout")
         } else {
         bootbox.alert('There was an error in the server');
         }
@@ -467,7 +467,7 @@ function overlayBook(index) {
             label: "Edit",
             className: 'btn-warning',
             callback: function() {
-            changePage("/editBook/" + book.bookUUID)
+            window.location.replace("/editBook/" + book.bookUUID)
             }
         },
         checkout: {
@@ -516,7 +516,7 @@ function deleteUser() {
                         }).then(response => response.json())
                         .then(response => {
                             if (!response.error) { 
-                                changePage("/logout")
+                                window.location.replace("/logout")
                             } else {
                                 bootbox.alert('There was an error in the server');
                             }
@@ -538,5 +538,3 @@ function deleteUser() {
 
    
 }
-
-
