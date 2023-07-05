@@ -32,3 +32,27 @@ table {
   border-radius: 5px;
 
 }
+
+
+.swipe-container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.swipe-content {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease;
+}
+
+.swipe-transition {
+  transform: translateY(-100%);
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}

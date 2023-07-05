@@ -9,38 +9,39 @@ block layout-content
       script(src="/static/html5-qrcode.min.js")
     header
     body
-      
-      div( class="container text-center", id="manual", style="") 
-        div(id="qr-reader" style="width: 90%")
-        h3(style="color:white") It is recomended that you use a webcam or document camera
-        div(class="row")
-          div(class="col")
-            br
-            button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Manual ISBN
-    
-      h3(id="error", style="color:white")
-      div( class="container text-center", id="manualenter")    
-        
-        br
-        form(action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
-          h3 Title:
-          input(type='text' name='title' placeholder='title' required='')
-          br
-          br
-          h3 Author:
-          input(type='text' name='author' placeholder='author' required='')
-          br
-          br
-          h3 ImageFile: 
-          input( type="file" name="image" accept="image/*" capture="camera")
-          br
-          br
-          div( class="container text-center") 
+      div( class="swipe-container")
+        div( class="swipe-content swipe-transition")
+          div( class="container text-center", id="manual", style="") 
+            div(id="qr-reader" style="width: 90%")
+            h3(style="color:white") It is recomended that you use a webcam or document camera
             div(class="row")
               div(class="col")
-                input(type='submit' value='Submit')
-              div(class="col")
-                a(href='/library') Cancel
+                br
+                button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Manual ISBN
+        
+          h3(id="error", style="color:white")
+          div( class="container text-center", id="manualenter")    
+            
+            br
+            form(action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
+              h3 Title:
+              input(type='text' name='title' placeholder='title' required='')
+              br
+              br
+              h3 Author:
+              input(type='text' name='author' placeholder='author' required='')
+              br
+              br
+              h3 ImageFile: 
+              input( type="file" name="image" accept="image/*" capture="camera")
+              br
+              br
+              div( class="container text-center") 
+                div(class="row")
+                  div(class="col")
+                    input(type='submit' value='Submit')
+                  div(class="col")
+                    a(href='/library') Cancel
 
 
       script.
@@ -72,7 +73,7 @@ block layout-content
               if (!response.error) { 
                 dialog.modal('hide');  
                 setTimeout(() => {
-                  window.location.replace('/addBook');
+                  changePage('/addBook');
                 }, 2000); 
                 
               } else {
