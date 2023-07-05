@@ -739,12 +739,10 @@ function isSignupCode(code) {
 // Handle the login post
 app.post('/auth/login', upload.none(), async (req, res) => {
     // Insert Login Code Here
-    let id = await userExists(req.body.username, req.body.password);
+    let id = await userExists("@" + req.body.username, req.body.password);
     req.session.user = id;
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
-    console.log(req.body.username)
-    console.log(req.body.password)
     if (!req.session.user) {
         res.status(401);
         res.send('None shall pass');
@@ -758,7 +756,7 @@ app.post('/auth/signup', upload.none(), async (req, res) => {
         res.status(401);
         res.send('None shall pass');
     }
-    let id = await createUser(req.body.username, req.body.password, req.body.firstname);
+    let id = await createUser("@" + req.body.username, req.body.password, req.body.firstname);
     req.session.user = id;
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
