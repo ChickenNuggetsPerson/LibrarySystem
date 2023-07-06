@@ -13,15 +13,18 @@ block layout-content
         div( class="swipe-content swipe-transition")
           div( class="container text-center", id="manual", style="") 
             div(id="qr-reader" style="width: 90%")
-            h3(style="color:white") It is recomended that you use a webcam or document camera
-            div(class="row")
+            h3(style="color:white" id="recomendTXT") It is recomended that you use a webcam or document camera
+            div(class="row" id="buttons")
               div(class="col")
                 br
                 button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Manual ISBN
+                br
+                br
+                button(type="button" class="btn btn-warning" onclick="btnClick('noISBN')") No ISBN?
         
-          h3(id="error", style="color:white")
+          
           div( class="container text-center", id="manualenter")    
-            
+            h3(id="error", style="color:white")
             br
             form(action='/library/manualScanBook' method='post' enctype="multipart/form-data" )
               h3 Title:
@@ -57,9 +60,9 @@ block layout-content
                 message: '<p class="text-center mb-0"><i class="fas fa-spin fa-cog"></i> Fetching Data</p>',
                 closeButton: false
             });
-            setTimeout(() => {
-                dialog.modal('hide');   
-            }, 5000);
+            //setTimeout(() => {
+            //    dialog.modal('hide');   
+            //}, 5000);
             fetch('/library/scanBook', {
                 method: 'POST',
                 headers: {
@@ -82,6 +85,8 @@ block layout-content
                 dialog.modal('hide');   
                 document.getElementById("qr-reader").remove()
                 document.getElementById("manualenter").style.display = ""
+                document.getElementById('buttons').innerHTML = ""
+                document.getElementById("recomendTXT").innerText = ""
                 dialog.modal('hide');   
               }
             })
@@ -92,6 +97,12 @@ block layout-content
               if (chosen != "" && chosen != null) {
                 onScanSuccess("", chosen);
               }
+            }
+            if (option == 'noISBN') {
+              document.getElementById("qr-reader").remove()
+              document.getElementById("manualenter").style.display = ""
+              document.getElementById('buttons').innerHTML = ""
+              document.getElementById("recomendTXT").innerText = ""
             }
           } 
         

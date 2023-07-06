@@ -8,13 +8,13 @@ const { check, validationResult } = require('express-validator');
 const Sequelize = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs')
-const isbn = require('node-isbn');
 const multer  = require('multer')
 const cron = require('node-cron');
 const fetch = require('node-fetch');
 var path = require('path')
 var morgan = require('morgan')
 var rfs = require('rotating-file-stream') 
+var ISBN = require('node-isbn-catalogue');
 
 
 const storage = multer.diskStorage({
@@ -57,12 +57,52 @@ app.use(morgan('combined', { stream: accessLogStream }));
 
 
 
+
+function convertISBNBookToOpenLibrary(isbnBook) {
+    let book = {};
+    book.title = (isbnBook?.title == undefined) ? "Not Provided" : isbnBook.title
+    book.isbn = (isbnBook?.isbn == undefined) ? "Not Provided" : isbnBook.isbn
+    book.author = (isbnBook?.authors == undefined) ? "Not Provided" : isbnBook.authors[0]
+    book.description = (isbnBook?.description == undefined) ? "Not Provided" : isbnBook.description
+    book.pageCount = (isbnBook?.pageCount == undefined) ? "Not Provided" : isbnBook.pageCount
+    book.imageLink = (isbnBook?.imageLinks?.thumbnail == undefined) ? "Not Provided" : isbnBook.imageLinks.thumbnail
+    return book
+}
 async function searchBook(isbn) {
-    const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
-    let settings = { method: "Get" };
-    const response = await fetch(url, settings)
-    const data = await response.json()
-    return data[`ISBN:${isbn}`]
+    return new Promise(async (resolve) => {
+
+        // Try Larger Database
+        console.log("")
+        console.log("Trying Larger Database for: " + isbn)
+        ISBN.resolve(isbn, async function (err, book) {
+            if (err) {
+                // Try Openlibrary
+                console.log("Could Not Find Book")
+                console.log("Trying OpenLibrary")
+                try {
+                    const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+                    let settings = { method: "Get" };
+                    const response = await fetch(url, settings)
+                    const data = await response.json()
+                    let book = data[`ISBN:${isbn}`]
+                    if (book?.title) {
+                        console.log("Found Book")
+                        resolve(book)
+                    } else {
+                        console.log("Still Couldn't Find Book")
+                        resolve({})
+                    }
+                } catch(err) {
+                    console.log("Could Not Find Book")
+                    resolve({})
+                }
+            } else {
+                // Return Larger Database Book
+                console.log("Found Book")
+                resolve(convertISBNBookToOpenLibrary(book))
+            }
+        });
+    })
 }
 
 
@@ -1008,6 +1048,7 @@ if (process.platform == "linux") {
 // Redirect Server
 const http = require('http');
 const { buffer } = require('stream/consumers');
+const Isbn = require('node-isbn');
 
 const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
