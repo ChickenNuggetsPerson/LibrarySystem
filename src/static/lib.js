@@ -47,4 +47,5 @@ async function displayLogo() {
             resolve();
         });
     })
-}   
+}  
+

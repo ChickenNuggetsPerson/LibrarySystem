@@ -13,10 +13,10 @@ function headerBtnClick(parm) {
             size: 'medium',
             backdrop: true,
             title: "User Settings",
-            message: "As of this moment, the only setting that you can change is deleting your acount.",
+            message: "Select Something to Edit",
             buttons: {
               remove: {
-                label: "Delete",
+                label: "Delete Account",
                 className: 'btn-danger',
                 callback: function(){
                     deleteUser();
@@ -124,13 +124,13 @@ function processData() {
     let checkoutArray = []
     for (let i = 0; i < checkoutData.length; i++) {
         checkoutArray.push(checkoutData[i].bookUUID)
+        checkoutData[i].bookOBJ = JSON.parse(checkoutData[i].bookOBJ)
     }
-
-
     for (let i = 0; i < data.length; i++) {
         let result = findStringInArray(data[i].bookUUID, checkoutArray)
         data[i].checkoutMatch = result.index
     }
+
 
     for (let i = 0; i < categoryData.length; i++) {
         categoryData[i].books = JSON.parse(categoryData[i].books)
@@ -178,12 +178,20 @@ function updatePage() {
         mainTxt.innerText = data[i].title
 
         const altTxt = document.createElement("h4")
+        const otherAltTxt = document.createElement("h5")
         if (data[i].checkoutMatch != -1) {
             altTxt.style.color = "#e05836"
             altTxt.innerText = "\n(Checked Out)"
+            otherAltTxt.style.color = "#e05836"
+            otherAltTxt.innerText = "Student " + checkoutData[data[i].checkoutMatch].student + " (" + checkoutData[data[i].checkoutMatch].rawReturnDate + ")"
+            otherAltTxt.onclick = function() {  
+                table.search("Student " + checkoutData[data[i].checkoutMatch].student)
+                table.draw()
+            }
         }
         displayText.appendChild(mainTxt)
         displayText.appendChild(altTxt)
+        displayText.appendChild(otherAltTxt)
 
 
         const displayCategory = document.createElement('td')
@@ -243,6 +251,16 @@ async function refreshPage() {
         table.draw()
     } else {
         
+    }
+
+    showNotifications()
+}
+
+function showNotifications() {
+    for (let i = 0; i < checkoutData.length; i++) {
+        if (new Date() > new Date(checkoutData[i].rawReturnDate)) {
+            $.notify('"' + checkoutData[i].bookOBJ.title + '" is due from student ' + checkoutData[i].student, "error");
+        }
     }
 }
 
@@ -304,9 +322,10 @@ function returnBook(bookID) {
     }).then(response => response.json())
     .then(response => {
         if (!response.error) { 
-        refreshPage();
+            $.notify("Returned Book", "success");
+            refreshPage();
         } else {
-        bootbox.alert('There was an error in the server');
+            bootbox.alert('There was an error in the server');
         }
     })
 }
@@ -403,7 +422,13 @@ function editCategoryMenu(book, bookIndex) {
 function overlayBook(index) {
     let book = data[index]
 
-    let message = "<strong>Author: </strong>" + book.author + "<br><br><strong>Categories:</strong>"
+    let message = ""
+    if (book.checkoutMatch == -1) {
+        message = "<strong>Author: </strong>" + book.author + "<br><br><strong>Not Checked Out</strong><br><br><strong>Categories:</strong>"
+    } else {
+        message = "<strong>Author: </strong>" + book.author + "<br><br><strong>Checked Out to Sutudent: </strong>" + checkoutData[book.checkoutMatch].student + "<br>Return Date: " + checkoutData[book.checkoutMatch].rawReturnDate + "<br><br><strong>Categories:</strong>"
+    }
+    
     let categories = book.categories
     for (let i = 0; i < categories.length; i++) {
         message += ("<br>- " + categories[i])
@@ -538,5 +563,4 @@ function deleteUser() {
 
    
 }
-
 
