@@ -34,7 +34,10 @@ function getCacheList() {
       "/static/addBook.js",
       "/static/library.js",
       "/static/html5-qrcode.min.js",
-      "/static/Loading.mp4"
+      "/static/Loading.mp4",
+      "/service-worker.js",
+      "/manifest.json",
+      "/favicon.png"
     ]
     for (let i = 0; i < cacheList.length; i++) {
       list.push(cacheList[i])
