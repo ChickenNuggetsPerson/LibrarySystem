@@ -19,9 +19,11 @@ function getCacheList() {
     let list = [
       "/",
       "/library",
+      "/scanBook",
+      "/addBook",
       "/fetchLibrary",
-      "fetchCheckouts",
-      "fetchCategories",
+      "/fetchCheckouts",
+      "/fetchCategories",
       "https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css",
       "https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js",
       "https://code.jquery.com/jquery-3.7.0.min.js",
