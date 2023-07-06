@@ -27,8 +27,10 @@ async function displayLogo() {
         let imgPath = "/static/Loading.mp4"
 
         let dialog = bootbox.dialog({
-            message: `<video id="myVideo" class="center" src="${imgPath}" autoplay playsinline webkit-playsinline ></video>`,
+            message: `<video id="myVideo" style="width:100%" class="center" src="${imgPath}" autoplay playsinline webkit-playsinline ></video>`,
             closeButton: false,
+            centerVertical: true,
+            size: 'extra-large',
             buttons: {
                 skip: {
                     label: "Skip",
