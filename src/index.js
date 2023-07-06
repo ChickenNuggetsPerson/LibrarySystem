@@ -62,7 +62,7 @@ function convertISBNBookToOpenLibrary(isbnBook) {
     let book = {};
     book.title = (isbnBook?.title == undefined) ? "Not Provided" : isbnBook.title
     book.isbn = (isbnBook?.isbn == undefined) ? "Not Provided" : isbnBook.isbn
-    book.author = (isbnBook?.authors == undefined) ? "Not Provided" : isbnBook.authors[0]
+    book.authors = [{name: (isbnBook?.authors == undefined) ? "Not Provided" : isbnBook.authors[0]}]
     book.description = (isbnBook?.description == undefined) ? "Not Provided" : isbnBook.description
     book.pageCount = (isbnBook?.pageCount == undefined) ? "Not Provided" : isbnBook.pageCount
     book.imageLink = (isbnBook?.imageLinks?.thumbnail == undefined) ? "Not Provided" : isbnBook.imageLinks.thumbnail
@@ -660,12 +660,12 @@ app.get('/addBook', (req, res) => {
         return res.render('login');
     }
     
-    //if (req.session.book) {
-        
-    //} else {
-    //    res.redirect('/scanBook')
-    //}
-    res.render('addBook', {book: JSON.stringify(req.session.book)});
+    if (req.session.book) {
+        res.render('addBook', {book: JSON.stringify(req.session.book)});
+    } else {
+        res.redirect('/scanBook')
+    }
+   
 })
 app.get('/uploads', (req, res) => {
     console.log(req.baseUrl)
@@ -851,19 +851,26 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
         if (req.session?.book == undefined) {
             const tempBook = {
                 title: req.body.title,
+                authors: [{name: req.body.author}],
                 isbn: req.body.isbn,
                 cover: {
                     large: (req.file.destination + "/" + req.file.filename).substring(1)
                 }
             }
             req.session.book = tempBook
-            res.redirect("/addBook")
+            setTimeout(() => {
+                res.redirect("/addBook")
+            }, 1000);
+            
         } else {
             req.session.book.cover = { large: "" };
             req.session.book.cover.large = (req.file.destination + "/" + req.file.filename).substring(1);
             let bookuuid = await addBook(req.session.user, req.session.book)
             let cats = JSON.parse(JSON.stringify(req.body))
-            let categories = cats.categories.split(",")
+            let categories = []
+            try {
+                categories = cats.categories.split(",")
+            } catch (err) {}
             for (let i = 0; i < categories.length; i++) {
                 await addBookToCategory(bookuuid, categories[i], req.session.user)
             }
