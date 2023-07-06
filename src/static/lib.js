@@ -24,12 +24,21 @@ function swipePageDown() {
 async function displayLogo() {
     return new Promise((resolve) => {
 
-        let imgPath = "/static/Loading.webm"
+        let imgPath = "/static/Loading.mp4"
 
         let dialog = bootbox.dialog({
             message: `<video id="myVideo" class="center" src="${imgPath}" autoplay></video>`,
-            closeButton: false
-        }).find('.modal-content').css({'background-color': '#222222', 'font-weight' : 'bold', color: '#F00', 'font-size': '2em', 'font-weight' : 'bold'} );
+            closeButton: false,
+            buttons: {
+                skip: {
+                    label: "Skip",
+                    className: 'btn-primary',
+                    callback: function(){
+                        resolve();
+                    }
+                }
+            }
+        }).find('.modal-content').css({'background-color': '#444445', 'font-weight' : 'bold', color: '#F00', 'font-size': '2em', 'font-weight' : 'bold'} );
 
         var myVideo = document.getElementById('myVideo');
         myVideo.addEventListener('ended', function() {
