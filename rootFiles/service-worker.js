@@ -21,7 +21,20 @@ function getCacheList() {
       "/library",
       "/fetchLibrary",
       "fetchCheckouts",
-      "fetchCategories"
+      "fetchCategories",
+      "https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css",
+      "https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js",
+      "https://code.jquery.com/jquery-3.7.0.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/6.0.0/bootbox.min.js",
+      "/static/notify.min.js",
+      "https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css",
+      "https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js",
+      "/style.css",
+      "/static/lib.js",
+      "/static/addBook.js",
+      "/static/library.js",
+      "/static/html5-qrcode.min.js",
+      "/static/Loading.mp4"
     ]
     for (let i = 0; i < cacheList.length; i++) {
       list.push(cacheList[i])
