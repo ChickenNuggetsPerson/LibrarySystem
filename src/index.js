@@ -17,6 +17,14 @@ var rfs = require('rotating-file-stream')
 var ISBN = require('node-isbn-catalogue');
 
 
+
+function fileFilter (req, file, cb) {
+    // To accept the file pass `true`, like so:
+    console.log("")
+    console.log("Upload: " + file.originalname)
+    cb(null, file.mimetype.startsWith("image"))
+  
+}
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './uploads')
@@ -26,7 +34,7 @@ const storage = multer.diskStorage({
       cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname)
     }
 })
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage, fileFilter: fileFilter})
 
 
 
