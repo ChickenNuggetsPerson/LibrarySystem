@@ -16,7 +16,17 @@ self.addEventListener('install', async event => {
 function getCacheList() {
   return new Promise(resolve => {
     const cacheList = JSON.parse(localStorage.getItem('cacheList')) || []
-    resolve(cacheList)
+    let list = [
+      "/",
+      "/library",
+      "/fetchLibrary",
+      "fetchCheckouts",
+      "fetchCategories"
+    ]
+    for (let i = 0; i < cacheList.length; i++) {
+      list.push(cacheList[i])
+    }
+    resolve(list)
   })
 }
 
