@@ -129,6 +129,7 @@ function processData() {
     for (let i = 0; i < data.length; i++) {
         let result = findStringInArray(data[i].bookUUID, checkoutArray)
         data[i].checkoutMatch = result.index
+        data[i].categories = JSON.parse(data[i].categories)
     }
 
 
@@ -136,10 +137,13 @@ function processData() {
         categoryData[i].books = JSON.parse(categoryData[i].books)
     }
 
-    for (let i = 0; i < data.length; i++) {
-        data[i].categories = JSON.parse(data[i].categories)
-    }
 
+    // Get Cache Files
+    let fileList = []
+    for (let i = 0; i < data.length; i++) {
+        fileList.push(data[i].imageLink)
+    }
+    setNewCacheList(fileList)
 
     
 }

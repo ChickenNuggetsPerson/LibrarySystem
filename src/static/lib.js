@@ -51,3 +51,7 @@ async function displayLogo() {
     })
 }  
 
+
+async function setNewCacheList(list) {
+    localStorage.setItem('cacheList', JSON.stringify(list))
+}
