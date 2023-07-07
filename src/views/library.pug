@@ -11,7 +11,7 @@ block layout-content
       div( class="swipe-container")
         div( class="swipe-content swipe-transition")
           header
-            h2(style="color:white;") Hello #{name}
+            h2(style="color:white;" id="helloText")
             div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
               button(type="button" class="btn btn-success" onclick="headerBtnClick('scan')") Scan Book
               div(style="width:5%")
@@ -31,5 +31,7 @@ block layout-content
               tbody(id="yeet" style="color:white" class="table-group-divider")
           
           button(type="button", class="btn btn-danger" style="position:relative; bottom:0;" onclick="headerBtnClick('settings')") Settings
-
+      script.
+        var isAdmin = !{isAdmin};
+        var name = !{name};
       script(src="/static/library.js")

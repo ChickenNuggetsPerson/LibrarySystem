@@ -241,6 +241,18 @@ async function deleteUser(id) {
     });
     
 }
+async function editUser(id, username, pass, firstName) {
+    let user = await userTags.findOne({ where: { userID: id } })
+    if (user) {
+        await user.update({
+            password: encrypt(username, pass),
+            firstName: encrypt(firstName, pass)
+        })
+        await userTags.sync()
+        return true;
+    }
+    return false;
+}
 async function userExists(username, pass) {
     await userTags.sync();
     let users = await userTags.findAll();
@@ -264,6 +276,17 @@ async function getFirstName(id, pass) {
         return undefined;
     }
 }
+
+async function adminGetUsers() {
+    await userTags.sync();
+    const tags = await userTags.findAll()
+    let list = [];
+    tags.forEach(tag => {
+        list.push(tag.userID)
+    })
+    return list;
+}
+
 async function addBook(userid, book) {
     //fs.writeFileSync("lastBook.json", JSON.stringify(book))
     let uuid = uuidv4()
@@ -616,6 +639,10 @@ app.get('/quickLogin/:loginCode', async (req, res) => {
     }
     // Do this
 });
+app.get('/resetLogin', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.render('resetLogin');
+});
 app.get('/logout', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     req.session.destroy(() => {});
@@ -629,7 +656,7 @@ app.get('/library', (req, res) => {
 
     if (req.session.checkout) { req.session.checkout = undefined; }
 
-    res.render('library', { name: req.session.firstName });
+    res.render('library', { name: JSON.stringify(req.session.firstName), isAdmin: req.session.isAdmin});
 })
 app.get('/fetchLibrary', async (req, res) => {
     if (!req.session.user) {
@@ -709,6 +736,27 @@ app.get('/categories', async (req, res) => {
     res.render('categories');
 })
 
+
+
+app.get('/admin/login', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    if (!req.session.user) {
+        return res.redirect("/");
+    }
+    res.render('adminLogin')
+})
+app.get('/admin/view', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    if (!req.session.user) {
+        return res.redirect("/");
+    }
+    if (!req.session.isAdmin) {
+        return res.redirect("/admin/login");
+    }
+    res.render('adminView', {userData: JSON.stringify(await adminGetUsers()), resetCodes: JSON.stringify(getAllResetCodes())})
+})
+
+
 app.get('/style.css', (req, res) => {
     res.sendFile(__dirname + '/style.css');
 });
@@ -783,6 +831,84 @@ function isSignupCode(code) {
     }
     return false
 }
+function isAdminLogin(username, password) {
+    if (process.platform != 'linux') {
+        return true;
+    }
+    if (!username || !password) {
+        return false
+    }
+    let adminCreds = JSON.parse(fs.readFileSync('/home/hayden/Desktop/LibrarySystem/adminCreds.json'))
+    return adminCreds.username == username && adminCreds.password == password
+}
+
+
+function createResetCode(userID) {
+    // Return code
+    let codes = JSON.parse(fs.readFileSync('users/resetCodes.json'))
+    let codeUUID = uuidv4()
+    let newCode = {
+        userID: userID,
+        codeUUID: codeUUID
+    }
+    codes.push(newCode)
+    fs.writeFileSync('users/resetCodes.json', JSON.stringify(codes))
+    return codeUUID
+}
+function removeResetCode(resetCode) {
+    let codes = JSON.parse(fs.readFileSync('users/resetCodes.json'))
+    let foundIndex = -1;
+    for (let i = 0; i < codes.length; i++) {
+        if (codes[i].codeUUID == resetCode) {
+            foundIndex = i
+        }
+    }
+    if (foundIndex == -1) {
+        return false;
+    } else {
+       codes.splice(foundIndex, 1)
+       fs.writeFileSync('users/resetCodes.json', JSON.stringify(codes))
+       return true;
+    }
+}
+function removeResetCodeUser(userID) {
+    let codes = JSON.parse(fs.readFileSync('users/resetCodes.json'))
+    let foundIndex = -1;
+    for (let i = 0; i < codes.length; i++) {
+        if (codes[i].userID == userID) {
+            foundIndex = i
+        }
+    }
+    if (foundIndex == -1) {
+        return false;
+    } else {
+       codes.splice(foundIndex, 1)
+       fs.writeFileSync('users/resetCodes.json', JSON.stringify(codes))
+       return true;
+    }
+}
+function getAllResetCodes() {
+    return JSON.parse(fs.readFileSync('users/resetCodes.json'))
+}
+function getUserFromResetCode(resetCode) {
+    let codes = JSON.parse(fs.readFileSync('users/resetCodes.json'))
+    for (let i = 0; i < codes.length; i++) {
+        if (codes[i].codeUUID == resetCode) {
+            return codes[i].userID
+        }
+    }
+    return undefined
+}
+function userHasResetCode(userID) {
+    let codes = JSON.parse(fs.readFileSync('users/resetCodes.json'))
+    for (let i = 0; i < codes.length; i++) {
+        if (codes[i].userID == userID) {
+            return true
+        }
+    }
+    return false
+}
+
 
 // Handle the login post
 app.post('/auth/login', upload.none(), async (req, res) => {
@@ -791,6 +917,7 @@ app.post('/auth/login', upload.none(), async (req, res) => {
     req.session.user = id;
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
+    req.session.isAdmin = false;
     if (!req.session.user) {
         res.status(401);
         res.send('None shall pass');
@@ -808,7 +935,7 @@ app.post('/auth/signup', upload.none(), async (req, res) => {
     req.session.user = id;
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
-    
+    req.session.isAdmin = false;
     if (!req.session.user) {
         res.status(401);
         res.send('None shall pass');
@@ -824,6 +951,72 @@ app.post('/user/delete', async (req,res) => {
     await deleteUser(req.session.user)
     res.json({error: false})
 })
+app.post('/auth/resetLogin', upload.none(), async (req, res) => {
+    let userID = getUserFromResetCode(req.body.signupcode)
+    if (userID == undefined) {
+        res.status(401);
+        res.send('error');
+        return
+    }
+
+    let result = await editUser(userID, "@" + req.body.username, req.body.password, req.body.firstname);
+
+    if (!result) {
+        res.status(401);
+        res.send('error');
+    } else {
+        removeResetCode(req.body.signupcode)
+        res.status(200);
+        res.send('Ok');
+    }
+})
+app.post('/auth/adminLogin', upload.none(), async (req, res) => {
+    // Insert Login Code Here
+    req.session.isAdmin = isAdminLogin(req.body.username, req.body.password)
+    if (!req.session.user) {
+        res.status(401);
+        res.send('None shall pass');
+    } else {
+        res.status(200);
+        res.send('Ok');
+    }
+});
+
+
+app.post('/admin/viewUser', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    if (!req.session.isAdmin) {
+        return res.json({error: true});
+    }
+    if (!req.body.user) {
+        return res.json({error: true});
+    }
+    req.session.user = req.body.user
+    req.session.firstName = "Viewing As Admin"
+    return res.json({error: false});
+})
+app.post('/admin/resetUser', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    if (!req.session.isAdmin) {
+        return res.json({error: true});
+    }
+    if (!req.body.user) {
+        return res.json({error: true});
+    }
+    if (userHasResetCode(req.body.user)) {
+        removeResetCodeUser(req.body.user)
+        return res.json({error: false});
+    }
+    
+    createResetCode(req.body.user)
+
+    return res.json({error: false});
+})
+
 
 
 app.post('/library/scanBook', async (req, res) => {

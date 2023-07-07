@@ -15,6 +15,13 @@ function headerBtnClick(parm) {
             title: "User Settings",
             message: "Select Something to Edit",
             buttons: {
+              admin:{
+                label: "Admin",
+                className: 'btn-warning',
+                callback: function(){
+                    changePage("/admin/login")
+                }
+              },
               remove: {
                 label: "Delete Account",
                 className: 'btn-danger',
@@ -568,3 +575,14 @@ function deleteUser() {
    
 }
 
+
+let text = document.getElementById("helloText")
+if (isAdmin) {
+    text.innerText = name;
+    text.style.color = "yellow"
+    text.onclick = function() {  
+        changePage("/admin/view")
+    }
+} else {
+    text.innerText = "Hello " + name
+}

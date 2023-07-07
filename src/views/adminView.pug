@@ -1,0 +1,239 @@
+extends layout
+
+block layout-content
+
+  html
+    head
+      title Library Indexer
+      script(src="/static/qrcode.min.js")
+
+      script.
+        
+        var userData = !{userData};
+        var resetCodes = !{resetCodes};
+
+        let resetCodeLocations = []
+
+        function viewUser(userID) {
+          fetch('/admin/viewUser', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+          },
+            body: JSON.stringify({user: userID})
+          }).then(response => response.json())
+          .then(response => {
+            if (!response.error) { 
+              changePage("/library")
+            } else {
+              bootbox.alert('There was an error in the server');
+            }
+          })
+        }
+        function resetUser(userID) {
+          fetch('/admin/resetUser', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+          },
+            body: JSON.stringify({user: userID})
+          }).then(response => response.json())
+          .then(response => {
+            if (!response.error) { 
+              location.reload() 
+            } else {
+              bootbox.alert('There was an error in the server');
+            }
+          })
+        }
+
+        function showLink(resetCode) {
+            console.log(resetCode)
+
+            let url = window.location.protocol + "//" + window.location.host + "/resetLogin?code=" + resetCode
+            console.log(url)
+
+            let dialog = bootbox.dialog({
+                message: `<div id="qrcode" style="width:100%" class="center"></div><br><br><h4 style="color:white">${url}</h4>`,
+                closeButton: false,
+                centerVertical: true,
+                size: 'extra-large',
+                buttons: {
+                    skip: {
+                        label: "Close",
+                        className: 'btn-primary',
+                        callback: function(){
+                            
+                        }
+                    }
+                }
+            }).find('.modal-content').css({'background-color': '#444445', 'font-weight' : 'bold', color: '#F00', 'font-size': '2em', 'font-weight' : 'bold'} );
+            new QRCode(document.getElementById("qrcode"), url);
+        }
+
+        function overlayUser(userIndex, resetIndex) {
+          let user = userData[userIndex]
+          let buttons; 
+          if (resetIndex != -1) {
+            buttons = {
+              viewUser: {
+                label: "View User",
+                className: 'btn-success',
+                callback: function(){
+                    viewUser(user)
+                }
+              },
+              viewLink: {
+                label: "View Link",
+                className: 'btn-warning',
+                callback: function(){
+                    showLink(resetCodes[resetCodeLocations[userIndex]].codeUUID)
+                }
+              },
+              resetLogin: {
+                label: "Clear Reset Code",
+                className: 'btn-danger',
+                callback: function(){
+                    resetUser(user)
+                }
+              },
+              close: {
+                label: "Close",
+                className: 'btn-info',
+                
+              }
+            }
+          } else {
+            buttons = {
+              viewUser: {
+                label: "View User",
+                className: 'btn-success',
+                callback: function(){
+                    viewUser(user)
+                }
+              },
+              resetLogin: {
+                label: "Reset Login",
+                className: 'btn-warning',
+                callback: function(){
+                    resetUser(user)
+                }
+              },
+              close: {
+                label: "Close",
+                className: 'btn-info',
+                
+              }
+            }
+          }
+
+          bootbox.dialog({
+            size: 'medium',
+            backdrop: true,
+            title: user,
+            message: " ",
+            buttons: buttons
+          });
+        }
+
+        function updatePage() {
+          let data = userData
+
+          var mainDiv = document.getElementById("yeet")
+          mainDiv.innerHTML = ""
+
+          for (let i = 0; i < data.length; i++) {
+              const row = document.createElement('tr')
+        
+              const displayImage = document.createElement('th')
+              const button = document.createElement("button")
+              button.style.width = "fit-content"
+              button.style.padding = "5px";
+              button.style.borderRadius = "5px"
+              button.style.backgroundColor = "wheat"
+
+              button.addEventListener("click", function() {
+                overlayUser(i, resetCodeLocations[i])
+              });
+
+              const divImage = document.createElement('h2')
+              displayImage.scope = "row"
+              //divImage.style.maxWidth = "100px"
+              divImage.style.color = "black"
+              divImage.innerHTML = "Select"
+
+              displayImage.appendChild(button)
+              button.appendChild(divImage)
+
+
+
+              const displayText = document.createElement('td')
+              const mainTxt = document.createElement('h3')
+              mainTxt.style.color = "white"
+              mainTxt.innerText = userData[i]
+              mainTxt.onclick = function() {  
+                overlayUser(i, resetCodeLocations[i])
+              }
+
+              const altTxt = document.createElement("h4")
+              if (resetCodeLocations[i] != -1) {
+                altTxt.innerText = resetCodes[resetCodeLocations[i]].codeUUID
+                altTxt.style.color = "orange"
+              }
+              
+              displayText.appendChild(mainTxt)
+              displayText.appendChild(altTxt)
+              
+
+              row.appendChild(displayImage)
+              row.appendChild(displayText)
+              mainDiv.appendChild(row)
+          }
+        }
+
+        function refreshPage() {
+          swipePageDown()
+
+          let resetCodeUsers = []
+          for (let i = 0; i < resetCodes.length; i++) {
+            resetCodeUsers.push(resetCodes[i].userID)
+          }            
+          for (let i = 0; i < userData.length; i++) {
+            resetCodeLocations.push(findStringInArray(userData[i], resetCodeUsers).index)
+          }
+
+          updatePage();
+        }
+
+        function findStringInArray(str, array) {
+            for (let i = 0; i < array.length; i++) {
+                if (str === array[i]) {
+                return { match: true, index: i }; // Found a match with index
+                }
+            }
+            return { match: false, index: -1 }; // No match found with -1 index
+        }
+
+        
+    body()
+      div( class="swipe-container")
+        div( class="swipe-content swipe-transition")
+          header
+            h2(style="color:white;") Edit Users
+            div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
+              
+              button(type="button" class="btn btn-danger" onclick="changePage('/logout')") Logout Admin          
+          div(style='padding:5%')
+            table(class="table align-middle")
+              thead
+                tr
+                  th(scope="col") Select
+                  th(scope="col") UserID
+              tbody(id="yeet" style="color:white" class="table-group-divider")
+          
+        script.
+            refreshPage()
+        
+
+
+

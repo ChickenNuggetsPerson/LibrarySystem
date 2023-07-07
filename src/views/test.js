@@ -27,3 +27,4 @@ function decrypt(encryptedText, password) {
 }
 
 console.log(decrypt(encrypt("YEET", "test"), "test"))
+
