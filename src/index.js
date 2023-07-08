@@ -38,7 +38,9 @@ const upload = multer({ storage: storage, fileFilter: fileFilter})
 
 
 
-let fileStoreOptions = {};
+let fileStoreOptions = {
+    secret: "SuperSecretSessions"
+};
 const app = express();
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
@@ -169,7 +171,6 @@ function encrypt(text, password) {
     const authTag = cipher.getAuthTag().toString('hex');
     return salt.toString('hex') + iv.toString('hex') + encrypted + authTag;
 }
-
 function decrypt(encryptedText, password) {
     try {
         const salt = Buffer.from(encryptedText.slice(0, 32), 'hex');
@@ -183,7 +184,6 @@ function decrypt(encryptedText, password) {
         decrypted += decipher.final('utf8');
         return decrypted;
     } catch(err) { 
-        console.log(err) 
         return ""
     }
 }
@@ -1255,8 +1255,6 @@ if (process.platform == "linux") {
 
 // Redirect Server
 const http = require('http');
-const { buffer } = require('stream/consumers');
-const Isbn = require('node-isbn');
 
 const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
@@ -1268,7 +1266,3 @@ const redirectServer = http.createServer((req, res) => {
 redirectServer.listen(80, () => {
   console.log('Redirect server running on port 80');
 });
-
-
-
-
