@@ -38,9 +38,7 @@ const upload = multer({ storage: storage, fileFilter: fileFilter})
 
 
 
-let fileStoreOptions = {
-    secret: "SuperSecretSessions"
-};
+let fileStoreOptions = {};
 const app = express();
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
