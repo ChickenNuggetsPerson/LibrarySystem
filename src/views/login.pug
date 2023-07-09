@@ -5,16 +5,16 @@ block layout-content
     title Login
   div( class="swipe-container")
     div( class="swipe-content swipe-transition")
-      div( class="container text-center")  
-        div(style="padding: 5%; background-color:wheat; border-radius: 20px;")
-          h1 Login
+      div( class="container text-center formBackground")  
+        div()
+          h1(class="firstColor") Login
           h2(id="message", style="color:red")= message 
           form(action='/auth/login' method='post' id='loginForm')
-            h3(style="color:black;") Username:
+            h3(style="color:white;") Username:
             input(type='text' name='username' placeholder='Username' required='')
             br
             br
-            h3(style="color:black;") Password:
+            h3(style="color:white;") Password:
             input(type='password' name='password' placeholder='Password' required='')
             br
             br
@@ -25,6 +25,8 @@ block layout-content
                     button(type="button" class="btn btn-success" onclick="btnClicked(true)") Login
                     div(style="width:20px")
                     button(type="button" class="btn btn-warning" onclick="btnClicked(false)") Create Account
+
+      div(style="height:100px")
   script.
 
     async function btnClicked(result) {

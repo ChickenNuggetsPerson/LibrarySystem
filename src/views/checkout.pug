@@ -26,12 +26,14 @@ block layout-content
                     title: 'Enter Student Number',
                     required: true,
                     inputType: 'number',
+                    className: 'frosted-glass',
                     callback: function (studentresult) {
                         if (studentresult) {
                             bootbox.prompt({
                                 title: 'Pick a Return Date',
                                 required: true,
                                 inputType: 'date',
+                                className: 'frosted-glass',
                                 callback: function (result) {
                                     checkoutConfirm(studentresult, result)
                                 }
@@ -88,7 +90,7 @@ block layout-content
         div( class="swipe-container")
             div( class="swipe-content swipe-transition")
                 div(style="padding:10%")
-                        div(class="container text-center", style="border:5px; border-radius: 20px; border-style: solid; border-color: wheat; padding:4%")
+                        div(class="container text-center formBackground", style="border:5px; border-radius: 20px; border-style: solid; padding:4%")
                             div(class="row align-items-start")
                                 div(class="col")
                                     image(id="cover", style="max-width:100px")

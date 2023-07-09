@@ -128,7 +128,7 @@ block layout-content
               button.style.width = "fit-content"
               button.style.padding = "5px";
               button.style.borderRadius = "5px"
-              button.style.backgroundColor = "wheat"
+              button.classList.add("frosted-glass")
 
               button.addEventListener("click", function() {
                 overlayCat(i)
@@ -137,7 +137,7 @@ block layout-content
               const divImage = document.createElement('h2')
               displayImage.scope = "row"
               //divImage.style.maxWidth = "100px"
-              divImage.style.color = "black"
+              divImage.classList.add("firstColor")
               divImage.innerHTML = data[i].name
 
               displayImage.appendChild(button)

@@ -33,8 +33,11 @@ html
     link(rel="stylesheet", href="/style.css", attr)
     script(src="/static/lib.js")
   header
-    div(id='homeBtn', onclick="changePage('/library')", style="background-color:wheat; padding:5px")
-      h1(style="color:black; font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif") Library System
+
+    div(id='homeBtn', onclick="changePage('/library')", class="altcolor" style="padding:5px")
+        h1(class="firstColor" style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; display:inline-block;") Library 
+        div(style="width:10px; display:inline-block")
+        h1(class="secondColor" style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; display:inline-block;")  System
     br
 
   body

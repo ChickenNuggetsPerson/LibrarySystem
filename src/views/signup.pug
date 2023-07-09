@@ -5,24 +5,24 @@ block layout-content
     title Create Account
   div( class="swipe-container")
     div( class="swipe-content swipe-transition")
-      div( class="container text-center")  
-        div(style="padding: 5%; background-color:wheat; border-radius: 20px;")
-          h1 Sign Up
+      div( class="container text-center formBackground")  
+        div
+          h1(class="firstColor") Sign Up
           h2= message 
           form(action='/auth/signup' method='post' id="signupForm")
-            h3(style="color:black;") Username:
+            h3(style="color:white;") Username:
             input(type='text' name='username' placeholder='Username' required='')
             br
             br
-            h3(style="color:black;") Password:
+            h3(style="color:white;") Password:
             input(type='password' name='password' placeholder='Password' required='')
             br
             br
-            h3(style="color:black;") First Name:
+            h3(style="color:white;") First Name:
             input(type='text' name='firstname' placeholder='First Name' required='')
             br
             br
-            h3(style="color:black;") Signup Code:
+            h3(style="color:white;") Signup Code:
             input(type='text' name='signupcode' placeholder='Signup Code' id="codeInput" required='')
             br
             br
@@ -31,7 +31,9 @@ block layout-content
                     button(type="button" class="btn btn-success" onclick="btnClicked(true)") Sign Up
                     div(style="width:20px")
                     button(type="button" class="btn btn-warning" onclick="btnClicked(false)") Already Have An Account?
+      div(style="height:100px")
 
+      
   script.
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('code')) {

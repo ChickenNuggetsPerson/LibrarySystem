@@ -14,6 +14,7 @@ function headerBtnClick(parm) {
             backdrop: true,
             title: "User Settings",
             message: "Select Something to Edit",
+            className: 'frosted-glass',
             buttons: {
               admin:{
                 label: "Admin",
@@ -165,8 +166,8 @@ function updatePage() {
         const button = document.createElement("button")
         button.style.width = "fit-content"
         button.style.padding = "5px";
-        button.style.borderRadius = "5px"
-        button.style.backgroundColor = "wheat"
+        button.style.borderRadius = "15px"
+        button.classList.add("frosted-glass")
 
         button.addEventListener("click", function() {
             overlayBook(i) 
@@ -175,6 +176,7 @@ function updatePage() {
         const divImage = document.createElement('img')
         displayImage.scope = "row"
         divImage.style.maxWidth = "100px"
+        divImage.style.borderRadius = "10px"
         divImage.src = data[i].imageLink
 
         displayImage.appendChild(button)
@@ -187,6 +189,9 @@ function updatePage() {
         const mainTxt = document.createElement('h3')
         mainTxt.color = "white"
         mainTxt.innerText = data[i].title
+        mainTxt.onclick = function() {  
+            overlayBook(i) 
+        }
 
         const altTxt = document.createElement("h4")
         const otherAltTxt = document.createElement("h5")
@@ -290,6 +295,7 @@ function removeBook(bookID, bookName) {
         bootbox.dialog({
             backdrop: true,
             message: 'Removed ' + bookName,
+            className: 'frosted-glass',
             buttons: {
             cancel: {
                 label: "Close",
@@ -400,6 +406,7 @@ function editCategoryMenu(book, bookIndex) {
     title: 'What Categories Does This Book Belong In?',
     value: values,
     inputType: 'checkbox',
+    className: 'frosted-glass',
     inputOptions: options,
         callback: function (changed) {
             let dialog = bootbox.dialog({
@@ -455,7 +462,7 @@ function overlayBook(index) {
         function checkoutCallback() { checkout(book.bookUUID) }
     } else {
         checkoutLabel = "Return Book"
-        checkoutClassName = 'btn-success'
+        checkoutClassName = 'btn-primary'
         function checkoutCallback() { returnBook(book.bookUUID) }
     }
 
@@ -466,6 +473,7 @@ function overlayBook(index) {
         backdrop: true,
         title: book.title,
         message: message,
+        className: 'frosted-glass',
         buttons: {
         remove: {
             label: "Delete",
@@ -473,6 +481,7 @@ function overlayBook(index) {
             callback: function(){
             bootbox.confirm({
                 message: 'Are You Sure You Want To Delete?',
+                className: 'frosted-glass',
                 buttons: {
                 confirm: {
                     label: 'Yes',
@@ -524,6 +533,7 @@ function deleteUser() {
         backdrop: true,
         title: "Are you sure you want to delete your account?",
         message: "This can not be undone",
+        className: 'frosted-glass',
         buttons: {
           remove: {
             label: "Delete",
@@ -531,6 +541,7 @@ function deleteUser() {
             callback: function(){
               bootbox.confirm({
                 message: 'Are you really sure?',
+                className: 'frosted-glass',
                 buttons: {
                   confirm: {
                     label: 'Yes',

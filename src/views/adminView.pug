@@ -56,6 +56,7 @@ block layout-content
             let dialog = bootbox.dialog({
                 message: `<div id="qrcode" style="width:100%" class="center"></div><br><br><h4 style="color:white">${url}</h4>`,
                 closeButton: false,
+                className: 'frosted-glass',
                 centerVertical: true,
                 size: 'extra-large',
                 buttons: {
@@ -130,6 +131,7 @@ block layout-content
           bootbox.dialog({
             size: 'medium',
             backdrop: true,
+            className: 'frosted-glass',
             title: user,
             message: " ",
             buttons: buttons
@@ -150,7 +152,7 @@ block layout-content
               button.style.width = "fit-content"
               button.style.padding = "5px";
               button.style.borderRadius = "5px"
-              button.style.backgroundColor = "wheat"
+              button.classList.add("frosted-glass")
 
               button.addEventListener("click", function() {
                 overlayUser(i, resetCodeLocations[i])
@@ -159,7 +161,7 @@ block layout-content
               const divImage = document.createElement('h2')
               displayImage.scope = "row"
               //divImage.style.maxWidth = "100px"
-              divImage.style.color = "black"
+              divImage.style.color = "white"
               divImage.innerHTML = "Select"
 
               displayImage.appendChild(button)
