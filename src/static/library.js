@@ -256,7 +256,12 @@ async function refreshPage() {
         language: {
             searchPlaceholder: "Search Books",
             search: "",
+            paginate: {
+                previous: "&laquo;",
+                next: "&raquo;"
+            }
         },
+        pagingType: "full_numbers",
         aaSorting: [[1, "asc"]]
     });
 
