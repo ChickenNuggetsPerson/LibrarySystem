@@ -177,7 +177,8 @@ function updatePage() {
         displayImage.scope = "row"
         divImage.style.maxWidth = "100px"
         divImage.style.borderRadius = "10px"
-        divImage.src = data[i].imageLink
+        divImage.id = data[i].bookUUID
+        //divImage.src = data[i].imageLink
 
         displayImage.appendChild(button)
         button.appendChild(divImage)
@@ -226,6 +227,8 @@ function updatePage() {
             displayCategory.appendChild(txt)
         }
         
+        row.setAttribute("bookID", data[i].bookUUID)
+        row.setAttribute("imageLink", data[i].imageLink)
 
         row.appendChild(displayImage)
         row.appendChild(displayText)
@@ -262,9 +265,20 @@ async function refreshPage() {
             }
         },
         pagingType: "full_numbers",
-        aaSorting: [[1, "asc"]]
-    });
+        aaSorting: [[1, "asc"]],
+        "drawCallback": function( settings ) {
+            let api = this.api();
+            api.rows( {page:'current'} ).every( function ( rowIdx, tableLoop, rowLoop ) {
+                var data = this.node();
+                if (!document.getElementById(data.getAttribute("bookID")).src) {
+                    console.log("Loading Image: " + data.getAttribute("imageLink"))
+                    document.getElementById(data.getAttribute("bookID")).src = data.getAttribute("imageLink")
+                }
+                
+            } );
 
+        }
+    });
 
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('search')) { 
@@ -276,6 +290,8 @@ async function refreshPage() {
 
     showNotifications()
 }
+
+
 
 function showNotifications() {
     for (let i = 0; i < checkoutData.length; i++) {
