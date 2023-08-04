@@ -246,8 +246,8 @@ function updatePage() {
 let table;
 async function refreshPage() {
     swipePageUp()
+
     
-    window.scrollTo(0,0)
     try {
         table.destroy()
     } catch(err) {}
