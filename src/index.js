@@ -1037,15 +1037,15 @@ app.post('/library/scanBook', async (req, res) => {
 
     let book;
     if (req.body.isbnCode.decodedText) {
+        // Scanned Code
         book = await searchBook(req.body.isbnCode.decodedText)
     } else {
+        // Manual inputed code
         book = await searchBook(req.body.isbnCode)
     }
 
-    
-
     if (!book?.title) {
-        return res.json({error: true})
+        return res.json({error: true}) // Return error if no book was found
     }
             
     req.session.book = book;
@@ -1056,13 +1056,15 @@ app.post('/library/scanBook', async (req, res) => {
 })
 app.post('/library/manualScanBook', upload.single('image'), async (req, res) => {
     try {
+        
         if (req.session?.book == undefined) {
+            // ScanBook Page, Completely new book    
             const tempBook = {
                 title: req.body.title,
                 authors: [{name: req.body.author}],
                 isbn: req.body.isbn,
-                cover: {
-                    large: (req.file.destination + "/" + req.file.filename).substring(1)
+                cover: { 
+                    large: (req?.file?.destination == undefined) ? "Not Provied" : (req.file.destination + "/" + req.file.filename).substring(1)
                 }
             }
             req.session.book = tempBook
@@ -1071,8 +1073,9 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
             }, 1000);
             
         } else {
+            // AddBook Page, Book was found, just uploading image
             req.session.book.cover = { large: "" };
-            req.session.book.cover.large = (req.file.destination + "/" + req.file.filename).substring(1);
+            req.session.book.cover.large = (req?.file?.destination == undefined) ? "Not Provied" : (req.file.destination + "/" + req.file.filename).substring(1)
             let bookuuid = await addBook(req.session.user, req.session.book)
             let cats = JSON.parse(JSON.stringify(req.body))
             let categories = []
@@ -1111,7 +1114,6 @@ app.post('/library/addBook', async (req, res) => {
         res.json({error: false})
     }
 })
-
 app.post('/library/removeBook', async (req, res) => {
     if (!req.session.user) {
         return res.json({error: true});
@@ -1145,20 +1147,43 @@ app.post('/library/returnBook', async (req, res) => {
     }
     res.json({error: !removeCheckoutBookID(req.body.bookID)});
 })
-
-app.post('/library/editBook', async (req, res) => {
+app.post('/library/editBook', upload.single('image'), async (req, res) => {
     if (!req.session.user) {
         return res.json({error: true});
     }
-    let book = await libraryTags.findOne({ where: { userID: req.session.user, bookUUID: req.body.bookUUID } })
-    if (book) {
+
+    try {
+        // Image was uploaded
+        let imageLocation = req.file.destination + "/" + req.file.filename
+        let book = await libraryTags.findOne({ where: { userID: req.session.user, bookUUID: req.body.bookUUID } })
+        if (!book) { return res.redirect("/library")}
+        if (book.dataValues.imageLink.startsWith("/uploads")) {
+            try { // Try to delete stored image
+                fs.unlinkSync("." + book.dataValues.imageLink);
+            } catch(err) {}
+        }
         await book.update({
             title: req.body.title,
             author: req.body.author,
+            imageLink: imageLocation
         })
         await libraryTags.sync()
+        req.session.highlight = req.body.bookUUID
+        res.redirect("/library")
+
+    } catch (err) {
+        // No Image was uploaded
+        let book = await libraryTags.findOne({ where: { userID: req.session.user, bookUUID: req.body.bookUUID } })
+        if (book) {
+            await book.update({
+                title: req.body.title,
+                author: req.body.author,
+            })
+            await libraryTags.sync()
+        }
+        req.session.highlight = req.body.bookUUID
+        res.redirect("/library")
     }
-    res.redirect("/library")
 })
 
 

@@ -139,12 +139,9 @@ function processData() {
         data[i].checkoutMatch = result.index
         data[i].categories = JSON.parse(data[i].categories)
     }
-
-
     for (let i = 0; i < categoryData.length; i++) {
         categoryData[i].books = JSON.parse(categoryData[i].books)
     }
-
 
     // Get Cache Files
     let fileList = []
@@ -181,8 +178,8 @@ function updatePage() {
         //divImage.src = data[i].imageLink
         //divImage.src = "/static/MissingImage.gif"
         divImage.innerHTML = `<div class="spinner-border text-primary" role="status" style="margin:20px">
-        <span class="sr-only"></span>
-      </div>`
+                <span class="sr-only"></span>
+            </div>`
 
         displayImage.appendChild(button)
         button.appendChild(divImage)
@@ -294,7 +291,6 @@ async function refreshPage() {
                 }
                 
             } );
-
         }
     });
 
@@ -323,21 +319,14 @@ function highlightBook(uuid) {
             let row = this.node();
             if (row.getAttribute("bookID") === itemToHighlight) {
                 console.log("Highlighting: " + itemToHighlight)
+                moveToPageWithSelectedItem(table, this)
+                row.classList.add('highlight');
 
-                    moveToPageWithSelectedItem(table, this)
-                    row.classList.add('highlight');
-
-                    setTimeout(() => {
-                        let item = document.getElementById(uuid)
-                        console.log(item.getBoundingClientRect().top)
-                        window.scrollTo(0,item.getBoundingClientRect().top - (window.innerHeight / 2) + (item.getBoundingClientRect().height / 2))
-                        
-                    }, 500);
-                    
-
-                    
-
-
+                setTimeout(() => {
+                    let item = document.getElementById(uuid)
+                    //console.log(item.getBoundingClientRect().top)
+                    window.scrollTo(0,item.getBoundingClientRect().top - (window.innerHeight / 2) + (item.getBoundingClientRect().height / 2))
+                }, 500);
             }
         });
 }

@@ -11,17 +11,22 @@ block layout-content
         div( class="swipe-content swipe-transition")
           div(style="padding:10%")
               div(class="container text-center formBackground")
-                  image(id="cover", style="max-width:100px;")
+                  div(id="imageDiv")
+                    image(id="cover", style="max-width:100px; border-radius:5px;")
                   br 
                   br
-                  form(action='/library/editBook' method='post')
+                  form(action='/library/editBook' method='post' enctype="multipart/form-data")
                       div(class="form-group")
                           h3(for="title") Book Title
                           input(type="text", class="form-control" id="title" placeholder="Title" name="title") 
                           br
                           h3(for="author") Author
                           input(type="text", class="form-control" id="author" placeholder="Author" name="author") 
-                          
+                          br
+                          h3(for="image") New Image
+                          input(type="file" name="image" accept="image/*" capture="camera")
+
+
                           input(type="hidden" name="bookUUID" id="bookUUID" value="value")
 
                       div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
@@ -32,8 +37,15 @@ block layout-content
             var book = !{book};
             console.log(book)
 
+            if (book.imageLink.startsWith(".")) {
+              document.getElementById("cover").src = book.imageLink.substring(1);
+            } else {
+              document.getElementById("cover").src = book.imageLink;
+            }
+            document.getElementById("cover").onerror = function() {
+              document.getElementById("imageDiv").innerHTML = `<svg style="width:60px; margin:20px" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 47.5 47.5" viewBox="0 0 47.5 47.5" id="warning"><defs><clipPath id="a"><path d="M0 38h38V0H0v38Z"></path></clipPath></defs><g clip-path="url(#a)" transform="matrix(1.25 0 0 -1.25 0 47.5)"><path fill="#ffcc4d" d="M0 0c-1.842 0-2.654 1.338-1.806 2.973l15.609 30.055c.848 1.635 2.238 1.635 3.087 0L32.499 2.973C33.349 1.338 32.536 0 30.693 0H0Z" transform="translate(3.653 2)"></path><path fill="#231f20" d="M0 0c0 1.302.961 2.108 2.232 2.108 1.241 0 2.233-.837 2.233-2.108v-11.938c0-1.271-.992-2.108-2.233-2.108-1.271 0-2.232.807-2.232 2.108V0Zm-.187-18.293a2.422 2.422 0 0 0 2.419 2.418 2.422 2.422 0 0 0 2.419-2.418 2.422 2.422 0 0 0-2.419-2.419 2.422 2.422 0 0 0-2.419 2.419" transform="translate(16.769 26.34)"></path></g></svg>`
+            }
 
-            document.getElementById("cover").src = book.imageLink;
             document.getElementById("title").value = book.title;
             document.getElementById("author").value = book.author;          
             document.getElementById("bookUUID").value = book.bookUUID;          
