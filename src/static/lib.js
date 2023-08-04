@@ -14,7 +14,6 @@ window.onload = function() {
 
 
 function swipePageUp() {
-    window.scrollTo(0,0)
     document.querySelector('.swipe-content').classList.add('swipe-transition');
 }
 function swipePageDown() {
