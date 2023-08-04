@@ -36,6 +36,13 @@
 }
 
 
+.highlight td {
+  background-color: rgb(37, 54, 62);
+}
+.highlight th {
+  background-color: rgb(37, 54, 62);
+}
+
 
 .dataTables_wrapper .dataTables_filter {
   float: none;

@@ -654,7 +654,11 @@ app.get('/library', (req, res) => {
 
     if (req.session.checkout) { req.session.checkout = undefined; }
 
-    res.render('library', { name: JSON.stringify(req.session.firstName), isAdmin: req.session.isAdmin});
+
+    let bookHighlight = req.session.highlight;
+    req.session.highlight = ""
+    res.render('library', { name: JSON.stringify(req.session.firstName), isAdmin: req.session.isAdmin, highlight: JSON.stringify(bookHighlight)});
+    
 })
 app.get('/fetchLibrary', async (req, res) => {
     if (!req.session.user) {
@@ -720,6 +724,7 @@ app.get('/editBook/:bookID', async (req, res) => {
         return res.render('login');
     }
     if (req.params.bookID) {
+        req.session.highlight = req.params.bookID;
         res.render('editBook', {book: JSON.stringify(await getBook(req.params.bookID, req.session.user))});
     } else {
         res.redirect('/library');
@@ -916,6 +921,7 @@ app.post('/auth/login', upload.none(), async (req, res) => {
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
     req.session.isAdmin = false;
+    req.session.highlight = "";
     if (!req.session.user) {
         res.status(401);
         res.send('None shall pass');
@@ -934,6 +940,7 @@ app.post('/auth/signup', upload.none(), async (req, res) => {
     let name = await getFirstName(id, req.body.password);
     req.session.firstName = name;
     req.session.isAdmin = false;
+    req.session.highlight = "";
     if (!req.session.user) {
         res.status(401);
         res.send('None shall pass');
@@ -993,6 +1000,7 @@ app.post('/admin/viewUser', async (req, res) => {
     }
     req.session.user = req.body.user
     req.session.firstName = "Viewing As Admin"
+    req.session.highlight = "";
     return res.json({error: false});
 })
 app.post('/admin/resetUser', async (req, res) => {
@@ -1093,7 +1101,7 @@ app.post('/library/addBook', async (req, res) => {
         for (let i = 0; i < req.body.categories.length; i++) {
             await addBookToCategory(bookuuid, req.body.categories[i], req.session.user)
         }
-
+        req.session.highlight = bookuuid;
         delete req.session.book
         res.send({error: false})
 

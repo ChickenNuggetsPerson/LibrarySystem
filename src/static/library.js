@@ -173,12 +173,16 @@ function updatePage() {
             overlayBook(i) 
         });
 
-        const divImage = document.createElement('img')
+        const divImage = document.createElement('div')
         displayImage.scope = "row"
         divImage.style.maxWidth = "100px"
         divImage.style.borderRadius = "10px"
         divImage.id = data[i].bookUUID
         //divImage.src = data[i].imageLink
+        //divImage.src = "/static/MissingImage.gif"
+        divImage.innerHTML = `<div class="spinner-border text-primary" role="status" style="margin:20px">
+        <span class="sr-only"></span>
+      </div>`
 
         displayImage.appendChild(button)
         button.appendChild(divImage)
@@ -241,7 +245,9 @@ function updatePage() {
 
 let table;
 async function refreshPage() {
-    swipePageDown()
+    swipePageUp()
+    
+    window.scrollTo(0,0)
     try {
         table.destroy()
     } catch(err) {}
@@ -270,9 +276,21 @@ async function refreshPage() {
             let api = this.api();
             api.rows( {page:'current'} ).every( function ( rowIdx, tableLoop, rowLoop ) {
                 var data = this.node();
-                if (!document.getElementById(data.getAttribute("bookID")).src) {
+                if (document.getElementById(data.getAttribute("bookID")).innerHTML.endsWith("</div>")) {
                     console.log("Loading Image: " + data.getAttribute("imageLink"))
-                    document.getElementById(data.getAttribute("bookID")).src = data.getAttribute("imageLink")
+                    let img = new Image();
+
+                    img.onload = function() {
+                        document.getElementById(data.getAttribute("bookID")).innerHTML = ""
+                        document.getElementById(data.getAttribute("bookID")).appendChild(img)
+                    }
+                    img.onerror = function() {
+                        document.getElementById(data.getAttribute("bookID")).innerHTML = `<svg style="width:60px; margin:20px" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 47.5 47.5" viewBox="0 0 47.5 47.5" id="warning"><defs><clipPath id="a"><path d="M0 38h38V0H0v38Z"></path></clipPath></defs><g clip-path="url(#a)" transform="matrix(1.25 0 0 -1.25 0 47.5)"><path fill="#ffcc4d" d="M0 0c-1.842 0-2.654 1.338-1.806 2.973l15.609 30.055c.848 1.635 2.238 1.635 3.087 0L32.499 2.973C33.349 1.338 32.536 0 30.693 0H0Z" transform="translate(3.653 2)"></path><path fill="#231f20" d="M0 0c0 1.302.961 2.108 2.232 2.108 1.241 0 2.233-.837 2.233-2.108v-11.938c0-1.271-.992-2.108-2.233-2.108-1.271 0-2.232.807-2.232 2.108V0Zm-.187-18.293a2.422 2.422 0 0 0 2.419 2.418 2.422 2.422 0 0 0 2.419-2.418 2.422 2.422 0 0 0-2.419-2.419 2.422 2.422 0 0 0-2.419 2.419" transform="translate(16.769 26.34)"></path></g></svg>`
+                    }
+
+                    img.src = data.getAttribute("imageLink")
+                    img.style.maxWidth = document.getElementById(data.getAttribute("bookID")).style.maxWidth;
+                    img.style.borderRadius = document.getElementById(data.getAttribute("bookID")).style.borderRadius;
                 }
                 
             } );
@@ -284,14 +302,56 @@ async function refreshPage() {
     if (urlParams.get('search')) { 
         table.search(urlParams.get('search'))
         table.draw()
-    } else {
-        
+    }
+
+    swipePageDown()
+
+    if (highlight != "") {
+        setTimeout(() => {
+            highlightBook(highlight)
+            highlight = ""
+        }, 500);
     }
 
     showNotifications()
 }
 
+function highlightBook(uuid) {
+    const itemToHighlight = uuid
+        table.rows().every(function(i) {
+            const rowData = this.data();
+            let row = this.node();
+            if (row.getAttribute("bookID") === itemToHighlight) {
+                console.log("Highlighting: " + itemToHighlight)
 
+                    moveToPageWithSelectedItem(table, this)
+                    row.classList.add('highlight');
+
+                    setTimeout(() => {
+                        let item = document.getElementById(uuid)
+                        console.log(item.getBoundingClientRect().top)
+                        window.scrollTo(0,item.getBoundingClientRect().top - (window.innerHeight / 2) + (item.getBoundingClientRect().height / 2))
+                        
+                    }, 500);
+                    
+
+                    
+
+
+            }
+        });
+}
+
+function moveToPageWithSelectedItem(table, row) {
+    var numberOfRows = table.data().length;
+    var rowsOnOnePage = table.page.len();
+    if (rowsOnOnePage < numberOfRows) {
+        var selectedNode = row.node();
+        var nodePosition = table.rows({order: 'current'}).nodes().indexOf(selectedNode);
+        var pageNumber = Math.floor(nodePosition / rowsOnOnePage);
+        table.page(pageNumber).draw(false); //move to page with the element
+    }
+}
 
 function showNotifications() {
     for (let i = 0; i < checkoutData.length; i++) {
@@ -361,6 +421,7 @@ function returnBook(bookID) {
     .then(response => {
         if (!response.error) { 
             $.notify("Returned Book", "success");
+            highlight = bookID
             refreshPage();
         } else {
             bootbox.alert('There was an error in the server');
@@ -449,6 +510,7 @@ function editCategoryMenu(book, bookIndex) {
             }
 
             setTimeout(async () => {
+                highlight = book.bookUUID;
                 refreshPage()
                 dialog.modal('hide');   
             }, 1000);
