@@ -713,6 +713,7 @@ app.get('/checkout', (req, res) => {
         return res.render('login');
     }
     if (req.session.checkout) {
+        req.session.highlight = req.session.checkout.bookUUID;
         res.render('checkout', {book: JSON.stringify(req.session.checkout)});
     } else {
         res.redirect('/library');
