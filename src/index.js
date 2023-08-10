@@ -764,12 +764,12 @@ var Prowl = require('node-prowl');
 var prowl = new Prowl('99ce193add90c8703bd3a2c30a147516503b4b07');
 app.get('/admin/notify/over/:amount', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    notifyProwl('Warm Bedroom', 'Bedroom Temp is ' + req.params.amount + ' degrees')
+    notifyProwl('Warm Bedroom', 'Bedroom Temp is ' + req.params.amount)
     res.render("blank")
 });
 app.get('/admin/notify/under/:amount', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    notifyProwl('Cold Bedroom', 'Bedroom Temp is ' + req.params.amount + ' degrees')
+    notifyProwl('Cold Bedroom', 'Bedroom Temp is ' + req.params.amount)
     res.render("blank")
 });
 function notifyProwl(title, message) {
@@ -778,7 +778,7 @@ function notifyProwl(title, message) {
         url: ''
     }, function( err, remaining ){
         if (err) { console.log(err) }
-        console.log( 'I have ' + remaining + ' calls to the api during current hour. BOOM!' );
+        console.log('   Sent Notification... ' + remaining + ' left');
     });
 }
 
