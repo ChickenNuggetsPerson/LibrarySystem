@@ -763,12 +763,12 @@ app.get('/admin/view', async (req, res) => {
 var Prowl = require('node-prowl');
 var prowl = new Prowl('99ce193add90c8703bd3a2c30a147516503b4b07');
 app.get('/admin/notify/over/:amount', async (req, res) => {
-    if (!req.headers.host.startsWith("192.168.50.188") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     notifyProwl('Warm Bedroom', 'Bedroom Temp is ' + req.params.amount + ' degrees')
     res.render("blank")
 });
 app.get('/admin/notify/under/:amount', async (req, res) => {
-    if (!req.headers.host.startsWith("192.168.50.188") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     notifyProwl('Cold Bedroom', 'Bedroom Temp is ' + req.params.amount + ' degrees')
     res.render("blank")
 });
