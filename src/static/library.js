@@ -138,7 +138,19 @@ function processData() {
         let result = findStringInArray(data[i].bookUUID, checkoutArray)
         data[i].checkoutMatch = result.index
         data[i].categories = JSON.parse(data[i].categories)
+        data[i].categories.sort()
     }
+
+    const sortedArr = categoryData.sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        } else if (a.name > b.name) {
+          return 1;
+        } else {
+          return 0;
+        }
+    });
+    categoryData = sortedArr;
     for (let i = 0; i < categoryData.length; i++) {
         categoryData[i].books = JSON.parse(categoryData[i].books)
     }
@@ -313,6 +325,7 @@ async function refreshPage() {
 }
 
 function highlightBook(uuid) {
+    window.scrollTo(0, 0)
     const itemToHighlight = uuid
         table.rows().every(function(i) {
             const rowData = this.data();
@@ -325,6 +338,7 @@ function highlightBook(uuid) {
                 setTimeout(() => {
                     let item = document.getElementById(uuid)
                     //console.log(item.getBoundingClientRect().top)
+                    
                     window.scrollTo(0,item.getBoundingClientRect().top - (window.innerHeight / 2) + (item.getBoundingClientRect().height / 2))
                 }, 500);
             }
@@ -463,12 +477,12 @@ function editCategoryMenu(book, bookIndex) {
     let options = []
     for (let i = 0; i < categoryData.length; i++) {
         options.push({
-        text: categoryData[i].name,
-        value: `${i}`
+            text: categoryData[i].name,
+            value: `${i}`
         })
         
         if (findStringInArray(book.bookUUID, categoryData[i].books).match) {
-        values.push(`${i}`)
+            values.push(`${i}`)
         }
     }
 
@@ -480,14 +494,17 @@ function editCategoryMenu(book, bookIndex) {
     className: 'frosted-glass',
     inputOptions: options,
         callback: function (changed) {
+            
+            const addedCats = findAddedIndexes(values, changed);
+            const removedCats = findRemovedIndexes(values, changed);
+
+            if (addedCats.length == 0 && removedCats.length == 0) {
+                return;
+            }
             let dialog = bootbox.dialog({
                 message: '<p class="text-center mb-0"><i class="fas fa-spin fa-cog"></i> Applying Changes...</p>',
                 closeButton: false
             });
-
-
-            const addedCats = findAddedIndexes(values, changed);
-            const removedCats = findRemovedIndexes(values, changed);
 
             for (let i = 0; i < removedCats.length; i++) {
                 console.log("removed " + categoryData[values[removedCats[i]]].name)
