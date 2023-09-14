@@ -14,7 +14,7 @@ const fetch = require('node-fetch');
 var path = require('path')
 var morgan = require('morgan')
 var rfs = require('rotating-file-stream') 
-var ISBN = require('node-isbn-catalogue');
+var ISBN = require('./node-isbn-cataloge.js');
 
 
 
@@ -76,40 +76,53 @@ function convertISBNBookToOpenLibrary(isbnBook) {
     book.imageLink = (isbnBook?.imageLinks?.thumbnail == undefined) ? "Not Provided" : isbnBook.imageLinks.thumbnail
     return book
 }
-async function searchBook(isbn) {
-    return new Promise(async (resolve) => {
 
-        // Try Larger Database
-        console.log("")
-        console.log("Trying Larger Database for: " + isbn)
-        ISBN.resolve(isbn, async function (err, book) {
+async function searchGoogleBook(isbn) {
+    return new Promise(resolve => {
+        ISBN.resolve(isbn, function (err, book) {
             if (err) {
                 // Try Openlibrary
                 console.log("Could Not Find Book")
-                console.log("Trying OpenLibrary")
-                try {
-                    const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
-                    let settings = { method: "Get" };
-                    const response = await fetch(url, settings)
-                    const data = await response.json()
-                    let book = data[`ISBN:${isbn}`]
-                    if (book?.title) {
-                        console.log("Found Book")
-                        resolve(book)
-                    } else {
-                        console.log("Still Couldn't Find Book")
-                        resolve({})
-                    }
-                } catch(err) {
-                    console.log("Could Not Find Book")
-                    resolve({})
-                }
+                throw new Error("afds");
             } else {
                 // Return Larger Database Book
                 console.log("Found Book")
                 resolve(convertISBNBookToOpenLibrary(book))
             }
         });
+    })
+}
+async function searchOpenLibrary(isbn) {
+    return new Promise(async (resolve) => {
+        const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`
+        let settings = { method: "Get" };
+        const response = await fetch(url, settings)
+        const data = await response.json()
+        let book = data[`ISBN:${isbn}`]
+        if (book?.title) {
+            console.log("Found Book")
+            resolve(book)
+        } else {
+            console.log("Still Couldn't Find Book")
+            resolve({})
+        }
+    })
+}
+async function searchBook(isbn) {
+    return new Promise(async (resolve) => {
+
+        // Try Larger Database
+        console.log("")
+        console.log("Trying Larger Database for: " + isbn)
+        let book = {}
+        try {
+            book = await searchGoogleBook(isbn)
+        } catch (err) {
+            console.log("Trying OpenLibrary")
+            book = await searchOpenLibrary(isbn)
+        }
+
+        resolve(book)
     })
 }
 
@@ -1288,6 +1301,7 @@ if (process.platform == "linux") {
 
 // Redirect Server
 const http = require('http');
+const { error } = require('console');
 
 const redirectServer = http.createServer((req, res) => {
   const { headers, method, url } = req;
