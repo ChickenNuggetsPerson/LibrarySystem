@@ -54,6 +54,7 @@ app.use(session({
 app.use('/uploads', express.static('./uploads'))
 app.use('/static', express.static('./src/static'))
 app.use('/', express.static('./rootFiles'))
+app.use('.well-known', express.static('./rootFiles'))
 
 
 // create a rotating write stream
