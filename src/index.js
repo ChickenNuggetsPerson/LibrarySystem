@@ -54,7 +54,6 @@ app.use(session({
 app.use('/uploads', express.static('./uploads'))
 app.use('/static', express.static('./src/static'))
 app.use('/', express.static('./rootFiles'))
-app.use('.well-known', express.static('./rootFiles'))
 
 
 // create a rotating write stream
@@ -1281,7 +1280,8 @@ initTags();
 
 let port = 8080
 
-if (process.platform == "linux") {
+// Add the -http argument to force http
+if (process.platform == "linux" && process.argv.length != 3) {
     const options = {
         key: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/privkey.pem'),
         cert: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/cert.pem')
