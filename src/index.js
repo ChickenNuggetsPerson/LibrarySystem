@@ -83,7 +83,7 @@ async function searchGoogleBook(isbn) {
             if (err) {
                 // Try Openlibrary
                 console.log("Could Not Find Book")
-                throw new Error("afds");
+                resolve({})
             } else {
                 // Return Larger Database Book
                 console.log("Found Book")
@@ -117,10 +117,13 @@ async function searchBook(isbn) {
         let book = {}
         try {
             book = await searchGoogleBook(isbn)
-        } catch (err) {
-            console.log("Trying OpenLibrary")
+            resolve(book)
+        } catch (err) {}
+        console.log("Trying OpenLibrary")
+        try {
             book = await searchOpenLibrary(isbn)
-        }
+            resolve(book)
+        } catch(err) {}
 
         resolve(book)
     })
