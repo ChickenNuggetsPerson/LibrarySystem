@@ -1278,7 +1278,7 @@ async function initTags() {
 initTags();
 
 
-
+console.log(fs.readFileSync("./src/logo.txt", "utf-8"))
 
 
 let port = 8080
