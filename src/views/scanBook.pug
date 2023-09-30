@@ -11,17 +11,22 @@ block layout-content
     body
       div( class="swipe-container")
         div( class="swipe-content swipe-transition")
+
           div( class="container text-center", id="manual", style="") 
-            div(id="qr-reader" style="width: 90%")
-            h3(style="color:white" id="recomendTXT") It is recomended that you use a webcam or document camera
+            
+            h3(style="color:white" id="recomendTXT") Choose an Option
             div(class="row" id="buttons")
               div(class="col")
-                br
-                button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Manual ISBN
-                br
-                br
+                button(type="button" class="btn btn-success" onclick="btnClick('scan')") Scan ISBN
+                div(style="padding:10px;")
+                button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Type ISBN
+                div(style="padding:10px;")
                 button(type="button" class="btn btn-warning" onclick="btnClick('noISBN')") No ISBN?
-        
+
+            br
+            
+            div(id="reader")
+              div(id="qr-reader" style="width: 90%")
           
           div( class="container text-center formBackground", id="manualenter")    
             h3(id="error", style="color:white")
@@ -51,6 +56,7 @@ block layout-content
 
       script.
         document.getElementById("manualenter").style.display = "none"
+        document.getElementById("reader").style.display = "none"
         let lastRead = "";
 
         let dialog;
@@ -93,20 +99,26 @@ block layout-content
               }
             })
           }
-          function btnClick(option) {
-            if (option == 'manual') {
-              let chosen = window.prompt("Enter ISBN","")
-              if (chosen != "" && chosen != null) {
-                onScanSuccess("", chosen);
-              }
+        function btnClick(option) {
+          if (option == 'scan') {
+            document.getElementById("manualenter").style.display = "none"
+            document.getElementById("reader").style.display = ""
+            document.getElementById('buttons').innerHTML = ""
+            document.getElementById("recomendTXT").innerText = ""
+          }
+          if (option == 'manual') {
+            let chosen = window.prompt("Enter ISBN","")
+            if (chosen != "" && chosen != null) {
+              onScanSuccess("", chosen);
             }
-            if (option == 'noISBN') {
-              document.getElementById("qr-reader").remove()
-              document.getElementById("manualenter").style.display = ""
-              document.getElementById('buttons').innerHTML = ""
-              document.getElementById("recomendTXT").innerText = ""
-            }
-          } 
+          }
+          if (option == 'noISBN') {
+            document.getElementById("qr-reader").remove()
+            document.getElementById("manualenter").style.display = ""
+            document.getElementById('buttons').innerHTML = ""
+            document.getElementById("recomendTXT").innerText = ""
+          }
+        } 
         
         var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { 
           fps: 10, 

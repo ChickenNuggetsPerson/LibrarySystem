@@ -1041,7 +1041,22 @@ app.post('/admin/resetUser', async (req, res) => {
     return res.json({error: false});
 })
 
-
+function sanitize(string) {
+    try {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#x27;',
+            "/": '&#x2F;',
+        };
+        const reg = /[&<>"'/]/ig;
+        return string.replace(reg, (match)=>(map[match]));
+    } catch (err) {
+        return string
+    }
+}
 
 app.post('/library/scanBook', async (req, res) => {
     if (!req.session.user) {
@@ -1069,7 +1084,7 @@ app.post('/library/scanBook', async (req, res) => {
     req.session.book.isbn = req.body.isbnCode.decodedText
     res.json({error: false});
 
-   
+
 })
 app.post('/library/manualScanBook', upload.single('image'), async (req, res) => {
     try {
@@ -1077,9 +1092,9 @@ app.post('/library/manualScanBook', upload.single('image'), async (req, res) => 
         if (req.session?.book == undefined) {
             // ScanBook Page, Completely new book    
             const tempBook = {
-                title: req.body.title,
-                authors: [{name: req.body.author}],
-                isbn: req.body.isbn,
+                title: sanitize(req.body.title),
+                authors: [{name: sanitize(req.body.author)}],
+                isbn: sanitize(req.body.isbn),
                 cover: { 
                     large: (req?.file?.destination == undefined) ? "Not Provied" : (req.file.destination + "/" + req.file.filename).substring(1)
                 }
@@ -1127,6 +1142,9 @@ app.post('/library/addBook', async (req, res) => {
         res.send({error: false})
 
     } else {
+        try {
+            if (req.session.book.cover.large.startsWith("/uploads")) { try { fs.unlinkSync("." + req.session.book.cover.large); } catch(err) { console.log(err) } }
+        } catch(err) {}
         delete req.session.book;
         res.json({error: false})
     }
@@ -1180,8 +1198,8 @@ app.post('/library/editBook', upload.single('image'), async (req, res) => {
             } catch(err) {}
         }
         await book.update({
-            title: req.body.title,
-            author: req.body.author,
+            title: sanitize(req.body.title),
+            author: sanitize(req.body.author),
             imageLink: imageLocation
         })
         await libraryTags.sync()
@@ -1193,8 +1211,8 @@ app.post('/library/editBook', upload.single('image'), async (req, res) => {
         let book = await libraryTags.findOne({ where: { userID: req.session.user, bookUUID: req.body.bookUUID } })
         if (book) {
             await book.update({
-                title: req.body.title,
-                author: req.body.author,
+                title: sanitize(req.body.title),
+                author: sanitize(req.body.author),
             })
             await libraryTags.sync()
         }
