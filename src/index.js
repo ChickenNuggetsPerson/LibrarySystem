@@ -1300,8 +1300,8 @@ initTags();
 console.log(fs.readFileSync("./src/logo.txt", "utf-8"))
 
 
-//let port = 8080
-let port = 22666
+let port = 8080
+//let port = 22666
 //let port = 443
 
 let override = false;
