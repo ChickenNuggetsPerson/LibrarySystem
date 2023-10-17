@@ -1302,8 +1302,10 @@ console.log(fs.readFileSync("./src/logo.txt", "utf-8"))
 //let port = 8080
 let port = 22666
 
+let override = true;
+
 // Add the -http argument to force http
-if (process.platform == "linux" && process.argv.length != 3) {
+if ((process.platform == "linux" && process.argv.length != 3) && !override) {
     const options = {
         key: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/privkey.pem'),
         cert: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/cert.pem')
