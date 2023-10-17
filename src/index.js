@@ -819,7 +819,7 @@ function format(seconds){
   
     return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
 }
-  
+
 
 app.get('/stats', async (req, res) => {
     var uptime = process.uptime();
@@ -1299,7 +1299,8 @@ initTags();
 console.log(fs.readFileSync("./src/logo.txt", "utf-8"))
 
 
-let port = 8080
+//let port = 8080
+let port = 22666
 
 // Add the -http argument to force http
 if (process.platform == "linux" && process.argv.length != 3) {
@@ -1309,7 +1310,7 @@ if (process.platform == "linux" && process.argv.length != 3) {
     };
     const server = https.createServer(options, app);
     server.listen(port, () => {
-      console.log('Production server running on port: ' + port);
+        console.log('Production server running on port: ' + port);
     });  
 } else {
     app.listen(port, () => {
@@ -1322,16 +1323,19 @@ if (process.platform == "linux" && process.argv.length != 3) {
 
 
 // Redirect Server
+/*
+
 const http = require('http');
 const { error } = require('console');
 
 const redirectServer = http.createServer((req, res) => {
-  const { headers, method, url } = req;
-  const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
-  res.writeHead(302, { Location: location });
-  res.end();
+    const { headers, method, url } = req;
+    const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
+    res.writeHead(302, { Location: location });
+    res.end();
 });
 
 redirectServer.listen(80, () => {
-  console.log('Redirect server running on port 80');
+    console.log('Redirect server running on port 80');
 });
+*/
