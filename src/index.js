@@ -1302,7 +1302,7 @@ console.log(fs.readFileSync("./src/logo.txt", "utf-8"))
 //let port = 8080
 let port = 22666
 
-let override = true;
+let override = false;
 
 // Add the -http argument to force http
 if ((process.platform == "linux" && process.argv.length != 3) && !override) {
