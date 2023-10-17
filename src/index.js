@@ -631,6 +631,7 @@ async function removeCatFromBook(bookID, catName, userID) {
 
 // Serve the Pages
 app.get('/', (req, res) => {
+    console.log(req.headers.host)
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
