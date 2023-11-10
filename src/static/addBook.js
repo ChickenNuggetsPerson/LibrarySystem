@@ -44,6 +44,7 @@ async function btnClicked(answer){
         .then(response => {
             window.location.replace("/library");
         })
+        return
     }
     if (answer && noCover) {
         var form = document.getElementById('coverSubmitForm');
@@ -65,6 +66,8 @@ async function btnClicked(answer){
         } catch (error) {
             console.error(error);
         }
+
+        return
     }
     fetch('/library/addBook', {
         method: 'POST',
