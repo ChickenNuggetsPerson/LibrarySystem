@@ -3,7 +3,7 @@ console.log(book)
 
 
 document.getElementById("title").innerText = book.title;
-try {document.getElementById("cover").src = book.cover.large;} catch(err) {}
+try {document.getElementById("cover").src = book.imageLink;} catch(err) {}
 
 
 let noCover = true;

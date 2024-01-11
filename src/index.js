@@ -117,12 +117,12 @@ async function searchBook(isbn) {
         let book = {}
         try {
             book = await searchGoogleBook(isbn)
-            resolve(book)
+            return resolve(book)
         } catch (err) {}
         console.log("Trying OpenLibrary")
         try {
             book = await searchOpenLibrary(isbn)
-            resolve(book)
+            return resolve(book)
         } catch(err) {}
 
         resolve(book)
@@ -311,7 +311,7 @@ async function addBook(userid, book) {
         author: (book?.authors == undefined) ? "Not Provided" : book.authors[0].name,
         description: (book?.excerpts == undefined) ? "Not Provided" : book.excerpts[0].text,
         pageCount: (book?.number_of_pages == undefined) ? "Not Provided" : book.number_of_pages,
-        imageLink: (book?.cover?.large == undefined) ? "Not Provided" : book.cover.large,
+        imageLink: (book?.imageLink == undefined) ? "Not Provided" : book.imageLink,
         categories: JSON.stringify([]),
         bookUUID: uuid
     })

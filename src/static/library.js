@@ -6,7 +6,7 @@ function headerBtnClick(parm) {
         changePage("/logout")
     }
     if (parm == 'categories') {
-      changePage("/categories")
+        changePage("/categories")
     }
     if (parm == 'settings') {
         bootbox.dialog({
@@ -16,29 +16,32 @@ function headerBtnClick(parm) {
             message: "Select Something to Edit",
             className: 'frosted-glass',
             buttons: {
-              admin:{
-                label: "Admin",
-                className: 'btn-warning',
-                callback: function(){
-                    changePage("/admin/login")
+                admin:{
+                    label: "Admin",
+                    className: 'btn-warning',
+                    callback: function(){
+                        changePage("/admin/login")
+                    }
+                },
+                remove: {
+                    label: "Delete Account",
+                    className: 'btn-danger',
+                    callback: function(){
+                        deleteUser();
+                    }
+                },
+                close: {
+                    label: "Close",
+                    className: 'btn-info',
+                    
                 }
-              },
-              remove: {
-                label: "Delete Account",
-                className: 'btn-danger',
-                callback: function(){
-                    deleteUser();
-                }
-              },
-              close: {
-                label: "Close",
-                className: 'btn-info',
-                
-              }
             }
         });
     }
 }
+
+const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+let isMobile = regex.test(navigator.userAgent);
 
 let data = {}
 let checkoutData = {}
@@ -143,11 +146,11 @@ function processData() {
 
     const sortedArr = categoryData.sort((a, b) => {
         if (a.name < b.name) {
-          return -1;
+            return -1;
         } else if (a.name > b.name) {
-          return 1;
+            return 1;
         } else {
-          return 0;
+            return 0;
         }
     });
     categoryData = sortedArr;
@@ -222,7 +225,15 @@ function updatePage() {
         displayText.appendChild(mainTxt)
         displayText.appendChild(altTxt)
         displayText.appendChild(otherAltTxt)
-
+        
+        const authorDiv = document.createElement("td")
+        const authorTxt = document.createElement("h4")
+        authorTxt.innerText = data[i].author
+        authorDiv.appendChild(authorTxt)
+        authorTxt.onclick = function() {  
+            table.search(data[i].author)
+            table.draw()
+        }
 
         const displayCategory = document.createElement('td')
         for (let x = 0; x < data[i].categories.length; x++) {
@@ -245,6 +256,7 @@ function updatePage() {
 
         row.appendChild(displayImage)
         row.appendChild(displayText)
+        row.appendChild(authorDiv)
         row.appendChild(displayCategory)
 
 
@@ -279,6 +291,13 @@ async function refreshPage() {
                 next: "&raquo;"
             }
         },
+        columnDefs: [
+            {
+                target: 2,
+                visible: !isMobile,
+                searchable: true
+            }
+        ],
         pagingType: "full_numbers",
         aaSorting: [[1, "asc"]],
         "drawCallback": function( settings ) {
