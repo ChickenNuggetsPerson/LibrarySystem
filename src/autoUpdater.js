@@ -61,11 +61,10 @@ class AutoUpdater {
                 return;
             }
             console.log("Updating Code");
-            const command = 'git';
-            const args = ["pull"];
-            const child = spawn(command, args, {
+            const child = spawn("git pull && npm install", {
                 detached: true,
-                stdio: 'ignore'
+                stdio: 'ignore',
+                shell: true
             });
             child.unref();
         });

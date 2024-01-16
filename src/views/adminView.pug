@@ -216,6 +216,25 @@ block layout-content
             return { match: false, index: -1 }; // No match found with -1 index
         }
 
+        function forceUpdate() {
+          console.log("Forcing Update")
+
+          fetch('/admin/forceUpdate', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+          },
+            body: ""
+          }).then(response => response.json())
+          .then(response => {
+            if (!response.error) { 
+              location.reload() 
+            } else {
+              bootbox.alert('There was an error in the server');
+            }
+          })
+        }
+
         
     body()
       div( class="swipe-container")
@@ -225,6 +244,7 @@ block layout-content
             div(class="btn-group" role="group" aria-label="Basic example" style="margin:20px")
               
               button(type="button" class="btn btn-danger" onclick="changePage('/logout')") Logout Admin          
+              button(type="button" class="btn btn-warning" onclick="forceUpdate()") Force Update          
           div(style='padding:5%')
             table(class="table align-middle")
               thead

@@ -696,7 +696,7 @@ function deleteUser() {
                             })
                         }
                     }
-                    });
+                });
             
             }
         },

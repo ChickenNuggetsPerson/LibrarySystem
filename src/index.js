@@ -1,4 +1,5 @@
 const express = require('express')
+const compression = require('compression');
 let pem = require('pem');
 const https = require('https')
 const session = require('express-session');
@@ -54,6 +55,7 @@ app.use(session({
 app.use('/uploads', express.static('./uploads'))
 app.use('/static', express.static('./src/static'))
 app.use('/', express.static('./rootFiles'))
+app.use(compression()); 
 
 
 // create a rotating write stream
@@ -1038,6 +1040,20 @@ app.post('/admin/resetUser', async (req, res) => {
     }
     
     createResetCode(req.body.user)
+
+    return res.json({error: false});
+})
+app.post('/admin/forceUpdate', async (req, res) => {
+    if (!req.session.user) {
+        return res.json({error: true});
+    }
+    if (!req.session.isAdmin) {
+        return res.json({error: true});
+    }
+
+    setTimeout(() => {
+        updater.check()
+    }, 1000);
 
     return res.json({error: false});
 })
