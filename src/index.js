@@ -16,7 +16,7 @@ var morgan = require('morgan')
 var rfs = require('rotating-file-stream') 
 var ISBN = require('./node-isbn-cataloge.js');
 
-
+const { AutoUpdater } = require('./autoUpdater.js')
 
 function fileFilter (req, file, cb) {
     // To accept the file pass `true`, like so:
@@ -1304,7 +1304,7 @@ let port = 8080
 //let port = 22666
 //let port = 19135
 
-let override = false;
+let override = false; // Use this to force into http mode
 
 // Add the -http argument to force http
 if ((process.platform == "linux" && process.argv.length != 3) && !override) {
@@ -1322,24 +1322,4 @@ if ((process.platform == "linux" && process.argv.length != 3) && !override) {
     })
 }
 
-
-
-
-
-// Redirect Server
-/*
-
-const http = require('http');
-const { error } = require('console');
-
-const redirectServer = http.createServer((req, res) => {
-    const { headers, method, url } = req;
-    const location = `http://${headers.host.replace(/:\d+$/, '')}:8080${url}`;
-    res.writeHead(302, { Location: location });
-    res.end();
-});
-
-redirectServer.listen(80, () => {
-    console.log('Redirect server running on port 80');
-});
-*/
+let updater = new AutoUpdater("https://raw.githubusercontent.com/ChickenNuggetsPerson/LibrarySystem/main/package.json", "0 * 0 * * *")

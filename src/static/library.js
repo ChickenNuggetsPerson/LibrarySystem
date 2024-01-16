@@ -43,6 +43,24 @@ function headerBtnClick(parm) {
 const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 let isMobile = regex.test(navigator.userAgent);
 
+
+// Check if it is near midnight and notify the user
+if (new Date().getHours() == 23) {
+    setTimeout(() => {
+        $.notify("Updates should not take longer than a few minutes", {
+            autoHideDelay: 10000,
+            className: "info"
+        });
+    }, 500);
+    setTimeout(() => {
+        $.notify("The Library System updates nightly at midnight", {
+            autoHideDelay: 10000,
+            className: "info"
+        });
+    }, 1000);
+}
+
+
 let data = {}
 let checkoutData = {}
 let categoryData = {}
@@ -108,7 +126,7 @@ function findAddedIndexes(originalArray, updatedArray) {
     for (let i = 0; i < updatedArray.length; i++) {
         const item = updatedArray[i];
         if (!originalArray.includes(item)) {
-        addedIndexes.push(i);
+            addedIndexes.push(i);
         }
     }
 
@@ -121,13 +139,13 @@ function findRemovedIndexes(originalArray, updatedArray) {
     const removedIndexes = [];
 
     for (let i = 0; i < originalArray.length; i++) {
-    const item = originalArray[i];
-    if (!updatedArray.includes(item)) {
-    removedIndexes.push(i);
+        const item = originalArray[i];
+        if (!updatedArray.includes(item)) {
+            removedIndexes.push(i);
+        }
     }
-}
 
-return removedIndexes;
+    return removedIndexes;
 }
 
 
@@ -193,8 +211,8 @@ function updatePage() {
         //divImage.src = data[i].imageLink
         //divImage.src = "/static/MissingImage.gif"
         divImage.innerHTML = `<div class="spinner-border text-primary" role="status" style="margin:20px">
-                <span class="sr-only"></span>
-            </div>`
+                                <span class="sr-only"></span>
+                            </div>`
 
         displayImage.appendChild(button)
         button.appendChild(divImage)
@@ -643,55 +661,50 @@ function deleteUser() {
         message: "This can not be undone",
         className: 'frosted-glass',
         buttons: {
-          remove: {
+            remove: {
             label: "Delete",
             className: 'btn-danger',
             callback: function(){
-              bootbox.confirm({
-                message: 'Are you really sure?',
-                className: 'frosted-glass',
-                buttons: {
-                  confirm: {
-                    label: 'Yes',
-                    className: 'btn-success'
-                  },
-                  cancel: {
-                    label: 'No',
-                    className: 'btn-danger'
-                  }
-                  },
-                  callback: function (result) {
-                    if (result) {
-                        fetch('/user/delete', {
-                            method: 'POST',
-                            headers: {
-                            'Content-Type': 'application/json'
-                        },
-                            body: JSON.stringify({yeet: "Yeet"})
-                        }).then(response => response.json())
-                        .then(response => {
-                            if (!response.error) { 
-                                changePage("/logout")
-                            } else {
-                                bootbox.alert('There was an error in the server');
-                            }
-                        })
+                bootbox.confirm({
+                    message: 'Are you really sure?',
+                    className: 'frosted-glass',
+                    buttons: {
+                    confirm: {
+                        label: 'Yes',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
                     }
-                  }
-                });
-              
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            fetch('/user/delete', {
+                                method: 'POST',
+                                headers: {
+                                'Content-Type': 'application/json'
+                            },
+                                body: JSON.stringify({yeet: "Yeet"})
+                            }).then(response => response.json())
+                            .then(response => {
+                                if (!response.error) { 
+                                    changePage("/logout")
+                                } else {
+                                    bootbox.alert('There was an error in the server');
+                                }
+                            })
+                        }
+                    }
+                    });
+            
             }
-          },
-          close: {
+        },
+        close: {
             label: "Close",
             className: 'btn-info',
-            
-          }
         }
-    });
-
-
-   
+    }});
 }
 
 
