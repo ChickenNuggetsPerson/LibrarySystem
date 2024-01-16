@@ -633,7 +633,7 @@ async function removeCatFromBook(bookID, catName, userID) {
 
 // Serve the Pages
 app.get('/', (req, res) => {
-    console.log(req.headers.host)
+    // console.log(req.headers.host)
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     if (!req.session.user) {
         return res.render('login');
@@ -724,7 +724,7 @@ app.get('/addBook', (req, res) => {
    
 })
 app.get('/uploads', (req, res) => {
-    console.log(req.baseUrl)
+    // console.log(req.baseUrl)
 })
 app.get('/checkout', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
@@ -814,20 +814,24 @@ app.get('/library/search/category/:categoryID', async (req, res) => {
 
 function format(seconds){
     function pad(s){
-      return (s < 10 ? '0' : '') + s;
+        return (s < 10 ? '0' : '') + s;
     }
     var hours = Math.floor(seconds / (60*60));
     var minutes = Math.floor(seconds % (60*60) / 60);
     var seconds = Math.floor(seconds % 60);
-  
+
     return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
 }
 
 
 app.get('/stats', async (req, res) => {
     var uptime = process.uptime();
-    res.json({running: true, uptime: format(uptime)})
+    res.json({
+        running: true, 
+        uptime: format(uptime)
+    })
 })
+
 
 // Validation rules.
 let loginValidate = [
