@@ -24,7 +24,6 @@ function fileFilter (req, file, cb) {
     console.log("")
     console.log("Upload: " + file.originalname)
     cb(null, file.mimetype.startsWith("image"))
-  
 }
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
