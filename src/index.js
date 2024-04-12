@@ -1315,6 +1315,16 @@ async function initTags() {
 }
 initTags();
 
+let backupCron;
+async function initBackup() {
+    backupCron = cron.schedule("0 0 * * 0", function(){
+    
+        console.log("Backup Starting") // Sunday at 12am 
+        // Add backup code
+    })
+}
+initBackup();
+
 
 console.log(fs.readFileSync("./src/logo.txt", "utf-8"))
 
