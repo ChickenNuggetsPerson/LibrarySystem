@@ -17,7 +17,9 @@ block layout-content
             h3(style="color:white" id="recomendTXT") Choose an Option
             div(class="row" id="buttons")
               div(class="col")
-                button(type="button" class="btn btn-success" onclick="btnClick('scan')") Scan ISBN
+                button(type="button" class="btn btn-success" onclick="btnClick('scan')") Scan ISBN With Camera
+                div(style="padding:10px;")
+                button(type="button" class="btn btn-secondary" onclick="btnClick('barcodeScanner')") Scan ISBN With Barcode Scanner
                 div(style="padding:10px;")
                 button(type="button" class="btn btn-primary" onclick="btnClick('manual')") Type ISBN
                 div(style="padding:10px;")
@@ -54,91 +56,4 @@ block layout-content
           div(style="height:100px")
 
 
-      script.
-        document.getElementById("manualenter").style.display = "none"
-        document.getElementById("reader").style.display = "none"
-        let lastRead = "";
-
-        let dialog;
-        function onScanSuccess(decodedText, decodedResult) {
-            console.log(`Code scanned = ${decodedText}`, decodedResult);
-            html5QrcodeScanner.clear();
-            if (decodedResult == lastRead) {return}
-            dialog = bootbox.dialog({
-                message: '<p class="text-center mb-0"><i class="fas fa-spin fa-cog"></i> Fetching Data</p>',
-                closeButton: false
-            });
-            //setTimeout(() => {
-            //    dialog.modal('hide');   
-            //}, 5000);
-            fetch('/library/scanBook', {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({isbnCode: decodedResult})
-            }).then(response => response.json())
-            .then(response => {
-              console.log(response)
-              dialog.modal('hide');   
-              if (!response.error) { 
-                dialog.modal('hide');  
-                setTimeout(() => {
-                  changePage('/addBook');
-                }, 2000); 
-                
-              } else {
-                dialog.modal('hide');   
-                document.getElementById("error").innerText = "Could Not Get Data\nEnter Information Manually"
-                dialog.modal('hide');   
-                document.getElementById("qr-reader").remove()
-                document.getElementById("manualenter").style.display = ""
-                document.getElementById('buttons').innerHTML = ""
-                document.getElementById("recomendTXT").innerText = ""
-                dialog.modal('hide');   
-              }
-            })
-          }
-        function btnClick(option) {
-          if (option == 'scan') {
-            document.getElementById("manualenter").style.display = "none"
-            document.getElementById("reader").style.display = ""
-            document.getElementById('buttons').innerHTML = ""
-            document.getElementById("recomendTXT").innerText = ""
-          }
-          if (option == 'manual') {
-            let chosen = window.prompt("Enter ISBN","")
-            if (chosen != "" && chosen != null) {
-              onScanSuccess("", chosen);
-            }
-          }
-          if (option == 'noISBN') {
-            document.getElementById("qr-reader").remove()
-            document.getElementById("manualenter").style.display = ""
-            document.getElementById('buttons').innerHTML = ""
-            document.getElementById("recomendTXT").innerText = ""
-          }
-        } 
-        
-        var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { 
-          fps: 10, 
-          qrbox: 250, 
-          rememberLastUsedCamera: true,
-          showTorchButtonIfSupported: true,
-          useBarCodeDetectorIfSupported: true,
-          showZoomSliderIfSupported: true,
-          defaultZoomValueIfSupported: 2
-        });
-        html5QrcodeScanner.render(onScanSuccess);
-
-        
-        //const config = { 
-        //  fps: 10, 
-        //  qrbox: 250, 
-        //  rememberLastUsedCamera: true,
-        //  showTorchButtonIfSupported: true,
-        //  useBarCodeDetectorIfSupported: true,
-        //};
-        //const html5QrCode = new Html5Qrcode("qr-reader", config);
-        //html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
-
+      script(src="/static/scanBook.js")        
