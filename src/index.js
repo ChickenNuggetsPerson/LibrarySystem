@@ -1307,10 +1307,10 @@ function announceNot(notID) {
 }
 
 async function initTags() {
-    await userTags.sync({alter: true});
-    await libraryTags.sync({alter: true});
-    await checkoutTags.sync({alter: true});
-    await categoryTags.sync({alter: true});
+    await userTags.sync();
+    await libraryTags.sync();
+    await checkoutTags.sync();
+    await categoryTags.sync();
 
     initWardSystem()
     restartNots()
@@ -1408,7 +1408,7 @@ async function saveCache() {
 }
 
 async function initWardSystem() {
-    await wardEntryTags.sync({alter: true})
+    await wardEntryTags.sync()
 
     // Inilitalize Cache - Read from disk
     try {
