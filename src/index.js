@@ -1426,8 +1426,8 @@ async function createWardEntry(actionType, actionAmt, memberType) {
         entryID: id
     })
     await wardEntryTags.sync();
-    reCalcCache()
     console.log("Created Ward Entry: " + id)
+    reCalcCache()
 }
 async function deleteWardEntry(uuid) {
     console.log("Deleting Ward Entry: " + uuid)
@@ -1464,7 +1464,10 @@ app.get('/wardTracker/pages/percent', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.render("wardTracker/percent")
 });
-
+app.get('/wardTracker/pages/range', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.render("wardTracker/range")
+});
 
 
 

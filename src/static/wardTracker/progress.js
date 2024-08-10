@@ -1,5 +1,5 @@
 let cachedData = {
-    amt: 1,
+    amt: 0,
     max: 1
 }
 
@@ -11,6 +11,11 @@ function setProgress() {
     try {
         let text = document.getElementById("percentText")
         text.innerText = `${ Math.floor((cachedData.amt / cachedData.max)*1000) / 10 } %`
+    } catch(err) {}
+
+    try {
+        let text = document.getElementById("rangeText")
+        text.innerText = `${cachedData.amt} / ${cachedData.max}`
     } catch(err) {}
 
     try {
