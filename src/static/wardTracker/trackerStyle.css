@@ -1,0 +1,59 @@
+h1 {
+    font-size: 35px; 
+    color: #dfdfdf;
+}
+h2 {
+    font-size: 16px;
+    color: #dfdfdf; 
+}
+
+.progressImgContainer {
+    width: 80vw;
+    height: 80vh;
+    
+    left: 10vw;
+    top: 10vh;
+    
+    position: absolute;
+
+    overflow: hidden;
+}
+
+
+.progressImgContainer img {
+    position: absolute;
+    width: 100%;
+    
+    max-height: 100%;
+    height: auto;
+
+    object-fit: contain;
+}
+
+.reveal-Image {
+    clip-path: inset(100% 0 0 0); /* Initially hidden */
+    transition: clip-path 1s cubic-bezier(.47,1.64,.44,.98);
+}
+
+
+
+
+
+
+
+
+
+.counter-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.counter {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #333;
+    transition: opacity 0.5s ease-in-out;
+}

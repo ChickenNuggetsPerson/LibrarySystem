@@ -1,0 +1,46 @@
+block variables
+html(data-bs-theme="dark")
+  head
+    meta(charset="utf-8")
+    link(rel="shortcut icon", href="/static/wardTracker/temple.png")
+    meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
+    meta(name="theme-color", content="#000000")
+    
+    
+    //- link(rel="manifest" href="/manifest.json")
+    //- script.
+    //-   if ('serviceWorker' in navigator) {
+    //-     window.addEventListener('load', function() {
+    //-       navigator.serviceWorker.register('/service-worker.js')
+    //-         .then(function(registration) {
+    //-           console.log('Service Worker registered with scope:', registration.scope);
+    //-         })
+    //-         .catch(function(error) {
+    //-           console.log('Service Worker registration failed:', error);
+    //-         });
+    //-     });
+    //-   }
+    title Glen Eagle Tracker
+    
+    
+    script(src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/6.0.0/bootbox.min.js" integrity="sha512-oVbWSv2O4y1UzvExJMHaHcaib4wsBMS5tEP3/YkMP6GmkwRJAa79Jwsv+Y/w7w2Vb/98/Xhvck10LyJweB8Jsw==" crossorigin="anonymous" referrerpolicy="no-referrer")
+
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous")
+
+    script(src="/static/notify.min.js")
+
+    //- link(href="https://cdn.datatables.net/v/dt/dt-1.13.6/sc-2.2.0/datatables.min.css" rel="stylesheet")
+    //- script( src="https://cdn.datatables.net/v/dt/dt-1.13.6/sc-2.2.0/datatables.min.js")
+
+    link(rel="stylesheet", href="/style.css", attr)
+    link(rel="stylesheet", href="/static/wardTracker/trackerStyle.css", attr)
+    script(src="/static/lib.js")
+
+  body
+    div#root
+      //- div( class="swipe-container")
+        //- div( class="swipe-content swipe-transition")
+      block content
+      

@@ -6,7 +6,7 @@ const session = require('express-session');
 let FileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser')
 const { check, validationResult } = require('express-validator');
-const Sequelize = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs')
 const multer  = require('multer')
@@ -27,11 +27,11 @@ function fileFilter (req, file, cb) {
 }
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, './uploads')
+        cb(null, './uploads')
     },
     filename: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-      cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        cb(null, file.fieldname + '-' + uniqueSuffix + file.originalname)
     }
 })
 const upload = multer({ storage: storage, fileFilter: fileFilter})
@@ -1307,10 +1307,12 @@ function announceNot(notID) {
 }
 
 async function initTags() {
-    await userTags.sync();
-    await libraryTags.sync();
-    await checkoutTags.sync();
-    await categoryTags.sync();
+    await userTags.sync({alter: true});
+    await libraryTags.sync({alter: true});
+    await checkoutTags.sync({alter: true});
+    await categoryTags.sync({alter: true});
+
+    initWardSystem()
     restartNots()
 }
 initTags();
@@ -1330,8 +1332,6 @@ console.log(fs.readFileSync("./src/logo.txt", "utf-8"))
 
 
 let port = 8080
-//let port = 22666
-//let port = 19135
 
 let override = false; // Use this to force into http mode
 
@@ -1352,3 +1352,164 @@ if ((process.platform == "linux" && process.argv.length != 3) && !override) {
 }
 
 let updater = new AutoUpdater("https://raw.githubusercontent.com/ChickenNuggetsPerson/LibrarySystem/main/package.json", "0 * 0 * * *")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Ward Tracker Extension
+const trackerSequelizer = new Sequelize('database', 'user', 'password', {
+	host: 'localhost',
+	dialect: 'sqlite',
+	logging: false,
+	storage: 'users/wardData.sqlite',
+});
+const wardEntryTags = trackerSequelizer.define('wardEntry', {
+    actionType: { type: Sequelize.STRING, },
+    actionAmt: { type: Sequelize.STRING, },
+    memberType: { type: Sequelize.STRING, },
+    entryID: { type: Sequelize.STRING, }
+});
+
+let cachedDataPath = "users/wardData_Cached.json"
+var cachedData = {
+    amt: 0,
+    max: 1
+}
+async function reCalcCache() {
+
+    console.log("Recalculating Ward Cache")
+
+    let entries = await fetchWardEntrys()
+
+    cachedData.amt = 0
+
+    entries.forEach(i => {
+        let entry = i.dataValues
+        cachedData.amt += Number(entry.actionAmt)
+    })
+
+    saveCache()
+}
+async function saveCache() {
+    fs.writeFileSync(cachedDataPath, JSON.stringify(cachedData))
+}
+
+async function initWardSystem() {
+    await wardEntryTags.sync({alter: true})
+
+    // Inilitalize Cache - Read from disk
+    try {
+        cachedData = JSON.parse(fs.readFileSync(cachedDataPath))
+    } catch (err) {}
+
+}
+
+async function createWardEntry(actionType, actionAmt, memberType) {
+    let id = uuidv4()
+    await wardEntryTags.create({
+        actionType: actionType,
+        actionAmt: actionAmt,
+        memberType: memberType,
+        entryID: id
+    })
+    await wardEntryTags.sync();
+    reCalcCache()
+    console.log("Created Ward Entry: " + id)
+}
+async function deleteWardEntry(uuid) {
+    console.log("Deleting Ward Entry: " + uuid)
+
+    await wardEntryTags.sync();
+    await wardEntryTags.destroy({where: {
+        entryID: uuid,
+    }})
+    .then(function(rowDeleted){
+        wardEntryTags.sync();
+    }, function(err){
+        console.log(err);
+        wardEntryTags.sync(); 
+    });
+    reCalcCache()
+}
+async function fetchWardEntrys() {
+    return await wardEntryTags.findAll()
+}
+
+// Ward Tracker Get Functions
+app.get('/wardTracker/progress', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.json(cachedData)
+});
+
+
+// Ward Tacker Pages
+app.get('/wardTracker/pages/progress', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.render("wardTracker/progress")
+});
+app.get('/wardTracker/pages/percent', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.render("wardTracker/percent")
+});
+
+
+
+
+// Ward Tracker Entry Functions
+app.get('/wardTracker/entries/list', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.json(await fetchWardEntrys())
+})
+app.post('/wardTracker/entries/submit', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
+    try {
+        await createWardEntry(
+            req.body.actionType,
+            req.body.actionAmt,
+            req.body.memberType
+        )
+    } catch (err) {
+        return res.json({error: true});
+    }
+
+    res.json({error: false});
+})
+app.post('/wardTracker/entries/delete', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+
+    try {
+        await deleteWardEntry(req.body.uuid)
+    } catch (err) {
+        return res.json({error: true});
+    }
+
+    res.json({error: false});
+})
+app.post('/wardTracker/entries/newMax', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+
+    try {
+        let newMax = Number(req.body.newMax)
+        cachedData.max = newMax
+        await reCalcCache()
+
+    } catch (err) {
+        return res.json({error: true});
+    }
+
+    res.json({error: false});
+})
