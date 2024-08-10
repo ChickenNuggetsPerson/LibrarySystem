@@ -68,7 +68,7 @@ async function onLoad() {
 
     setInterval(() => {
         fetchProgress()
-    }, 10000);
+    }, 30 * 1000);
 
     setTimeout(() => {
         fetchProgress()
