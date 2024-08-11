@@ -15,8 +15,6 @@ h2 {
     top: 10vh;
     
     position: absolute;
-
-    overflow: hidden;
 }
 
 
@@ -28,32 +26,25 @@ h2 {
     height: auto;
 
     object-fit: contain;
+
+    padding: 10px;
+    margin: -10px;
 }
 
 .reveal-Image {
     clip-path: inset(100% 0 0 0); /* Initially hidden */
     transition: clip-path 1s cubic-bezier(.47,1.64,.44,.98);
+
+    overflow: visible;
 }
 
 
-
-
-
-
-
-
-
-.counter-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f0f0f0;
+.darkGlow {
+    overflow: visible;
+    filter: drop-shadow(0px 0px 5px rgba(103, 103, 97, 0.9));
 }
 
-.counter {
-    font-size: 4rem;
-    font-weight: bold;
-    color: #333;
-    transition: opacity 0.5s ease-in-out;
+.glow {
+    overflow: visible;
+    filter: drop-shadow(0px 0px 7px rgba(255, 255, 239, 0.9));
 }

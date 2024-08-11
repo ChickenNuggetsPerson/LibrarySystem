@@ -3,8 +3,12 @@ extends trackerLayout.pug
 block content
 
     div(class="progressImgContainer")
-        Img(src="/static/wardTracker/BW_temple.png")
-        Img(src="/static/wardTracker/temple.png" class="reveal-Image" id="progressImg")
+        
+        div(class="darkGlow")
+            Img(src="/static/wardTracker/BW_temple.png")
+        
+        div(class="glow")
+            Img(src="/static/wardTracker/temple.png" class="reveal-Image" id="progressImg")
 
 
     script(src="/static/wardTracker/progress.js")
