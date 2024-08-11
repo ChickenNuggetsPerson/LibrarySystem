@@ -1399,7 +1399,7 @@ async function reCalcCache() {
 
     console.log("Recalculating Ward Cache")
 
-    let entries = await fetchWardEntrys()
+    let entries = await fetchWardEntrys(false)
 
     cachedData.amt = 0
 
@@ -1451,8 +1451,29 @@ async function deleteWardEntry(uuid) {
     });
     reCalcCache()
 }
-async function fetchWardEntrys() {
-    return await wardEntryTags.findAll()
+async function fetchWardEntrys(stripSensitiveData) {
+    if (!stripSensitiveData) {
+        return await wardEntryTags.findAll()
+    }
+
+    let entries = await wardEntryTags.findAll({
+        order: [
+            ["createdAt", "DESC"]
+        ],
+        limit: 5
+    })
+    var newArr = []
+
+    entries.forEach(e => {
+        newArr.push({
+            actionType: e.dataValues.actionType,
+            actionAmt: e.dataValues.actionAmt,
+            memberType: e.dataValues.memberType,
+            id: e.dataValues.entryID.substring(0, 5)
+        })
+    })
+
+    return newArr
 }
 
 // Ward Tracker Get Functions
@@ -1479,6 +1500,10 @@ app.get('/wardTracker/pages/submit', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.render("wardTracker/submit")
 });
+app.get('/wardTracker/pages/list', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.render("wardTracker/list")
+})
 
 // Validation Functions
 let actionTypes = [
@@ -1508,7 +1533,7 @@ app.get('/wardTracker/entries/acceptableVals', async (req, res) => {
 })
 app.get('/wardTracker/entries/list', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    res.json(await fetchWardEntrys())
+    res.json(await fetchWardEntrys(true))
 })
 app.use('/wardTracker/entries/submit', limiter);
 app.post('/wardTracker/entries/submit', async (req, res) => {
@@ -1539,8 +1564,25 @@ app.post('/wardTracker/entries/submit', async (req, res) => {
 
     res.json({error: false});
 })
-app.post('/wardTracker/entries/delete', async (req, res) => {
+
+
+
+// Admin Endpoints
+app.get('/wardTracker/admin/entries/list', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+
+    if (!req.session.isAdmin) {
+        return res.json({error: true});
+    }
+
+    res.json(await fetchWardEntrys(true))
+})
+app.post('/wardTracker/admin/entries/delete', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+
+    if (!req.session.isAdmin) {
+        return res.json({error: true});
+    }
 
     try {
         await deleteWardEntry(req.body.uuid)
@@ -1550,8 +1592,12 @@ app.post('/wardTracker/entries/delete', async (req, res) => {
 
     res.json({error: false});
 })
-app.post('/wardTracker/entries/newMax', async (req, res) => {
+app.post('/wardTracker/admin/newMax', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+
+    if (!req.session.isAdmin) {
+        return res.json({error: true});
+    }
 
     try {
         let newMax = Number(req.body.newMax)
