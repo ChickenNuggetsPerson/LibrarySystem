@@ -720,7 +720,6 @@ app.get('/addBook', (req, res) => {
     } else {
         res.redirect('/scanBook')
     }
-   
 })
 app.get('/uploads', (req, res) => {
     // console.log(req.baseUrl)
@@ -775,7 +774,11 @@ app.get('/admin/view', async (req, res) => {
     if (!req.session.isAdmin) {
         return res.redirect("/admin/login");
     }
-    res.render('adminView', {userData: JSON.stringify(await adminGetUsers()), resetCodes: JSON.stringify(getAllResetCodes())})
+    res.render('adminView', {
+        userData: JSON.stringify(await adminGetUsers()), 
+        resetCodes: JSON.stringify(getAllResetCodes()),
+        versionNum: JSON.stringify(updater.currentVersion)
+    })
 })
 
 

@@ -11,6 +11,7 @@ block layout-content
         
         var userData = !{userData};
         var resetCodes = !{resetCodes};
+        var versionNum = !{versionNum};
 
         let resetCodeLocations = []
 
@@ -139,6 +140,8 @@ block layout-content
         }
 
         function updatePage() {
+          document.getElementById("verTXT").innerText = "Version: " + versionNum
+
           let data = userData
 
           var mainDiv = document.getElementById("yeet")
@@ -252,7 +255,9 @@ block layout-content
                   th(scope="col") Select
                   th(scope="col") UserID
               tbody(id="yeet" style="color:white" class="table-group-divider")
-          
+      
+          h3(style="position:relative; bottom:0; padding: 10px;" id="verTXT") 
+
         script.
             refreshPage()
         
