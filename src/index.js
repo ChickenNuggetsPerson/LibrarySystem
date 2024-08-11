@@ -1383,6 +1383,13 @@ const wardEntryTags = trackerSequelizer.define('wardEntry', {
     entryID: { type: Sequelize.STRING, }
 });
 
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 4,
+    message: "Too many requests from this IP, please try again later."
+});
+
 let cachedDataPath = "users/wardData_Cached.json"
 var cachedData = {
     amt: 0,
@@ -1468,18 +1475,59 @@ app.get('/wardTracker/pages/range', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.render("wardTracker/range")
 });
+app.get('/wardTracker/pages/submit', (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.render("wardTracker/submit")
+});
+
+// Validation Functions
+let actionTypes = [
+    "Baptism + Confirmation",
+    "Endowment",
+    "Other"
+]
+let entryRangeAmt = {
+    min: 1,
+    max: 10
+}
+let memberTypes = [
+    "Adult",
+    "Youth"
+]
 
 
 
 // Ward Tracker Entry Functions
+app.get('/wardTracker/entries/acceptableVals', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    res.json({
+        actionTypes: actionTypes,
+        actionRange: entryRangeAmt,
+        memberTypes: memberTypes
+    })
+})
 app.get('/wardTracker/entries/list', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json(await fetchWardEntrys())
 })
+app.use('/wardTracker/entries/submit', limiter);
 app.post('/wardTracker/entries/submit', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     
     try {
+        // Validate Values
+        if (!actionTypes.includes(req.body.actionType)) {
+            return res.json({error: true});
+        }
+        if (
+            req.body.actionAmt < entryRangeAmt.min || req.body.actionAmt > entryRangeAmt.max
+        ) {
+            return res.json({error: true});
+        }
+        if (!memberTypes.includes(req.body.memberType)) {
+            return res.json({error: true});
+        }
+
         await createWardEntry(
             req.body.actionType,
             req.body.actionAmt,

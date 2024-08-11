@@ -32,32 +32,11 @@ function getRelativeProgress(val) {
 
 
 
-function fetchProgress() {
+async function fetchProgress() {
     console.log("Fetching Data")
 
-    const baseUrl = `${window.location.protocol}//${window.location.host}`;
-    const apiUrl = `${baseUrl}/wardTracker/progress`;
-
-    fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-            // Add any custom headers if necessary
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json()
-    })
-    .then(data => {
-        cachedData = data
-        setProgress()
-
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-    });
+    cachedData = await getData("/wardTracker/progress")
+    setProgress()
 }
 
 
@@ -66,12 +45,12 @@ function fetchProgress() {
 async function onLoad() {
     setProgress()
 
-    setInterval(() => {
-        fetchProgress()
-    }, 30 * 1000);
-
     setTimeout(() => {
         fetchProgress()
     }, 500);
+
+    setInterval(() => {
+        fetchProgress()
+    }, (25 * 1000) + Math.random() * 5000);
 }
 onLoad()

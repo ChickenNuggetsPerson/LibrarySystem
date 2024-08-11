@@ -1,0 +1,30 @@
+extends trackerLayout.pug
+
+block content
+    
+    
+
+    div(style="padding: 20px")
+        div(class="d-flex align-items-center justify-content-center") 
+            div(class="text-center")
+                h1(id="titleText") Loading...
+
+        div(class="mb-3")
+            label(for="inputActionType" class="form-label") Action Type
+            select(class="form-control" id="inputActionType" aria-describedby="action input" value="")
+                option(value="empty") Choose One
+                option(disabled) ──────────
+        div(class="mb-3")
+            label(for="peopleAmtInput" class="form-label") People Helped
+            input(type="number" class="form-control" id="peopleAmtInput" value="0")
+        div(class="mb-3")
+            label(for="memberTypeInput" class="form-label") Member Type
+            select(class="form-control" id="memberTypeInput" aria-describedby="action input"  value="")
+                option(value="empty") Choose One
+                option(disabled) ──────────
+        
+        div(class="d-flex align-items-center justify-content-center") 
+            div(class="text-center")
+                button(class="btn btn-primary" onClick="submitForm()" id="submitBtn") Submit
+
+    script(src="/static/wardTracker/submit.js")

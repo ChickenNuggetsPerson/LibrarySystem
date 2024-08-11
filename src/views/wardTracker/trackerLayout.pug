@@ -41,7 +41,9 @@ html(data-bs-theme="dark")
     meta(name="robots" content="noindex, nofollow")
   body
     div#root
-      //- div( class="swipe-container")
-        //- div( class="swipe-content swipe-transition")
-      block content
+      div( class="swipe-container")
+        div( class="swipe-content swipe-transition")
+
+          script(src="/static/wardTracker/lib.js")
+          block content
       
