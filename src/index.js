@@ -1487,26 +1487,20 @@ app.get('/wardTracker/progress', (req, res) => {
 
 
 // Ward Tacker Pages
-app.get('/wardTracker/pages/progress', (req, res) => {
+app.get('/wardTracker/pages/:pageName', (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    res.render("wardTracker/progress")
+    
+    if (req.session.isAdmin) {
+        res.render("wardTracker/" + req.params.pageName, {
+            isAdmin: "true"
+        })
+    } else {
+        res.render("wardTracker/" + req.params.pageName, {
+            isAdmin: "false"
+        })
+    }
 });
-app.get('/wardTracker/pages/percent', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    res.render("wardTracker/percent")
-});
-app.get('/wardTracker/pages/range', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    res.render("wardTracker/range")
-});
-app.get('/wardTracker/pages/submit', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    res.render("wardTracker/submit")
-});
-app.get('/wardTracker/pages/list', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
-    res.render("wardTracker/list")
-})
+
 
 // Validation Functions
 let actionTypes = [
@@ -1578,7 +1572,7 @@ app.get('/wardTracker/admin/entries/list', async (req, res) => {
         return res.json({error: true});
     }
 
-    res.json(await fetchWardEntrys(true))
+    res.json(await fetchWardEntrys(false))
 })
 app.post('/wardTracker/admin/entries/delete', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }

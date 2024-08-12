@@ -12,7 +12,12 @@ var data = []
 async function fetchData() {
     console.log("Fetching Data")
 
-    let newData = await getData("/wardTracker/entries/list")
+    var newData = [] 
+    if (isAdmin) {
+        newData = await getData("/wardTracker/admin/entries/list")
+    } else {
+        newData = await getData("/wardTracker/entries/list")
+    }
 
     if (arraysEqual(newData, data)) { 
         return 
@@ -79,6 +84,35 @@ function createItem(entry) {
     row.appendChild(action)
     row.appendChild(amt)
     row.appendChild(member)
+
+    if (isAdmin) {
+        if (entry.entryID) {
+            let delBTN = document.createElement("button")
+            delBTN.innerText = "X"
+            delBTN.classList.add("col", "btn", "btn-danger")
+            delBTN.style.padding = "5px"
+            delBTN.style.width = "2rem"
+            delBTN.style.maxWidth = "2rem"
+            delBTN.style.borderRadius = "5px"
+            delBTN.onclick = async () => {
+                await postData("/wardTracker/admin/entries/delete", {
+                    uuid: entry.entryID
+                })
+
+                setTimeout(() => {
+                    fetchData()
+                }, 500);
+            }
+
+            row.appendChild(delBTN)
+        } else {
+            let delTXT = document.createElement("div")
+            delTXT.classList.add("col")
+            delTXT.style.maxWidth = "6rem"
+            delTXT.innerText = "Delete"
+            row.appendChild(delTXT)
+        }
+    }
 
     rowContainer.appendChild(row)
     body.appendChild(rowContainer)
