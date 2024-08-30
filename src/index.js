@@ -1607,3 +1607,16 @@ app.post('/wardTracker/admin/newMax', async (req, res) => {
 
     res.json({error: false});
 })
+
+
+
+app.post('/webhook', (req, res) => {
+    const payload = req.body; // The data sent in the webhook
+
+    console.log(payload.content);
+
+    // Perform any processing or handling logic here
+
+    // Send a response back to the sender
+    res.status(204).send('Webhook received successfully!');
+});
