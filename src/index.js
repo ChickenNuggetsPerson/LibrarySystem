@@ -1523,7 +1523,6 @@ let memberTypes = [
 app.get('/wardTracker/entries/acceptableVals', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json({
-        actionTypes: actionTypes,
         actionRange: entryRangeAmt,
         memberTypes: memberTypes
     })
@@ -1538,7 +1537,7 @@ app.post('/wardTracker/entries/submit', async (req, res) => {
     
     try {
         // Validate Values
-        if (!actionTypes.includes(req.body.actionType)) {
+        if (!req.body.actionType) {
             return res.json({error: true});
         }
         if (
@@ -1592,9 +1591,9 @@ app.post('/wardTracker/admin/entries/delete', async (req, res) => {
 app.post('/wardTracker/admin/newMax', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
 
-    if (!req.session.isAdmin) {
-        return res.json({error: true});
-    }
+    // if (!req.session.isAdmin) {
+    //     return res.json({error: true});
+    // }
 
     try {
         let newMax = Number(req.body.newMax)

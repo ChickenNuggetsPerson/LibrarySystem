@@ -10,12 +10,10 @@ block content
                 h1(id="titleText") Loading...
 
         div(class="mb-3")
-            label(for="inputActionType" class="form-label") Ordinance Performed
-            select(class="form-control" id="inputActionType" aria-describedby="action input" value="")
-                option(value="empty") Choose One
-                option(disabled) ──────────
+            label(for="inputActionType" class="form-label") Action Done
+            input(class="form-control" id="inputActionType" aria-describedby="action input" value="")
         div(class="mb-3")
-            label(for="peopleAmtInput" class="form-label") # of Ordinances
+            label(for="peopleAmtInput" class="form-label") # of Actions Done
             input(type="number" class="form-control" id="peopleAmtInput" value="0")
         div(class="mb-3")
             label(for="memberTypeInput" class="form-label") What group are you from?

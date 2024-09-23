@@ -9,13 +9,6 @@ async function loadValues() {
     let possibleVals = await getData("/wardTracker/entries/acceptableVals")
     console.log(possibleVals)
 
-    possibleVals.actionTypes.forEach(e => {
-        let option = document.createElement('option')
-        option.innerText = e
-        option.value = e
-        document.getElementById("inputActionType").appendChild(option)
-    });
-
     document.getElementById("peopleAmtInput").min = possibleVals.actionRange.min
     document.getElementById("peopleAmtInput").max = possibleVals.actionRange.max
 
@@ -37,7 +30,7 @@ async function loadValues() {
 
 
 function invalidateForm() {
-    document.getElementById("inputActionType").value = "empty"
+    document.getElementById("inputActionType").value = ""
     document.getElementById("peopleAmtInput").value = 0
     document.getElementById("memberTypeInput").value = "empty"
 }
