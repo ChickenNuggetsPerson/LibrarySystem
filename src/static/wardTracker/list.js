@@ -33,7 +33,7 @@ function buildList() {
     container.innerHTML = ""
 
     let header = createItem({
-        actionType: "Ordinance Type",
+        actionType: "Action Done",
         actionAmt: "# Performed",
         memberType: "Age"
     })
