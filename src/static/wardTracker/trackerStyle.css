@@ -8,13 +8,15 @@ h2 {
 }
 
 .progressImgContainer {
-    width: 80vw;
-    height: 80vh;
+    /* width: 200px; */
+    /* height: 300px; */
+    height: 50vh;
     
-    left: 10vw;
-    top: 10vh;
+    left: 3vw;
+
+    /* max-width: 500px; */
     
-    position: absolute;
+    position: relative;
 }
 
 

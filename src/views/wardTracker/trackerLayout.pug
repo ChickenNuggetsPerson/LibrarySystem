@@ -34,6 +34,15 @@ html(data-bs-theme="dark")
     script(src="/static/lib.js")
 
     meta(name="robots" content="noindex, nofollow")
+
+    header
+
+      div(id='homeBtn', class="altcolor" style="padding:5px" onclick="changePage('/wardTracker/pages/main')")
+          h1(class="firstColor" style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; display:inline-block;") Temple 
+          div(style="width:10px; display:inline-block")
+          h1(class="secondColor" style="font-family: Arial Rounded MT Bold,Helvetica Rounded,Arial,sans-serif; display:inline-block;")  Progress
+      br
+
   body
     div#root
       div( class="swipe-container")

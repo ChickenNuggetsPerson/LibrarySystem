@@ -1481,14 +1481,14 @@ async function fetchWardEntrys(stripSensitiveData) {
 
 // Ward Tracker Get Functions
 app.get('/wardTracker/progress', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json(cachedData)
 });
 
 
 // Ward Tacker Pages
 app.get('/wardTracker/pages/:pageName', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     
     if (req.session.isAdmin) {
         res.render("wardTracker/" + req.params.pageName, {
@@ -1528,7 +1528,7 @@ app.get('/wardTracker/entries/acceptableVals', async (req, res) => {
     })
 })
 app.get('/wardTracker/entries/list', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json(await fetchWardEntrys(true))
 })
 app.use('/wardTracker/entries/submit', limiter);
@@ -1538,14 +1538,17 @@ app.post('/wardTracker/entries/submit', async (req, res) => {
     try {
         // Validate Values
         if (!req.body.actionType) {
+            print("action")
             return res.json({error: true});
         }
         if (
             req.body.actionAmt < entryRangeAmt.min || req.body.actionAmt > entryRangeAmt.max
         ) {
+            print("amt")
             return res.json({error: true});
         }
         if (!memberTypes.includes(req.body.memberType)) {
+            print("type")
             return res.json({error: true});
         }
 
@@ -1606,16 +1609,3 @@ app.post('/wardTracker/admin/newMax', async (req, res) => {
 
     res.json({error: false});
 })
-
-
-
-app.post('/webhook', (req, res) => {
-    const payload = req.body; // The data sent in the webhook
-
-    console.log(payload.content);
-
-    // Perform any processing or handling logic here
-
-    // Send a response back to the sender
-    res.status(204).send('Webhook received successfully!');
-});
