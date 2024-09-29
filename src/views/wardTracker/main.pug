@@ -17,11 +17,11 @@ block content
             h1(id="rangeText" style="margin: auto; padding-bottom: 10px")
 
 
-    button(type="button" class="btn btn-primary" onclick="displaySubmitForm()" style="position:absolute; bottom: 0px;") Create Entry   
-    button(type="button" class="btn btn-success" onclick="displayRecents()" style="position:absolute; right: 0px; bottom: 0px;") Recent Entries   
+    button(type="button" class="btn btn-primary" onclick="displaySubmitForm()" style="position:absolute; left: 3px; bottom: 3px;") Create Entry   
+    button(type="button" class="btn btn-success" onclick="displayRecents()" style="position:absolute; right: 3px; bottom: 3px;") Recent Entries   
     
-    button(type="button" class="btn btn-danger admin" onclick="changePage('/admin/view')" style="position:absolute; right: 0px; bottom: 50px;") Admin Page
-    button(type="button" class="btn btn-warning admin" onclick="changePage('/wardTracker/pages/list')" style="position:absolute; right: 0px; bottom: 100px;") Entries
+    button(type="button" class="btn btn-danger admin" onclick="changePage('/admin/view')" style="position:absolute; right: 3px; bottom: 50px;") Admin Page
+    button(type="button" class="btn btn-warning admin" onclick="changePage('/wardTracker/pages/list')" style="position:absolute; right: 3px; bottom: 100px;") Entries
 
     script.
         var isAdmin = !{isAdmin};
