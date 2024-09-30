@@ -1456,7 +1456,7 @@ async function deleteWardEntry(uuid) {
 }
 async function fetchWardEntrys(stripSensitiveData) {
     if (!stripSensitiveData) {
-        return await wardEntryTags.findAll()
+        return (await wardEntryTags.findAll()).reverse()
     }
 
     let entries = await wardEntryTags.findAll({
@@ -1476,7 +1476,7 @@ async function fetchWardEntrys(stripSensitiveData) {
         })
     })
 
-    return newArr
+    return newArr.reverse()
 }
 
 // Ward Tracker Get Functions
@@ -1514,14 +1514,15 @@ let entryRangeAmt = {
 }
 let memberTypes = [
     "Adult",
-    "Youth"
+    "Youth",
+    "Primary"
 ]
 
 
 
 // Ward Tracker Entry Functions
 app.get('/wardTracker/entries/acceptableVals', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json({
         actionRange: entryRangeAmt,
         memberTypes: memberTypes
@@ -1568,7 +1569,7 @@ app.post('/wardTracker/entries/submit', async (req, res) => {
 
 // Admin Endpoints
 app.get('/wardTracker/admin/entries/list', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
 
     if (!req.session.isAdmin) {
         return res.json({error: true});
@@ -1592,7 +1593,7 @@ app.post('/wardTracker/admin/entries/delete', async (req, res) => {
     res.json({error: false});
 })
 app.post('/wardTracker/admin/newMax', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
 
     // if (!req.session.isAdmin) {
     //     return res.json({error: true});

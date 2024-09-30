@@ -25,11 +25,30 @@ function setProgress() {
     } catch(err) {}
 }
 function getRelativeProgress(val) {
-    // return Math.pow(val, 0.55693)
-    return val
+    // val *= 2.99
+    // val = Math.pow(Math.E, val) * 0.05
+    // val -= 0.05
+    // return val
+
+    var newVal = 0
+    newVal += lerp(val, 0,    0.4,  0, 0.17 ) // 17
+    newVal += lerp(val, 0.4,  0.7,  0, 0.19  ) // 36
+    newVal += lerp(val, 0.7,  0.93, 0, 0.23 ) // 60
+    newVal += lerp(val, 0.93, 1,    0, 0.4 ) // 100
+
+
+    return newVal
 }
 
+function lerp(x, inMin, inMax, outMin, outMax) {
+    if (x < inMin) { return outMin } 
+    if (x > inMax) { return outMax } 
 
+    let inRange = inMax - inMin
+    let outRange = outMax - outMin
+
+    return outMin + ((x - inMin) / inRange) * outRange
+}
 
 
 
@@ -63,8 +82,22 @@ async function submitForm(type, amt, member) {
 }
 
 
+function test() {
+    cachedData.max = 100
+    cachedData.amt = 0
+
+    setInterval(() => {
+        cachedData.amt ++
+        setProgress()
+
+        if (cachedData.amt == 101) {
+            cachedData.amt = -2
+        }
+    }, 300);
+}
 
 async function fetchData() {
+    return
     console.log("Fetching Data")
     cachedData = await getData("/wardTracker/progress")
     setProgress()
@@ -120,6 +153,7 @@ function displaySubmitForm() {
 
                         <option value="Adult"> Adult </option>
                         <option value="Youth"> Youth </option>
+                        <option value="Primary"> Primary </option>
                     </select>
                 </div>
             </form>
