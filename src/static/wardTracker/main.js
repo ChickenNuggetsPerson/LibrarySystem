@@ -97,7 +97,7 @@ function test() {
 }
 
 async function fetchData() {
-    return
+    // return
     console.log("Fetching Data")
     cachedData = await getData("/wardTracker/progress")
     setProgress()
