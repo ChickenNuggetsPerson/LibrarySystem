@@ -6,7 +6,7 @@ const session = require('express-session');
 let FileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser')
 const { check, validationResult } = require('express-validator');
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes, UUIDV4 } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs')
 const multer  = require('multer')
@@ -1385,6 +1385,10 @@ const wardEntryTags = trackerSequelizer.define('wardEntry', {
     memberType: { type: Sequelize.STRING, },
     entryID: { type: Sequelize.STRING, }
 });
+const wardMessagesTags = trackerSequelizer.define("wardMessage", {
+    messageID: { type: Sequelize.STRING },
+    content: { type: Sequelize.STRING }
+})
 
 const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
@@ -1419,6 +1423,7 @@ async function saveCache() {
 
 async function initWardSystem() {
     await wardEntryTags.sync()
+    await wardMessagesTags.sync()
 
     // Inilitalize Cache - Read from disk
     try {
@@ -1479,24 +1484,66 @@ async function fetchWardEntrys(stripSensitiveData) {
     return newArr.reverse()
 }
 
+
+async function createWardMessage(message) {
+    let id = uuidv4()
+    await wardMessagesTags.create({
+        messageID: id,
+        content: message
+    })
+    await wardMessagesTags.sync()
+    console.log("Created Ward Message: " + id)
+}
+async function deleteWardMessage(messageID) {
+    console.log("Deleting Ward Message: " + messageID)
+
+    await wardMessagesTags.sync();
+    await wardMessagesTags.destroy({where: {
+        messageID: messageID,
+    }})
+    .then(function(rowDeleted){
+        wardMessagesTags.sync();
+    }, function(err){
+        console.log(err);
+        wardMessagesTags.sync(); 
+    });
+}
+async function getAllWardMessages() {
+    return await wardMessagesTags.findAll({
+        order: [
+            ["createdAt", "DESC"]
+        ],
+        limit: 7
+    })
+}
+async function getWardMessage(uuid) {
+    return await wardMessagesTags.findOne({
+        where: {
+            messageID: uuid
+        }
+    })
+}
+
+
+
 // Ward Tracker Get Functions
 app.get('/wardTracker/progress', (req, res) => {
-    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json(cachedData)
 });
 
 
 // Ward Tacker Pages
 app.get('/wardTracker/pages/:pageName', (req, res) => {
-    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     
     if (req.session.isAdmin) {
         res.render("wardTracker/" + req.params.pageName, {
-            isAdmin: "true"
+            isAdmin: "true",
+            versionNum: JSON.stringify(updater.currentVersion)
         })
     } else {
         res.render("wardTracker/" + req.params.pageName, {
-            isAdmin: "false"
+            isAdmin: "false",
+            versionNum: JSON.stringify(updater.currentVersion)
         })
     }
 });
@@ -1522,14 +1569,12 @@ let memberTypes = [
 
 // Ward Tracker Entry Functions
 app.get('/wardTracker/entries/acceptableVals', async (req, res) => {
-    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json({
         actionRange: entryRangeAmt,
         memberTypes: memberTypes
     })
 })
 app.get('/wardTracker/entries/list', async (req, res) => {
-    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     res.json(await fetchWardEntrys(true))
 })
 app.use('/wardTracker/entries/submit', limiter);
@@ -1566,7 +1611,6 @@ app.post('/wardTracker/entries/submit', async (req, res) => {
 })
 
 
-
 // Admin Endpoints
 app.get('/wardTracker/admin/entries/list', async (req, res) => {
     // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
@@ -1593,7 +1637,7 @@ app.post('/wardTracker/admin/entries/delete', async (req, res) => {
     res.json({error: false});
 })
 app.post('/wardTracker/admin/newMax', async (req, res) => {
-    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
 
     // if (!req.session.isAdmin) {
     //     return res.json({error: true});
@@ -1604,6 +1648,50 @@ app.post('/wardTracker/admin/newMax', async (req, res) => {
         cachedData.max = newMax
         await reCalcCache()
 
+    } catch (err) {
+        return res.json({error: true});
+    }
+
+    res.json({error: false});
+})
+
+
+
+app.get('/wardTracker/messages/list', async (req, res) => {
+    res.json(await getAllWardMessages())
+})
+app.use('/wardTracker/messages/create', limiter);
+app.post('/wardTracker/messages/create', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
+    try {
+        // Validate Values
+        if (!req.body.messageContent) {
+            return res.json({error: true});
+        }
+        if (req.body.messageContent.trim() == "") {
+            return res.json({error: true});
+        }
+
+        await createWardMessage(req.body.messageContent)
+    } catch (err) {
+        return res.json({error: true});
+    }
+
+    res.json({error: false});
+})
+
+
+app.post('/wardTracker/admin/messages/delete', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+
+    if (!req.session.isAdmin) {
+        return res.json({error: true});
+    }
+
+    try {
+        let id = req.body.messageID
+        await deleteWardMessage(id)
     } catch (err) {
         return res.json({error: true});
     }

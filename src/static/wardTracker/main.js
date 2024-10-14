@@ -115,8 +115,13 @@ async function onLoad() {
         fetchData()
     }, 500);
 
+    setTimeout(() => {
+        chatFetchData()
+    }, 1000);
+
     setInterval(() => {
         fetchData()
+        chatFetchData()
     }, (25 * 1000) + Math.random() * 5000);
 }
 onLoad()
