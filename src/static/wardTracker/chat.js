@@ -20,17 +20,34 @@ async function chatFetchData() {
 
 
 
+// Make the container not scrollable unless it is fully in view
+const chatContainer = document.getElementById("chatContainer")
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            // If the container is fully in view, allow scrolling
+            chatContainer.style.overflowY = "auto"
+        } else {
+            // Otherwise, disable scrolling
+            chatContainer.style.overflowY = "hidden"
+        }
+    })
+}, { threshold: 0.97 }) // Trigger only when the container is fully in view
+
+observer.observe(chatContainer)
+
+
+
 function buildMessageContainer() {
 
     console.log("Building List")
 
     let mainContent = document.getElementById("mainContent")
     mainContent.style.height = "90vh"
-
     
     let container = document.getElementById("chatContainer")
     container.innerHTML = ""
-    container.style.height = "100vh"
+    container.style.height = "100dvh"
     container.style.paddingBottom = "20px"
     container.style.paddingLeft = "20px"
     container.style.paddingRight = "20px"
@@ -38,12 +55,12 @@ function buildMessageContainer() {
     container.style.overflowY = "auto"
 
     let header = document.createElement("div")
-    header.style.position = "sticky"  // Make the header sticky
+    header.style.position = "sticky"
     header.style.top = "0"
     header.style.zIndex = 1
     header.style.backgroundColor = "#1a1a1a"
     header.style.padding = "10px"
-    header.style.filter = "drop-shadow(0px 0px 5px rgba(103, 103, 97, 0.9))"
+    header.style.borderBottom = "1px solid #5f5f5f"
     
     let headerTXT = document.createElement("h1")
     headerTXT.innerText = "Message Board:"
@@ -79,7 +96,6 @@ function buildMessageContainer() {
         )
     });
     
-    return container
 }
 
 
@@ -111,7 +127,7 @@ function createMessage(message) {
     let mainDiv = document.createElement('div')
     mainDiv.classList.add("card")
     mainDiv.style.backgroundColor = "#1f1f1f"
-    mainDiv.style.maxWidth = "600px"
+    mainDiv.style.maxWidth = "800px"
 
     let body = document.createElement("div")
     body.classList.add("card-body")

@@ -1513,7 +1513,7 @@ async function getAllWardMessages() {
         order: [
             ["createdAt", "DESC"]
         ],
-        limit: 10
+        limit: 15
     })
 }
 async function getWardMessage(uuid) {

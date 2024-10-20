@@ -295,7 +295,7 @@ function createItem(entry) {
 
 function displayRecents() {
     bootbox.dialog({
-        title: "Recent Entries: ( 5 Max )",
+        title: "5 Recent Entries:",
         message: `
             ${buildRecents().innerHTML}
         `,
