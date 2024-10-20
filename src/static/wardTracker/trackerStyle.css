@@ -55,3 +55,30 @@ h2 {
     overflow: visible;
     filter: drop-shadow(0px 0px 7px rgba(255, 255, 239, 0.9));
 }
+
+
+
+
+
+
+.numeric-text {
+    font-size: 2rem;
+    transition: transform 0.5s cubic-bezier(.47,1.64,.44,.98), opacity 0.2s ease-in-out, width 0.2s linear;
+    display: inline-block;
+    overflow: visible;
+}
+
+.fade-out {
+    opacity: 0;
+    transform: translateY(10px); /* Move down during fade-out */
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(-20px); /* Start from the top */
+}
+
+.fade-default {
+    opacity: 1;
+    transform: translateY(0); 
+}

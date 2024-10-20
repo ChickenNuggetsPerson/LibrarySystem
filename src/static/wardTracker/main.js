@@ -14,8 +14,26 @@ function setProgress() {
     } catch(err) {}
 
     try {
-        let text = document.getElementById("rangeText")
-        text.innerText = `${cachedData.amt} / ${cachedData.max}`
+        // rangeCounter
+        // totalCounter
+
+        // check for defaults
+        if (cachedData.amt == 0 && cachedData.max == 1) {
+
+            // First time
+            setTimeout(() => {
+                createNumber("/", "slash", "middleCounter")
+            }, 800);
+
+            throw new Error("Skipping defaults")
+        }
+        
+        let time = updateCounter(cachedData.amt, "rangeCounter") + animDelta
+        
+        setTimeout(() => {
+            updateCounter(cachedData.max, "totalCounter")
+        }, time);
+
     } catch(err) {}
 
     try {
@@ -86,6 +104,8 @@ function test() {
     cachedData.max = 100
     cachedData.amt = 0
 
+    document.getElementById("rangeCounter").innerHTML = ""
+
     setInterval(() => {
         cachedData.amt ++
         setProgress()
@@ -93,7 +113,7 @@ function test() {
         if (cachedData.amt == 101) {
             cachedData.amt = -2
         }
-    }, 300);
+    }, 700);
 }
 
 async function fetchData() {
@@ -309,4 +329,91 @@ function displayRecents() {
             }
         }
     });
+}
+
+
+
+
+// rangeCounter
+// totalCounter
+var animDelta = 50
+function updateCounter(val, counterID) {
+    let container = document.getElementById(counterID)
+    
+    if (Number(container.getAttribute("prevVal")) == val) { return 0 } // Do nothing if the number did not change
+    
+    container.setAttribute("prevVal", val) // Store new numver
+    container.classList.add("flex", "hstack") // setup hstack
+
+
+    let numArray = Array.from(String(val), Number) // Split number into array
+    
+    for (let i = 0; i < numArray.length; i++) {
+        setTimeout(() => {
+            
+            let numberID = "num-" + counterID + "-" + i
+            let number = document.getElementById(numberID)
+
+            if (!number) { // Create number if it does not exist
+                createNumber(numArray[i], numberID, container.id)
+                return
+            }
+
+            // Don't update number if it stays the same
+            if (number.getAttribute("prevVal") == String(numArray[i])) {
+                return
+            }
+
+
+            updateNumber(numArray[i], numberID)
+
+        }, i * animDelta);
+    }
+
+    return (numArray.length) * animDelta
+}
+
+
+function createNumber(startVal, numberID, containerID) {
+    let container = document.getElementById(containerID)
+    let num = document.createElement('h1')
+    num.innerText = startVal
+    num.id = numberID
+    num.style.width = "0px"
+    num.setAttribute("prevVal", startVal)
+
+    container.appendChild(num)
+
+    // fade in animation
+    num.classList.add('fade-in', 'numeric-text');
+
+    setTimeout(() => {
+        num.classList.add('fade-default');
+        num.style.width = "1rem"
+    }, 250); 
+
+    setTimeout(() => {
+        num.classList.remove('fade-in', 'fade-out', 'fade-default')
+    }, 300);
+}
+
+function updateNumber(newValue, textID) {
+    let text = document.getElementById(textID)
+
+    text.setAttribute("prevVal", newValue)
+
+    text.classList.add('fade-out');
+    setTimeout(() => {
+        text.textContent = newValue;
+        text.classList.remove('fade-out');
+        text.classList.add('fade-in');
+    }, 150);
+
+    setTimeout(() => {
+        text.classList.add('fade-default');
+    }, 250); 
+
+    setTimeout(() => {
+        text.classList.remove('fade-in', 'fade-out', 'fade-default')
+    }, 300);
 }

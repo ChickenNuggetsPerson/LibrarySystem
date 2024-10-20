@@ -1,8 +1,6 @@
 extends trackerLayout.pug
 
 block content
-
-
     
     div(style="padding-top:7vh; height: 70vh;" id="mainContent")
         div(class="progressImgContainer")
@@ -14,7 +12,15 @@ block content
                 Img(src="/static/wardTracker/temple.png" class="reveal-Image" id="progressImg")
 
         div(class="text-center")
-            h1(id="rangeText" style="margin: auto; padding-bottom: 10px")
+            div(class="flex hstack"  style="margin: auto; padding-bottom: 10px;")
+                div(class="spacer")
+                
+                div(id="rangeCounter")
+                div(id="middleCounter" style="padding-left: 10px; padding-right: 10px;")
+                div(id="totalCounter")
+
+                div(class="spacer")
+
 
     div(id="chatContainer")
 
