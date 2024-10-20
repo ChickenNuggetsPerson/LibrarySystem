@@ -31,10 +31,19 @@ function buildMessageContainer() {
     let container = document.getElementById("chatContainer")
     container.innerHTML = ""
     container.style.height = "100vh"
-    container.style.padding = "20px"
+    container.style.paddingBottom = "20px"
+    container.style.paddingLeft = "20px"
+    container.style.paddingRight = "20px"
     container.style.backgroundColor = "#1a1a1a"
+    container.style.overflowY = "auto"
 
     let header = document.createElement("div")
+    header.style.position = "sticky"  // Make the header sticky
+    header.style.top = "0"
+    header.style.zIndex = 1
+    header.style.backgroundColor = "#1a1a1a"
+    header.style.padding = "10px"
+    header.style.filter = "drop-shadow(0px 0px 5px rgba(103, 103, 97, 0.9))"
     
     let headerTXT = document.createElement("h1")
     headerTXT.innerText = "Message Board:"
@@ -102,30 +111,13 @@ function createMessage(message) {
     let mainDiv = document.createElement('div')
     mainDiv.classList.add("card")
     mainDiv.style.backgroundColor = "#1f1f1f"
+    mainDiv.style.maxWidth = "600px"
 
     let body = document.createElement("div")
     body.classList.add("card-body")
 
-    let rowContainer = document.createElement("div")
-    rowContainer.classList.add("container", "text-center")
-
-
-    let row = document.createElement("div")
-    row.classList.add("row", "align-items-start")
-
-
-    function buildInnerCol(text) {
-        let item = document.createElement("div")
-        item.classList.add("col")
-        item.innerText = text
-        row.appendChild(item)
-    }
-    
-    buildInnerCol(
-        getDateText(new Date(message.createdAt))
-    )
-    buildInnerCol(message.content)
-
+    let container = document.createElement("div")
+    container.classList.add("container")
 
     if (isAdmin) {
         let delBTN = document.createElement("button")
@@ -135,16 +127,36 @@ function createMessage(message) {
         delBTN.style.width = "2rem"
         delBTN.style.maxWidth = "2rem"
         delBTN.style.borderRadius = "5px"
+        delBTN.style.right = "10px"
+        delBTN.style.position = "absolute"
         delBTN.onclick = async () => {
             await deleteMessage(message.messageID)
             await chatFetchData()
         }
 
-        row.appendChild(delBTN)
+        container.appendChild(delBTN)
     }
 
-    rowContainer.appendChild(row)
-    body.appendChild(rowContainer)
+
+    function buildInnerCol(text) {
+        let item = document.createElement("div")
+        item.innerText = text
+        container.appendChild(item)
+    }
+    
+    buildInnerCol(
+        getDateText(new Date(message.createdAt))
+    )
+
+    let divider = document.createElement("div")
+    divider.style.borderTop = "1px solid #5f5f5f"
+    divider.style.paddingBottom = "5px"
+    container.appendChild(divider)
+
+    buildInnerCol(message.content)
+
+
+    body.appendChild(container)
     mainDiv.appendChild(body)
 
     return mainDiv
