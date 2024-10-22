@@ -39,7 +39,10 @@ function setProgress() {
     try {
         let prog = getRelativeProgress( cachedData.amt / cachedData.max )
         let img = document.getElementById("progressImg")
-        img.style.clipPath = `inset(${100 - (prog * 100)}% 0 0 0)`;
+
+        let pixels = 100 * prog
+
+        img.style.clipPath = `inset(${100 - pixels}% 0 0 0)`;
     } catch(err) {}
 }
 function getRelativeProgress(val) {
@@ -66,6 +69,20 @@ function lerp(x, inMin, inMax, outMin, outMax) {
     let outRange = outMax - outMin
 
     return outMin + ((x - inMin) / inRange) * outRange
+}
+function getContainedSize(img) {
+    var ratio = img.naturalWidth / img.naturalHeight
+
+    console.log(img.naturalHeight, img.height)
+
+    var width = img.height * ratio
+    var height = img.height
+
+    if (width > img.width) {
+        width = img.width
+        height = img.width / ratio
+    }
+    return {width : width, height : height }
 }
 
 
@@ -165,7 +182,7 @@ function displaySubmitForm() {
                 
                 <div class="form-group">
                     <label for="actionAmt"># of Actions Done: ( 10 Max )</label>
-                    <input type="number" class="form-control" id="actionAmt" value="0" min="0" max="10" required>
+                    <input type="number" class="form-control" id="actionAmt" min="0" max="10" required>
                 </div>
 
                 <div style="height:10px"></div>

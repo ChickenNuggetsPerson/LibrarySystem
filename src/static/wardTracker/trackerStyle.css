@@ -8,14 +8,9 @@ h2 {
 }
 
 .progressImgContainer {
-    /* width: 200px; */
-    /* height: 300px; */
+    /* height: 50vh; */
     height: 50vh;
-    
     left: 12px;
-
-    /* max-width: 500px; */
-    
     position: relative;
 }
 
@@ -28,17 +23,17 @@ h2 {
     height: auto; */
 
     width: 80vw;
-    height: 50vh;
+    max-height: 50vh;
     
     left: 10vw;
 
-    object-fit: contain;
+    object-fit: scale-down;
 
     padding: 10px;
     margin: -10px;
 }
 
-.reveal-Image {
+.reveal-Image { /* Color Temple */
     clip-path: inset(100% 0 0 0); /* Initially hidden */
     transition: clip-path 1s cubic-bezier(.47,1.64,.44,.98);
 
@@ -46,12 +41,12 @@ h2 {
 }
 
 
-.darkGlow {
+.darkGlow { /* BW Temple */
     overflow: visible;
     filter: drop-shadow(0px 0px 5px rgba(103, 103, 97, 0.9));
 }
 
-.glow {
+.glow { /* Container */
     overflow: visible;
     filter: drop-shadow(0px 0px 7px rgba(255, 255, 239, 0.9));
 }
