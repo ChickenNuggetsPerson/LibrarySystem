@@ -87,24 +87,22 @@ function createItem(entry) {
 
     if (isAdmin) {
         if (entry.entryID) {
-            let delBTN = document.createElement("button")
-            delBTN.innerText = "X"
-            delBTN.classList.add("col", "btn", "btn-danger")
-            delBTN.style.padding = "5px"
-            delBTN.style.width = "2rem"
-            delBTN.style.maxWidth = "2rem"
-            delBTN.style.borderRadius = "5px"
-            delBTN.onclick = async () => {
-                await postData("/wardTracker/admin/entries/delete", {
-                    uuid: entry.entryID
-                })
 
-                setTimeout(() => {
-                    fetchData()
-                }, 500);
+            let editBTN = document.createElement("button")
+            editBTN.innerText = "..."
+            editBTN.classList.add("col", "btn", "btn-warning")
+            editBTN.style.padding = "5px"
+            editBTN.style.width = "2rem"
+            editBTN.style.maxWidth = "2rem"
+            editBTN.style.borderRadius = "5px"
+            editBTN.onclick = async () => {
+
+                displayEditForm(entry)
             }
 
-            row.appendChild(delBTN)
+            row.appendChild(editBTN)
+
+
         } else {
             let delTXT = document.createElement("div")
             delTXT.classList.add("col")
@@ -146,6 +144,93 @@ function objectsEqual(obj1, obj2) {
     }
     return true;
 }
+
+
+
+
+
+function displayEditForm(entry) {
+    console.log(entry)
+
+    function isSelected(input) {
+        if (input == entry.memberType) {
+            return "selected"
+        } else {
+            return ""
+        }
+    }
+
+    bootbox.dialog({
+        title: "Create Entry",
+        message: `
+            <form id="customForm">
+                <div class="form-group">
+                    <label for="actionInput">Action Done:</label>
+                    <input type="text" class="form-control" id="actionInput" placeholder="" value="${entry.actionType}" required>
+                </div>
+
+                <div style="height:10px"></div>
+                
+                <div class="form-group">
+                    <label for="actionAmt"># of Actions Done: ( 10 Max )</label>
+                    <input type="number" class="form-control" id="actionAmt" min="0" max="10" value="${entry.actionAmt}" required>
+                </div>
+
+                <div style="height:10px"></div>
+
+                <div class="form-group">
+                    <label for="group">What group are you from?</label>
+                    <select type="number" class="form-control" id="group" required>
+                        <option value="Adult" ${isSelected("Adult")} > Adult </option>
+                        <option value="Youth" ${isSelected("Youth")} > Youth </option>
+                        <option value="Primary" ${isSelected("Primary")} > Primary </option>
+                    </select>
+                </div>
+            </form>
+
+        `,
+        buttons: {
+            cancel: {
+                label: "Cancel",
+                className: "btn-primary"
+            },
+            delete: {
+                label: "Delete",
+                className: "btn-danger",
+                callback: async function() {
+                    await postData("/wardTracker/admin/entries/delete", {
+                        uuid: entry.entryID
+                    })
+    
+                    setTimeout(() => {
+                        fetchData()
+                    }, 500);
+                }
+            },
+            submit: {
+                label: "Submit",
+                className: "btn-success",
+                callback: async function() {
+                    var action = $('#actionInput').val();
+                    var amt = $('#actionAmt').val();
+                    var group = $('#group').val();
+
+                    await postData("/wardTracker/admin/messages/edit", {
+                        uuid: entry.entryID, 
+                        actionType: action, 
+                        actionAmt: amt, 
+                        memberType: group
+                    })
+    
+                    setTimeout(() => {
+                        fetchData()
+                    }, 500);
+                }
+            }
+        }
+    });
+}
+
 
 
 

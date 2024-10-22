@@ -1459,6 +1459,22 @@ async function deleteWardEntry(uuid) {
     });
     reCalcCache()
 }
+async function editWardEntry(uuid, actionType, actionAmt, memberType) {
+    let entry = await wardEntryTags.findOne({ where: { entryID: uuid } })
+    if (entry) {
+        await entry.update({
+            actionType: actionType,
+            actionAmt: actionAmt,
+            memberType: memberType,
+        })
+        await wardEntryTags.sync()
+
+        reCalcCache()
+
+        return true;
+    }
+    return false;
+}
 async function fetchWardEntrys(stripSensitiveData) {
     if (!stripSensitiveData) {
         return (await wardEntryTags.findAll()).reverse()
@@ -1636,6 +1652,46 @@ app.post('/wardTracker/admin/entries/delete', async (req, res) => {
 
     res.json({error: false});
 })
+app.post('/wardTracker/admin/messages/edit', async (req, res) => {
+    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
+    try {
+        // Validate Values
+        if (!req.body.actionType) {
+            print("action")
+            return res.json({error: true});
+        }
+        if (
+            req.body.actionAmt < entryRangeAmt.min || req.body.actionAmt > entryRangeAmt.max
+        ) {
+            print("amt")
+            return res.json({error: true});
+        }
+        if (!memberTypes.includes(req.body.memberType)) {
+            print("type")
+            return res.json({error: true});
+        }
+
+        if (!req.body.actionType) {
+            print("action")
+            return res.json({error: true});
+        }
+
+        if (!req.body.uuid) {
+            print("uuid")
+            return res.json({error: true});
+        }
+
+        return res.json({error: 
+            !(await editWardEntry(req.body.uuid, req.body.actionType, req.body.actionAmt, req.body.memberType))
+        });
+
+    } catch (err) {
+        return res.json({error: true});
+    }
+
+})
+
 app.post('/wardTracker/admin/newMax', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
 

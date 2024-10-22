@@ -70,20 +70,6 @@ function lerp(x, inMin, inMax, outMin, outMax) {
 
     return outMin + ((x - inMin) / inRange) * outRange
 }
-function getContainedSize(img) {
-    var ratio = img.naturalWidth / img.naturalHeight
-
-    console.log(img.naturalHeight, img.height)
-
-    var width = img.height * ratio
-    var height = img.height
-
-    if (width > img.width) {
-        width = img.width
-        height = img.width / ratio
-    }
-    return {width : width, height : height }
-}
 
 
 
