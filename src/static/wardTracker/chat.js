@@ -296,3 +296,41 @@ function displayInfoMessage() {
         }
     });
 }
+
+
+
+
+
+
+
+
+
+function displayHugh() {
+    bootbox.dialog({
+        title: "This doesn't look right...",
+        message: `
+            <p> 
+                The Temple fills based on volume, not linearly.
+            </p>
+            
+            <br>
+
+            <p>
+                Imagine filling the image with water. The area on the bottom has more volume than the steeple on top. 
+            </p>
+
+            <br>
+
+            <p>
+                It will seem slow at first, but as we approach ${cachedData.max}, the growth will accelerate.
+            </p>
+
+        `,
+        buttons: {
+            cancel: {
+                label: "Close",
+                className: "btn-primary"
+            }
+        }
+    });
+}
