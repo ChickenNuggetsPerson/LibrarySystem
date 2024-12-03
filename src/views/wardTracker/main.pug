@@ -30,6 +30,8 @@ block content
     button(type="button" class="btn btn-danger admin" onclick="changePage('/admin/view')" style="position:absolute; right: 3px; bottom: 50px;") Admin Page
     button(type="button" class="btn btn-warning admin" onclick="changePage('/wardTracker/pages/list')" style="position:absolute; right: 3px; bottom: 100px;") Entries
 
+    script(src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js")
+
     script.
         var isAdmin = !{isAdmin};
         var versionNum = !{versionNum}

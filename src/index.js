@@ -1566,11 +1566,6 @@ app.get('/wardTracker/pages/:pageName', (req, res) => {
 
 
 // Validation Functions
-let actionTypes = [
-    "Baptism + Confirmation",
-    "Endowment",
-    "Other"
-]
 let entryRangeAmt = {
     min: 1,
     max: 10
