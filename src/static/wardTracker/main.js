@@ -482,8 +482,10 @@ function checkConfetti() {
 
 
 
-counter()
 let endDate = new Date("Jan 31 2025")
+setTimeout(() => {
+    counter()
+}, 2500);
 
 function counter() {
     let interval = setInterval(() => {
