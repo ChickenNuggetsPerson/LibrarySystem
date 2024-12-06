@@ -331,11 +331,13 @@ function updateCounter(val, counterID) {
     container.setAttribute("prevVal", val); // Store new numver
     container.classList.add("flex", "hstack"); // setup hstack
 
-    let numArray = Array.from(String(val), Number); // Split number into array
+    let numArray = Array.from(String(val)); // Split number into array
+
+    function numID(containerID, index) { return "num-" + containerID + "-" + index }
 
     for (let i = 0; i < numArray.length; i++) {
         setTimeout(() => {
-            let numberID = "num-" + counterID + "-" + i;
+            let numberID = numID(counterID, i);
             let number = document.getElementById(numberID);
 
             if (!number) {
@@ -351,6 +353,24 @@ function updateCounter(val, counterID) {
 
             updateNumber(numArray[i], numberID);
         }, i * animDelta);
+    }
+
+    // Check for extra numbers that need to be deleted
+    var index = numArray.length
+    var num = document.getElementById(numID(counterID, index))
+
+    while (num != undefined) {
+        
+        // setTimeout(() => {
+
+            removeNumber(num.id, counterID); 
+            // console.log("adsf", index * animDelta)
+
+        // }, index * animDelta);
+
+        num = document.getElementById(numID(counterID, index))
+
+        index ++;
     }
 
     return numArray.length * animDelta;
@@ -399,6 +419,22 @@ function updateNumber(newValue, textID) {
         text.classList.remove("fade-in", "fade-out", "fade-default");
     }, 300);
 }
+function removeNumber(numberID, containerID) {
+    let container = document.getElementById(containerID);
+    let num = document.getElementById(numberID);
+
+    // fade in animation
+    num.classList.add("fade-out", "numeric-text");
+    num.style.width = "0";
+
+    setTimeout(() => {
+
+        container.removeChild(num)
+        
+    }, 250);
+}
+
+
 
 function checkConfetti() {
 
@@ -440,4 +476,45 @@ function checkConfetti() {
         spread: 120,
         startVelocity: 45,
     });
+}
+
+
+
+
+
+counter()
+let endDate = new Date("Jan 31 2025")
+
+function counter() {
+    let interval = setInterval(() => {
+        let now = new Date()
+
+        if (now > endDate && cachedData.amt >= cachedData.max) {
+            updateCounter("Goal Reached!", "countDownTimer")
+            clearInterval(interval)
+            return
+        }
+        if (now > endDate && cachedData.amt < cachedData.max) {
+            updateCounter("Times Up...", "countDownTimer")
+            clearInterval(interval)
+            return
+        }
+
+        const diff = endDate.getTime() - now.getTime();
+
+        // Convert to days, hours, minutes, and seconds
+        var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        if (seconds < 10) { seconds = `0${seconds}`}
+        if (minutes < 10) { minutes = `0${minutes}`}
+        if (hours < 10) { hours = `0${hours}`}
+        if (days < 10) { days = `0${days}`}
+
+        let str = `${days}:${hours}:${minutes}:${seconds}`
+
+        updateCounter(str, "countDownTimer")
+    }, 1000);
 }

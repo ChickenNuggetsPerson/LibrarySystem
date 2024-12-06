@@ -12,13 +12,18 @@ block content
                 Img(src="/static/wardTracker/temple.png" class="reveal-Image" id="progressImg")
 
         div(class="text-center")
-            div(class="flex hstack"  style="margin: auto; padding-bottom: 10px;")
+            div(class="flex hstack"  style="margin: auto;")
                 div(class="spacer")
                 
                 div(id="rangeCounter")
                 div(id="middleCounter" style="padding-left: 10px; padding-right: 10px;")
                 div(id="totalCounter")
 
+                div(class="spacer")
+
+            div(class="flex hstack"  style="margin: auto;" onClick="showCounterForm()")
+                div(class="spacer")
+                div(id="countDownTimer")
                 div(class="spacer")
 
 

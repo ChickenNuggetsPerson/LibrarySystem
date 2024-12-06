@@ -58,7 +58,7 @@ h2 {
 
 .numeric-text {
     font-size: 2rem;
-    transition: transform 0.5s cubic-bezier(.47,1.64,.44,.98), opacity 0.2s ease-in-out, width 0.2s linear;
+    transition: transform 0.5s cubic-bezier(.47,2.5,.44,.98), opacity 0.2s ease-in-out, width 0.2s linear;
     display: inline-block;
     overflow: visible;
 }
@@ -70,10 +70,19 @@ h2 {
 
 .fade-in {
     opacity: 0;
-    transform: translateY(-20px); /* Start from the top */
+    transform: translateY(-10px); /* Start from the top */
 }
 
 .fade-default {
     opacity: 1;
     transform: translateY(0); 
+}
+
+
+
+#countDownTimer h1 {
+    font-family: monospace;
+}
+#countDownTimer {
+    opacity: 0.65;
 }
