@@ -34,6 +34,13 @@ function updateCounter(val, counterID) {
 
     if (diff > 0) { // Need to add elements
 
+        for (let i = 0; i < prevStateArr.length; i++) { // Update old chars
+            scheduleItem(() => {
+                let numberID = numID(i);
+                updateNumber(stateArr[i], numberID)
+            })
+        }
+
         // Loop Through String left to right, starting at the new point 
         for (let i = stateArr.length - diff; i < stateArr.length; i++) {
             scheduleItem(() => {
@@ -54,12 +61,13 @@ function updateCounter(val, counterID) {
 
     }
 
-    
-    for (let i = stateArr.length - 1; i >= 0; i--) {
-        scheduleItem(() => {
-            let numberID = numID(i);
-            updateNumber(stateArr[i], numberID)
-        })
+    if (diff == 0 || diff < 0) {
+        for (let i = stateArr.length - 1; i >= 0; i--) {
+            scheduleItem(() => {
+                let numberID = numID(i);
+                updateNumber(stateArr[i], numberID)
+            })
+        }
     }
 
     return runningTime;
