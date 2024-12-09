@@ -1656,12 +1656,6 @@ app.post('/wardTracker/admin/messages/edit', async (req, res) => {
             print("action")
             return res.json({error: true});
         }
-        if (
-            req.body.actionAmt < entryRangeAmt.min || req.body.actionAmt > entryRangeAmt.max
-        ) {
-            print("amt")
-            return res.json({error: true});
-        }
         if (!memberTypes.includes(req.body.memberType)) {
             print("type")
             return res.json({error: true});

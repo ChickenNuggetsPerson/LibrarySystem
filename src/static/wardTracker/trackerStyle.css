@@ -58,19 +58,23 @@ h2 {
 
 .numeric-text {
     font-size: 2rem;
-    transition: transform 0.5s cubic-bezier(.47,2.5,.44,.98), opacity 0.2s ease-in-out, width 0.2s linear;
+    transition: 
+        transform 0.5s cubic-bezier(.47,2.5,.44,.98), 
+        opacity 0.2s ease-in-out, 
+        width 0.2s linear,
+        opacity 0.2s linear;
     display: inline-block;
     overflow: visible;
 }
 
-.fade-out {
+.fade-out {  /* Move down during fade-out */
     opacity: 0;
-    transform: translateY(10px); /* Move down during fade-out */
+    transform: translateY(10px);
 }
 
-.fade-in {
+.fade-in { /* Start from the top */
     opacity: 0;
-    transform: translateY(-10px); /* Start from the top */
+    transform: translateY(-10px); 
 }
 
 .fade-default {

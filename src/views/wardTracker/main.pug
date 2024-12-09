@@ -15,9 +15,7 @@ block content
             div(class="flex hstack"  style="margin: auto;")
                 div(class="spacer")
                 
-                div(id="rangeCounter")
-                div(id="middleCounter" style="padding-left: 10px; padding-right: 10px;")
-                div(id="totalCounter")
+                div(id="dataCounter")
 
                 div(class="spacer")
 
@@ -41,4 +39,5 @@ block content
         var isAdmin = !{isAdmin};
         var versionNum = !{versionNum}
     script(src="/static/wardTracker/chat.js")
+    script(src="/static/wardTracker/counter.js")
     script(src="/static/wardTracker/main.js")
