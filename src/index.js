@@ -1586,7 +1586,7 @@ app.get('/wardTracker/entries/acceptableVals', async (req, res) => {
     })
 })
 app.get('/wardTracker/entries/list', async (req, res) => {
-    res.json(await fetchWardEntrys(true))
+    res.json(await fetchWardEntrys(false))
 })
 app.use('/wardTracker/entries/submit', limiter);
 app.post('/wardTracker/entries/submit', async (req, res) => {

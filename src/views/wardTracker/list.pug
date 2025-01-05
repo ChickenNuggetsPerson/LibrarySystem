@@ -4,9 +4,12 @@ block content
 
     div(class="d-flex align-items-center justify-content-center")    
         div(class="text-center")
-            h1(style="padding-top:10px") Recent Entries
+            h1(style="padding-top:10px") All Entries
+            input(type="text" id="search" class="form-control" placeholder="Search" oninput="searchUpdate()")
 
-    div(id="listContainer")
+    div(id="listContainer" style="max-width: 40rem; margin: 0 auto; padding: 10px;")
+
+    button(type="button" class="btn btn-success" onclick="changePage('main')" style="position: fixed; right: 3px; bottom: 3px;") Home  
 
     script.
         var isAdmin = !{isAdmin};

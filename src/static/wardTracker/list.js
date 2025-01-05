@@ -4,7 +4,7 @@ let container = document.getElementById("listContainer")
 
 
 var data = []
-
+var dispData = []
 
 
 
@@ -24,8 +24,9 @@ async function fetchData() {
     }
 
     data = newData
-    console.log(data)
-    buildList()
+    setTimeout(() => {
+        searchUpdate()
+    }, 100);
 }
 
 function buildList() {
@@ -43,7 +44,7 @@ function buildList() {
     padding.style.padding = "10px"
     container.append(padding)
 
-    data.forEach(e => {
+    dispData.forEach(e => {
         container.appendChild( createItem(e) )
     });
 }
@@ -234,6 +235,22 @@ function displayEditForm(entry) {
 
 
 
+function searchUpdate() {
+    let text = document.getElementById("search").value
+    if (String(text).length == 0) { 
+        dispData = data; 
+        buildList()
+        return; 
+    }
+
+    dispData = data.filter((entry) => {
+        return String(entry.actionAmt).includes(text) || String(entry.actionType).includes(text) || String(entry.memberType).includes(text)
+    })
+
+    console.log(dispData)
+
+    buildList()
+}
 
 
 
@@ -243,9 +260,5 @@ async function onLoad() {
     setTimeout(() => {
         fetchData()
     }, 750);
-
-    setInterval(() => {
-        fetchData()
-    }, (27 * 1000) + Math.random() * 5000);
 }
 onLoad()
