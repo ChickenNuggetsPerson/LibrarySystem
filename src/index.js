@@ -1592,6 +1592,10 @@ app.use('/wardTracker/entries/submit', limiter);
 app.post('/wardTracker/entries/submit', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
     
+    if (new Date() > new Date("Febuary 1 2025")) {
+        return res.json({error: true});
+    }
+
     try {
         // Validate Values
         if (!req.body.actionType) {

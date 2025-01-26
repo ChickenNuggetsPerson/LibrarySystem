@@ -78,8 +78,8 @@ async function submitForm(type, amt, member) {
     if (response.error) {
         bootbox.alert({
             size: "small",
-            title: "Error!",
-            message: "There was an error submitting the entry.",
+            title: "Sorry...",
+            message: "We are no longer accepting entries",
             centerVertical: true,
         });
     } else {
