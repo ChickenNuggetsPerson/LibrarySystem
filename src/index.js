@@ -1712,6 +1712,10 @@ app.get('/wardTracker/messages/list', async (req, res) => {
 app.use('/wardTracker/messages/create', limiter);
 app.post('/wardTracker/messages/create', async (req, res) => {
     if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+
+    if (new Date() > new Date("Febuary 1 2025")) {
+        return res.json({error: true});
+    }
     
     try {
         // Validate Values
