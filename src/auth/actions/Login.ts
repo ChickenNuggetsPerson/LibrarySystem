@@ -17,8 +17,8 @@ export default async function login(
 
     try {
         await loginUser(username, password);
-        redirect("/")
     } catch {
         return { error: "Invalid Credentials", loggedIn: false }
     }
+    redirect("/")
 }

@@ -14,6 +14,10 @@ datasource db {
   url      = "file:../data/database.sqlite"
 }
 
+model InviteCode {
+  uuid String @id @default(uuid())
+}
+
 model User {
   uuid     String @id @default(uuid())
   name     String

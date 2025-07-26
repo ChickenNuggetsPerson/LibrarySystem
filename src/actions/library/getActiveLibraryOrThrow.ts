@@ -16,14 +16,5 @@ export default async function getActiveLibraryOrThrow() : Promise<Library> {
         return library
     }
 
-    if (!session.isAdmin) {
-        return await prisma.library.create({
-            data: {
-                name: `${session.name}'s Library`,
-                userId: session.userID
-            }
-        })
-    }
-
     throw new Error("Error Getting Active Library")
 }

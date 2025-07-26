@@ -1,12 +1,12 @@
 
 
-/* https://www.realtimecolors.com/?colors=e0eafe-010614-82a1fc-6b3077-f9265b&fonts=Inter-Inter */
+/* https://www.realtimecolors.com/?colors=e1e5ea-22262a-8cb8e9-634562-a6708e&fonts=Inter-Inter */
 :root {
-    --text_col: #E0EAFE;
-    --background_col: #010614;
-    --primary_col: #82A1FC;
-    --secondary_col: #6B3077;
-    --accent_col: #F9265B;
+    --text_col: #E2E6EB;
+    --background_col: #212529;
+    --primary_col: #8CB8E9;
+    --secondary_col: #634562;
+    --accent_col: #A6708E;
 
-    --card_col: #161c29a4;
+    --card_col: #2b3036;
 }

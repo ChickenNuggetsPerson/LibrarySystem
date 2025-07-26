@@ -98,6 +98,17 @@
   padding: calc(var(--spacing) * 2.5);
 }
 
+
+.success-button {
+  @apply text-white bg-green-400/80 hover:bg-green-300/80 text-base font-semibold cursor-pointer;
+
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: calc(var(--spacing) * 2.5);
+}
 .danger-button {
   @apply text-white bg-rose-600/80 hover:bg-rose-500/80 text-base font-semibold cursor-pointer;
 

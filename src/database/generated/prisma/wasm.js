@@ -117,6 +117,10 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.InviteCodeScalarFieldEnum = {
+  uuid: 'uuid'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   uuid: 'uuid',
   name: 'name',
@@ -155,6 +159,7 @@ exports.Prisma.SortOrder = {
 
 
 exports.Prisma.ModelName = {
+  InviteCode: 'InviteCode',
   User: 'User',
   Library: 'Library',
   Book: 'Book',

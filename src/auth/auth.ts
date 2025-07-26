@@ -69,7 +69,7 @@ export async function updateSession(session: Session) {
         httpOnly: true,
         secure: process.env.NODE_ENV == "production",
         path: "/",
-        maxAge: age, 
+        maxAge: age,
         sameSite: "lax"
     })
 }
@@ -87,11 +87,17 @@ export async function refreshSession() { // Refreshes the session expire time
 export async function registerUser(username: string, password: string, name: string) {
     const authHash = hashPassword(password)
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
         data: {
             name: name,
             username: username,
             passHash: authHash
+        }
+    })
+    await prisma.library.create({
+        data: {
+            name: `${name}'s Library`,
+            userId: user.uuid
         }
     })
 
@@ -129,10 +135,11 @@ export async function isValidSession() {
 }
 
 export async function throwIfInvalidSession() {
-    if (!(await isValidSession())) {
+    const session = await getSession()
+    if (!session) {
         throw new Error("Unauthorized")
     }
-    return await refreshSession() // Refresh session so the expire time restarts
+    return session
 }
 
 export async function redirectIfInvalidSession() {
