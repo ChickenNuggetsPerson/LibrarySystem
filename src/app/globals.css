@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import "../styles/styles.css";
+
+
+@theme {
+
+  --color-text: var(--text_col);
+  --color-background: var(--background_col);
+  --color-primary: var(--primary_col);
+  --color-secondary: var(--secondary_col);
+  --color-accent: var(--accent_col);
+
+  --color-card: var(--card_col);
+  --color-card-up: color-mix(in srgb, var(--card_col), white 10%);
+  --color-card-down: color-mix(in srgb, var(--card_col), black 10%);
+
+  --color-text-up: color-mix(in srgb, var(--text_col), white 10%);
+  --color-text-down: color-mix(in srgb, var(--text_col), black 10%);
+  --color-background-up: color-mix(in srgb, var(--background_col), white 10%);
+  --color-background-down: color-mix(in srgb, var(--background_col), black 10%);
+  --color-primary-up: color-mix(in srgb, var(--primary_col), white 10%);
+  --color-primary-down: color-mix(in srgb, var(--primary_col), black 10%);
+  --color-secondary-up: color-mix(in srgb, var(--secondary_col), white 10%);
+  --color-secondary-down: color-mix(in srgb, var(--secondary_col), black 10%);
+  --color-accent-up: color-mix(in srgb, var(--accent_col), white 10%);
+  --color-accent-down: color-mix(in srgb, var(--accent_col), black 10%);
+
+}
+
+
+.card {
+  background: var(--color-card);
+  border-radius: 16px;
+  border: 3px solid var(--color-card-up);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: calc(var(--spacing) * 6);
+}
+
+.smallCard {
+  background: var(--color-card);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid var(--color-card-up);
+  padding: calc(var(--spacing) * 1);
+}
+
+.clearSmallCard {
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border: 1px solid var(--color-card-up);
+  padding: calc(var(--spacing) * 1);
+}
+
+.icon {
+  @apply hover:opacity-60 p-1;
+
+  border-radius: 8px;
+  border: 1px solid rgba(152, 152, 152, 0.3);
+}
+
+
+.primary-button {
+  @apply text-white bg-primary/80 hover:bg-primary-up/80 text-base font-semibold cursor-pointer;
+
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: calc(var(--spacing) * 2.5);
+}
+
+.secondary-button {
+  @apply text-white bg-secondary/80 hover:bg-secondary-up/80 text-base font-semibold cursor-pointer;
+
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: calc(var(--spacing) * 2.5);
+}
+
+.accent-button {
+  @apply text-white bg-accent/80 hover:bg-accent-up/80 text-base font-semibold cursor-pointer;
+
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: calc(var(--spacing) * 2.5);
+}
+
+.danger-button {
+  @apply text-white bg-rose-600/80 hover:bg-rose-500/80 text-base font-semibold cursor-pointer;
+
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: calc(var(--spacing) * 2.5);
+}
+
+
+.prevent-select {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

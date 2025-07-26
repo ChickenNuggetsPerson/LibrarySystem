@@ -1,0 +1,12 @@
+
+
+/* https://www.realtimecolors.com/?colors=e0eafe-010614-82a1fc-6b3077-f9265b&fonts=Inter-Inter */
+:root {
+    --text_col: #E0EAFE;
+    --background_col: #010614;
+    --primary_col: #82A1FC;
+    --secondary_col: #6B3077;
+    --accent_col: #F9265B;
+
+    --card_col: #161c29a4;
+}
