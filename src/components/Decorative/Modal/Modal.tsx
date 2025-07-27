@@ -22,7 +22,7 @@ export default function Modal({ modal }: { modal: ModalProps }) {
 
     return (
         <div
-            className={`${modal.background ? "card min-w-md" : ""} w-fit h-fit`}
+            className={`${modal.background ? "card min-w-sm" : ""} w-fit h-fit`}
             style={{ backdropFilter: modal.background ? "blur(5px)" : "none" }}
         >
 

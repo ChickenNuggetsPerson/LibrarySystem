@@ -34,7 +34,7 @@ export default function RootLayout({
                     />
                     <Header />
 
-                    <div className="flex justify-center w-full pt-5">
+                    <div className="flex justify-center w-full pt-5 px-1 sm:px-10">
                         {children}
                     </div>
                 </ModalContainer>

@@ -9,7 +9,7 @@ import { Suspense } from "react"
 export default function LibraryPage() {
 
     return (
-        <div className="px-10">
+        <div>
             <div className="w-full flex justify-center">
                 <Suspense fallback={<LibraryHeader_Loading />}>
                     <LibraryHeader />
@@ -18,7 +18,9 @@ export default function LibraryPage() {
 
             <div style={{ height: 10 }}></div>
 
-            <LibraryList />
+            <Suspense>
+                <LibraryList />
+            </Suspense>
         </div>
     )
 }

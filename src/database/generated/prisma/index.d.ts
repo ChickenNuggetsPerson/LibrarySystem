@@ -4429,6 +4429,7 @@ export namespace Prisma {
     author: string | null
     description: string | null
     pageCount: string | null
+    imageUpdated: Date | null
     imageLink: string | null
   }
 
@@ -4440,6 +4441,7 @@ export namespace Prisma {
     author: string | null
     description: string | null
     pageCount: string | null
+    imageUpdated: Date | null
     imageLink: string | null
   }
 
@@ -4451,6 +4453,7 @@ export namespace Prisma {
     author: number
     description: number
     pageCount: number
+    imageUpdated: number
     imageLink: number
     _all: number
   }
@@ -4464,6 +4467,7 @@ export namespace Prisma {
     author?: true
     description?: true
     pageCount?: true
+    imageUpdated?: true
     imageLink?: true
   }
 
@@ -4475,6 +4479,7 @@ export namespace Prisma {
     author?: true
     description?: true
     pageCount?: true
+    imageUpdated?: true
     imageLink?: true
   }
 
@@ -4486,6 +4491,7 @@ export namespace Prisma {
     author?: true
     description?: true
     pageCount?: true
+    imageUpdated?: true
     imageLink?: true
     _all?: true
   }
@@ -4570,6 +4576,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated: Date
     imageLink: string
     _count: BookCountAggregateOutputType | null
     _min: BookMinAggregateOutputType | null
@@ -4598,6 +4605,7 @@ export namespace Prisma {
     author?: boolean
     description?: boolean
     pageCount?: boolean
+    imageUpdated?: boolean
     imageLink?: boolean
     library?: boolean | LibraryDefaultArgs<ExtArgs>
     categories?: boolean | Book$categoriesArgs<ExtArgs>
@@ -4612,6 +4620,7 @@ export namespace Prisma {
     author?: boolean
     description?: boolean
     pageCount?: boolean
+    imageUpdated?: boolean
     imageLink?: boolean
     library?: boolean | LibraryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["book"]>
@@ -4624,6 +4633,7 @@ export namespace Prisma {
     author?: boolean
     description?: boolean
     pageCount?: boolean
+    imageUpdated?: boolean
     imageLink?: boolean
     library?: boolean | LibraryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["book"]>
@@ -4636,10 +4646,11 @@ export namespace Prisma {
     author?: boolean
     description?: boolean
     pageCount?: boolean
+    imageUpdated?: boolean
     imageLink?: boolean
   }
 
-  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "libraryuuid" | "title" | "isbn" | "author" | "description" | "pageCount" | "imageLink", ExtArgs["result"]["book"]>
+  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "libraryuuid" | "title" | "isbn" | "author" | "description" | "pageCount" | "imageUpdated" | "imageLink", ExtArgs["result"]["book"]>
   export type BookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     library?: boolean | LibraryDefaultArgs<ExtArgs>
     categories?: boolean | Book$categoriesArgs<ExtArgs>
@@ -4666,6 +4677,7 @@ export namespace Prisma {
       author: string
       description: string
       pageCount: string
+      imageUpdated: Date
       imageLink: string
     }, ExtArgs["result"]["book"]>
     composites: {}
@@ -5099,6 +5111,7 @@ export namespace Prisma {
     readonly author: FieldRef<"Book", 'String'>
     readonly description: FieldRef<"Book", 'String'>
     readonly pageCount: FieldRef<"Book", 'String'>
+    readonly imageUpdated: FieldRef<"Book", 'DateTime'>
     readonly imageLink: FieldRef<"Book", 'String'>
   }
     
@@ -6654,6 +6667,7 @@ export namespace Prisma {
     author: 'author',
     description: 'description',
     pageCount: 'pageCount',
+    imageUpdated: 'imageUpdated',
     imageLink: 'imageLink'
   };
 
@@ -6687,6 +6701,13 @@ export namespace Prisma {
    * Reference to a field of type 'String'
    */
   export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
     
 
 
@@ -6844,6 +6865,7 @@ export namespace Prisma {
     author?: StringFilter<"Book"> | string
     description?: StringFilter<"Book"> | string
     pageCount?: StringFilter<"Book"> | string
+    imageUpdated?: DateTimeFilter<"Book"> | Date | string
     imageLink?: StringFilter<"Book"> | string
     library?: XOR<LibraryScalarRelationFilter, LibraryWhereInput>
     categories?: CategoryListRelationFilter
@@ -6857,6 +6879,7 @@ export namespace Prisma {
     author?: SortOrder
     description?: SortOrder
     pageCount?: SortOrder
+    imageUpdated?: SortOrder
     imageLink?: SortOrder
     library?: LibraryOrderByWithRelationInput
     categories?: CategoryOrderByRelationAggregateInput
@@ -6873,6 +6896,7 @@ export namespace Prisma {
     author?: StringFilter<"Book"> | string
     description?: StringFilter<"Book"> | string
     pageCount?: StringFilter<"Book"> | string
+    imageUpdated?: DateTimeFilter<"Book"> | Date | string
     imageLink?: StringFilter<"Book"> | string
     library?: XOR<LibraryScalarRelationFilter, LibraryWhereInput>
     categories?: CategoryListRelationFilter
@@ -6886,6 +6910,7 @@ export namespace Prisma {
     author?: SortOrder
     description?: SortOrder
     pageCount?: SortOrder
+    imageUpdated?: SortOrder
     imageLink?: SortOrder
     _count?: BookCountOrderByAggregateInput
     _max?: BookMaxOrderByAggregateInput
@@ -6903,6 +6928,7 @@ export namespace Prisma {
     author?: StringWithAggregatesFilter<"Book"> | string
     description?: StringWithAggregatesFilter<"Book"> | string
     pageCount?: StringWithAggregatesFilter<"Book"> | string
+    imageUpdated?: DateTimeWithAggregatesFilter<"Book"> | Date | string
     imageLink?: StringWithAggregatesFilter<"Book"> | string
   }
 
@@ -7096,6 +7122,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
     library: LibraryCreateNestedOneWithoutBooksInput
     categories?: CategoryCreateNestedManyWithoutBooksInput
@@ -7109,6 +7136,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
     categories?: CategoryUncheckedCreateNestedManyWithoutBooksInput
   }
@@ -7120,6 +7148,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
     library?: LibraryUpdateOneRequiredWithoutBooksNestedInput
     categories?: CategoryUpdateManyWithoutBooksNestedInput
@@ -7133,6 +7162,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
     categories?: CategoryUncheckedUpdateManyWithoutBooksNestedInput
   }
@@ -7145,6 +7175,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
   }
 
@@ -7155,6 +7186,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
   }
 
@@ -7166,6 +7198,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
   }
 
@@ -7333,6 +7366,17 @@ export namespace Prisma {
     name?: SortOrder
   }
 
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
   export type LibraryScalarRelationFilter = {
     is?: LibraryWhereInput
     isNot?: LibraryWhereInput
@@ -7346,6 +7390,7 @@ export namespace Prisma {
     author?: SortOrder
     description?: SortOrder
     pageCount?: SortOrder
+    imageUpdated?: SortOrder
     imageLink?: SortOrder
   }
 
@@ -7357,6 +7402,7 @@ export namespace Prisma {
     author?: SortOrder
     description?: SortOrder
     pageCount?: SortOrder
+    imageUpdated?: SortOrder
     imageLink?: SortOrder
   }
 
@@ -7368,7 +7414,22 @@ export namespace Prisma {
     author?: SortOrder
     description?: SortOrder
     pageCount?: SortOrder
+    imageUpdated?: SortOrder
     imageLink?: SortOrder
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type CategoryCountOrderByAggregateInput = {
@@ -7544,6 +7605,10 @@ export namespace Prisma {
     connect?: CategoryWhereUniqueInput | CategoryWhereUniqueInput[]
   }
 
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
   export type LibraryUpdateOneRequiredWithoutBooksNestedInput = {
     create?: XOR<LibraryCreateWithoutBooksInput, LibraryUncheckedCreateWithoutBooksInput>
     connectOrCreate?: LibraryCreateOrConnectWithoutBooksInput
@@ -7672,6 +7737,31 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
   export type LibraryCreateWithoutUserInput = {
     uuid?: string
     name: string
@@ -7742,6 +7832,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
     categories?: CategoryCreateNestedManyWithoutBooksInput
   }
@@ -7753,6 +7844,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
     categories?: CategoryUncheckedCreateNestedManyWithoutBooksInput
   }
@@ -7841,6 +7933,7 @@ export namespace Prisma {
     author?: StringFilter<"Book"> | string
     description?: StringFilter<"Book"> | string
     pageCount?: StringFilter<"Book"> | string
+    imageUpdated?: DateTimeFilter<"Book"> | Date | string
     imageLink?: StringFilter<"Book"> | string
   }
 
@@ -7975,6 +8068,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
     library: LibraryCreateNestedOneWithoutBooksInput
   }
@@ -7987,6 +8081,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
   }
 
@@ -8043,6 +8138,7 @@ export namespace Prisma {
     author: string
     description: string
     pageCount: string
+    imageUpdated?: Date | string
     imageLink: string
   }
 
@@ -8059,6 +8155,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
     categories?: CategoryUpdateManyWithoutBooksNestedInput
   }
@@ -8070,6 +8167,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
     categories?: CategoryUncheckedUpdateManyWithoutBooksNestedInput
   }
@@ -8081,6 +8179,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
   }
 
@@ -8132,6 +8231,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
     library?: LibraryUpdateOneRequiredWithoutBooksNestedInput
   }
@@ -8144,6 +8244,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
   }
 
@@ -8155,6 +8256,7 @@ export namespace Prisma {
     author?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
     pageCount?: StringFieldUpdateOperationsInput | string
+    imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
   }
 

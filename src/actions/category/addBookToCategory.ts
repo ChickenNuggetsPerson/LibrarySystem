@@ -2,6 +2,7 @@
 
 import { prisma } from "@/database/prisma"
 import getActiveLibraryOrThrow from "../library/getActiveLibraryOrThrow"
+import { revalidatePath } from "next/cache"
 
 
 
@@ -24,4 +25,6 @@ export default async function addBookToCategory(bookUUID: string, categoryUUID: 
             }
         }
     })
+
+    revalidatePath("/library")
 }

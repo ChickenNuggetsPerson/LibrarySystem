@@ -38,7 +38,7 @@ const NumericText = ({ val = "", animDelta = 50, spacing = 0, expand = false }) 
                             marginRight: spacing
                         }}
 
-                        transition={{ duration: 0.2, type: 'linear', delay: (i * animDelta)/1000 }}
+                        transition={{ duration: 0.2, delay: (i * animDelta)/1000 }} // type: 'linear',
                         style={{marginRight: spacing}}
                     >
                         <NumberDisplay value={num} key={id + " " + i} animDelay={i * animDelta} expand={expand}/>

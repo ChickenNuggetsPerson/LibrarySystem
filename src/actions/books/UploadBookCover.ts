@@ -8,8 +8,9 @@ import path from 'path'
 import { prisma } from '@/database/prisma'
 import getActiveLibraryOrThrow from '../library/getActiveLibraryOrThrow'
 
+
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-// const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const MAX_FILE_SIZE = 35 * 1024 * 1024 // 5MB
 
 export async function UploadBookCover(formData: FormData) {
     const file = formData.get('file') as File
@@ -23,9 +24,9 @@ export async function UploadBookCover(formData: FormData) {
         throw new Error('Unsupported file type')
     }
 
-    // if (file.size > MAX_FILE_SIZE) {
-    //     throw new Error('File too large')
-    // }
+    if (file.size > MAX_FILE_SIZE) {
+        throw new Error('File too large')
+    }
 
     const ext = file.name.split('.').pop()?.toLowerCase()
     if (!ext || !['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) {
@@ -47,9 +48,15 @@ export async function UploadBookCover(formData: FormData) {
     await prisma.book.update({
         where: { uuid: book.uuid },
         data: {
-            imageLink: imageLink
+            imageLink: imageLink,
+            imageUpdated: new Date()
         }
     })
 
-    return imageLink
+    console.log("Saved image:", imageLink)
+
+    return {
+        link: imageLink,
+        updateAt: new Date()
+    }
 }

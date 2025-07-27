@@ -23,7 +23,7 @@ export async function promptUser(
             title: options.title,
             required: true,
             component: (push, pop) => (
-                <div className="w-sm">
+                <div>
                     {options.message && <p>{options.message}</p>} 
 
                     <div className="flex flex-row justify-between pt-5">

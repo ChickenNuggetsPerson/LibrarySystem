@@ -153,7 +153,7 @@ export default function LibraryList() {
                                     <td className="text-center" key={cell.id}>
                                         {cell.column.id == "imageLink" &&
                                             <div>
-                                                <BookImage src={cell.getValue() as string} />
+                                                <BookImage src={cell.getValue() as string} updatedAt={row.original.imageUpdated}/>
                                             </div>
                                         }
                                         {cell.column.id !== "imageLink" &&

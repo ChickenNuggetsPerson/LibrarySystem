@@ -5,10 +5,13 @@ import { useState } from 'react'
 import BookImage from './BookImage'
 import toast from 'react-hot-toast'
 import { UploadBookCover } from '@/actions/books/UploadBookCover'
+import { useRouter } from 'next/navigation'
 
 
 
 export default function BookImageUploader({ book, cb }: { book: Book, cb?: () => void }) {
+
+    const router = useRouter()
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [preview, setPreview] = useState<string | null>(null)
     const [uploading, setUploading] = useState(false)
@@ -31,10 +34,10 @@ export default function BookImageUploader({ book, cb }: { book: Book, cb?: () =>
         await toast.promise(async () => { 
             setUploading(true)
 
-            const link = await UploadBookCover(formData)
+            await UploadBookCover(formData)
 
             setSelectedFile(null)
-            setPreview(link)
+            setPreview(null)
 
             if (cb) {
                 cb()
@@ -42,10 +45,16 @@ export default function BookImageUploader({ book, cb }: { book: Book, cb?: () =>
         }, {
             loading: "Uploading Image",
             success: "Image Uploaded",
-            error: "Error Uploading Image"
+            error: (err) => {
+                setSelectedFile(null)
+                setPreview(null)
+                setUploading(false)
+                return `${err}`
+            }
         })
         
         setUploading(false)
+        router.refresh()
     }
 
     const disabled = uploading || !selectedFile
@@ -55,8 +64,8 @@ export default function BookImageUploader({ book, cb }: { book: Book, cb?: () =>
 
 
             <div className='flex justify-between w-full'>
-                {preview && <BookImage src={preview} />}
-                {!preview && <BookImage src={book.imageLink} />}
+                {preview && <BookImage src={preview}/>}
+                {!preview && <BookImage src={book.imageLink} updatedAt={book.imageUpdated} />}
 
                 <input
                     className='card font-mono font-bold w-full text-wrap'

@@ -49,7 +49,9 @@ model Book {
   author      String
   description String
   pageCount   String
-  imageLink   String
+
+  imageUpdated DateTime @default(now())
+  imageLink    String
 
   categories Category[] // many-to-many
 }

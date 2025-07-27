@@ -2,6 +2,7 @@
 
 import { prisma } from "@/database/prisma"
 import getActiveLibraryOrThrow from "../library/getActiveLibraryOrThrow"
+import { revalidatePath } from "next/cache"
 
 
 
@@ -14,4 +15,7 @@ export default async function deleteCategory(categoryUUID: string) {
     await prisma.category.delete({
         where: { uuid: category.uuid }
     })
+
+    revalidatePath("/library")
+    revalidatePath("/library/categories")
 }
