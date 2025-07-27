@@ -1,6 +1,6 @@
 import WelcomeCard, { WelcomeCard_Loading } from "@/components/WelcomeCard";
 import { Suspense } from "react";
-
+import AdminLoginButton from "@/components/admin/AdminLoginButton";
 
 
 
@@ -8,9 +8,14 @@ import { Suspense } from "react";
 export default function MainPage() {
 
     return (
-        <Suspense fallback={<WelcomeCard_Loading />}>
-            <WelcomeCard />
-        </Suspense>
-        
+        <div>
+            <Suspense fallback={<WelcomeCard_Loading />}>
+                <WelcomeCard />
+            </Suspense>
+            <Suspense>
+                <AdminLoginButton />
+            </Suspense>
+        </div>
+
     )
 }

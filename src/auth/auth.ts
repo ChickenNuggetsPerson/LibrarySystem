@@ -28,8 +28,8 @@ export async function loginUser(username: string, password: string) {
 
         await updateSession({
             userID: session.userID,
-            isAdmin: false,
-            name: '',
+            isAdmin: true,
+            name: session.name + " (Admin)",
             libraryUUID: ''
         })
 

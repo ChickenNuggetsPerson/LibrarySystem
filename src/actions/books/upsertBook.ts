@@ -11,12 +11,7 @@ import { prisma } from "@/database/prisma";
 export default async function upsertBook(book: Book) {
     const library = await getActiveLibraryOrThrow()
 
-    const dbBook = await prisma.book.findUnique({ where: { uuid: book.uuid } })
-    if (dbBook) {
-        if (dbBook.libraryuuid !== library.uuid) {
-            throw new Error("Invalid Permissions")
-        }
-    }
+    const dbBook = await prisma.book.findUnique({ where: { uuid: book.uuid, libraryuuid: library.uuid } })
 
     if (dbBook) {
         await prisma.book.update({
@@ -26,8 +21,8 @@ export default async function upsertBook(book: Book) {
                 isbn: book.isbn,
                 author: book.author,
                 description: book.description,
-                pageCount: book.pageCount,
-                imageLink: book.imageLink,
+                pageCount: book.pageCount
+                // Don't update image link -> This should be done with BookImageUploader
             }
         })
     } else {
@@ -38,7 +33,7 @@ export default async function upsertBook(book: Book) {
                 author: book.author,
                 description: book.description,
                 pageCount: book.pageCount,
-                imageLink: book.imageLink,
+                imageLink: "", // Don't update image link -> This should be done with BookImageUploader
                 libraryuuid: library.uuid
             }
         })

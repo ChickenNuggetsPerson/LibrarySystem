@@ -38,7 +38,7 @@ export default function Modal({ modal }: { modal: ModalProps }) {
                 <>
                     <h1 className="text-2xl font-bold">
                         {modal.title}
-                    </h1><div className="h-px bg-accent mb-3"></div>
+                    </h1><div className="h-px bg-card-up mb-3"></div>
                 </>
             }
 
