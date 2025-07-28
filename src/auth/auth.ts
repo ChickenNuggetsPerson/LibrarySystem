@@ -67,7 +67,7 @@ export async function updateSession(session: Session) {
     const cookieStore = await cookies()
     cookieStore.set("session", token, { // Set session
         httpOnly: true,
-        secure: process.env.NODE_ENV == "production",
+        secure: process.platform === 'linux',
         path: "/",
         maxAge: age,
         sameSite: "lax"
@@ -138,7 +138,7 @@ export async function throwIfInvalidSession() {
     const session = await getSession()
     if (!session) {
         // throw new Error("Unauthorized")
-        redirect("/")
+        redirect("/auth/login")
     }
     return session
 }
