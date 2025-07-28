@@ -137,7 +137,8 @@ export async function isValidSession() {
 export async function throwIfInvalidSession() {
     const session = await getSession()
     if (!session) {
-        throw new Error("Unauthorized")
+        // throw new Error("Unauthorized")
+        redirect("/")
     }
     return session
 }

@@ -18,6 +18,8 @@ export default async function upsertCategory(category: Category) {
         }
     }
 
+    let uuid = ""
+
     if (dbCategory) {
         await prisma.category.update({
             where: { uuid: dbCategory.uuid },
@@ -26,16 +28,21 @@ export default async function upsertCategory(category: Category) {
                 color: category.color
             }
         })
+
+        uuid = dbCategory.uuid
     } else {
-        await prisma.category.create({
+        const newCat = await prisma.category.create({
             data: {
                 libraryUUID: library.uuid,
                 name: category.name,
                 color: category.color
             }
         })
+        uuid = newCat.uuid
     }
 
     revalidatePath("/library")
     revalidatePath("/library/categories")
+
+    return uuid
 }

@@ -21,6 +21,8 @@ export default function LibraryPage() {
             <Suspense>
                 <LibraryList />
             </Suspense>
+
+            <div style={{ height: "30vh" }}></div>
         </div>
     )
 }

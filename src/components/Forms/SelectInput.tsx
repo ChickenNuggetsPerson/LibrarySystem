@@ -70,9 +70,18 @@ export default function SelectInput({
     }
 
     return (
-        <FormControl sx={(theme) => ({ minWidth: 150, zIndex: theme.zIndex.drawer + 1 })}>
+        <FormControl sx={(theme) => ({ minWidth: 150, zIndex: theme.zIndex.drawer + 1, borderColor: "var(--color-text)" })}>
             <input type="hidden" name={id} id={id} value={selected?.id} readOnly={true} ></input>
-            <InputLabel id="">{label}</InputLabel>
+            <InputLabel
+                sx={{
+                    zIndex: (theme) => theme.zIndex.drawer + 10,
+                    color: "var(--color-text)",
+                    "&.Mui-focused": {
+                        color: "var(--color-primary)"
+                    }
+                }}
+                className="font-bold"
+            >{label}</InputLabel>
             <Select
                 labelId=""
                 // id={id}
@@ -81,13 +90,30 @@ export default function SelectInput({
                 onChange={(e) => { onPress(e.target.value) }}
                 autoWidth
                 disabled={disabled}
-                sx={(theme) => ({ minWidth: 150, zIndex: theme.zIndex.drawer + 1  })}
+                sx={{
+                    minWidth: 150,
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    backgroundColor: "var(--color-card)",
+                    color: "var(--color-text)",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "var(--color-text)",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "var(--color-primary)",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "var(--color-primary)",
+                    },
+                    "&.MuiSelect-icon": {
+                        color: "var(--color-text)",
+                    }
+                }}
             >
                 {ops.map((o) => (
                     <MenuItem
                         key={o.id}
                         value={o.id}
-                        sx={(theme) => ({ minWidth: 150, zIndex: theme.zIndex.drawer + 1  })}
+                        sx={(theme) => ({ minWidth: 150, zIndex: theme.zIndex.drawer + 1 })}
                     >
                         {o.label}
                     </MenuItem>

@@ -5,12 +5,28 @@ import { motion } from "framer-motion";
 
 
 type ClickableDivProps = React.HTMLAttributes<HTMLDivElement> & {
-    onClick?: () => void
+    onClick?: () => void,
+    enabled?: boolean
 }
 
 
 const ClickableDiv = React.forwardRef<HTMLDivElement, ClickableDivProps>(
-    ({ onClick, children, ...rest }, ref) => {
+    ({ onClick, enabled, children, ...rest }, ref) => {
+
+        enabled = enabled ?? true
+
+        if (!enabled) {
+            return (
+                <div
+                    ref={ref}
+                    {...rest}
+                    className={rest.className}
+                    style={{ ...rest.style }}
+                >
+                    {children}
+                </div>
+            )
+        }
 
         return (
             <motion.div

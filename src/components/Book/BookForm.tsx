@@ -9,6 +9,7 @@ import toast from "react-hot-toast"
 import upsertBook from "@/actions/books/upsertBook"
 import { useRouter } from "next/navigation"
 import BookImage from "./BookImage"
+import getLibraryLink from "../library/LibraryLink"
 
 
 
@@ -55,8 +56,13 @@ export default function BookForm({ book }: { book?: Book }) {
         save(true)
     }
 
+    let libraryLink = "/library"
+    if (book?.uuid) {
+        libraryLink = getLibraryLink(book.uuid)
+    }
+
     return (
-        <div className="card w-full max-w-lg">
+        <div className="card w-sm">
 
             <div className="flex justify-between w-full gap-4">
                 <div>
@@ -78,7 +84,7 @@ export default function BookForm({ book }: { book?: Book }) {
 
             <div className="flex justify-between w-full gap-4">
 
-                <Link href="/library" className="w-full">
+                <Link href={libraryLink} className="w-full">
                     <div className="accent-button text-center">
                         Cancel
                     </div>

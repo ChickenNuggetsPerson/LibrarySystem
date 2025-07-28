@@ -3,21 +3,29 @@ import { ModalProps } from "../Decorative/Modal/Modal";
 import { CardProp } from "../Forms/CardProp";
 import { BookWithCategories } from "../library/LibraryList";
 import { promptUser } from "../Decorative/Modals/promptUser";
-import { useModalManager } from "../Decorative/Modal/ModalContext";
 import toast from "react-hot-toast";
 import deleteBook from "@/actions/books/deleteBook";
 import Divider from "../Forms/Divider";
+import BookCategoryList from "../Categories/BookCategoryList";
+import BookCategoryEditList from "../Categories/BookCategoryEditList";
 
 
 
 
-export default function BookModal({ book, pop }: { book: BookWithCategories, push: (modal: ModalProps) => void, pop: () => void }) {
+export default function BookModal({ book, push, pop, refreshCB }: { book: BookWithCategories, push: (modal: ModalProps) => void, pop: () => void, refreshCB: () => void }) {
 
-    const { addModal } = useModalManager()
     const router = useRouter()
 
     async function categoriesClicked() {
-
+        push({
+            component: (p, pop2) => <BookCategoryEditList book={book} cb={() => {
+                pop2()
+                pop2()
+                setTimeout(() => {
+                    refreshCB()
+                }, 500);
+            }}/>
+        })
     }
 
     async function editClicked() {
@@ -27,7 +35,7 @@ export default function BookModal({ book, pop }: { book: BookWithCategories, pus
 
     async function deleteClicked() {
         const answer = await promptUser({
-            addModal,
+            addModal: push,
             title: "Are you sure?",
             message: "Are you sure that you want to delete this book?",
             trueButton: {
@@ -69,24 +77,13 @@ export default function BookModal({ book, pop }: { book: BookWithCategories, pus
                 </div>
             }
 
+            <div style={{ height: 10 }}></div>
+
             <h1 className="font-semibold text-lg">Categories</h1>
             {book.categories.length == 0 &&
                 <h2 className="font-mono">No Categories</h2>
             }
-            <ul>
-                {book.categories.map((category) => (
-                    <li
-                        key={category.uuid}
-                        className="font-mono"
-                        style={{
-                            backgroundColor: category.color,
-                            padding: 5,
-                            borderRadius: 15
-                        }}>
-                        {category.name}
-                    </li>
-                ))}
-            </ul>
+            <BookCategoryList book={book} />
 
             <Divider mt={15} mb={15}/>
 

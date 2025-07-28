@@ -2,42 +2,50 @@
 
 import Image from "next/image"
 import { useState } from "react";
+import ClickableDiv from "../Decorative/ClickableDiv";
 
 
 
 
-export default function BookImage({ src, updatedAt }: { src: string, updatedAt?: Date }) {
+export default function BookImage({ src, updatedAt, hoverable }: { src: string, updatedAt?: Date, hoverable?: boolean }) {
 
     const [imageLoaded, setImageLoaded] = useState(false);
+    hoverable = hoverable ?? true;
 
     if (src.trim() == "") {
         return (
-            <div
+            <ClickableDiv
+                enabled={hoverable}
                 className="card"
                 style={{
                     padding: 5,
                     width: 100,
                     height: 130
                 }}
-            > Invalid Image </div>
+            > Invalid Image </ClickableDiv>
         )
     }
 
     const str = src + (updatedAt ? ("?cache=" + updatedAt.getTime()) : "")
 
     return (
-        <Image
-            width={200}
-            height={200}
-            src={str}
-            alt="ImageName"
-            onLoad={() => setImageLoaded(true)}
-            style={{
-                opacity: imageLoaded ? 1 : 0,
-                transition: 'opacity 0.5s ease-in',
-                padding: 1
-            }}
-            className="card"
-        />
+        <ClickableDiv enabled={hoverable} style={{
+            position: 'relative',
+            width: 100,
+            height: "auto",
+            aspectRatio: '3 / 4'
+        }}>
+            <Image
+                fill
+                src={str}
+                alt="ImageName"
+                onLoad={() => setImageLoaded(true)}
+                style={{
+                    padding: 1,
+                    objectFit: "contain"
+                }}
+                className={`card ${imageLoaded ? "" : "animate-pulse"}`}
+            />
+        </ClickableDiv>
     )
 }

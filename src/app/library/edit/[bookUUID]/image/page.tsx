@@ -1,5 +1,6 @@
 import getBookByUUID from "@/actions/books/getBookByUUID";
 import BookImageUploader from "@/components/Book/BookImageUploader";
+import getLibraryLink from "@/components/library/LibraryLink";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -13,6 +14,7 @@ export default async function EditBookImagePage({
 }) {
 
     const bookUUID = (await params).bookUUID
+    const libraryLink = getLibraryLink(bookUUID)
 
     return (
         <div className="">
@@ -24,6 +26,21 @@ export default async function EditBookImagePage({
                 <Suspense fallback={<div>Loading...</div>}>
                     <Loader uuid={bookUUID} />
                 </Suspense>
+            </div>
+
+            <div className="w-full flex justify-center gap-4 mt-8">
+
+                <Link href={libraryLink} style={{ width: "150px" }}>
+                    <div className="primary-button text-center">
+                        Back to Library
+                    </div>
+                </Link>
+                <Link href={`/library/edit/${bookUUID}`} style={{ width: "150px" }}>
+                    <div className="secondary-button text-center">
+                        Edit Book
+                    </div>
+                </Link>
+
             </div>
         </div>
     )
@@ -37,24 +54,5 @@ async function Loader({ uuid }: { uuid: string }) {
         )
     }
 
-    return (
-        <div>
-            <BookImageUploader book={book}/>
-
-            <div className="flex w-full justify-between gap-4 mt-8">
-
-                <Link className="w-full" href="/library">
-                    <div className="primary-button text-center">
-                        Back To Library
-                    </div>
-                </Link>
-                <Link className="w-full" href={`/library/edit/${book.uuid}`}>
-                    <div className="secondary-button text-center">
-                        Edit Book
-                    </div>
-                </Link>
-
-            </div>
-        </div>
-    )
+    return (<BookImageUploader book={book} />)
 }

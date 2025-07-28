@@ -70,9 +70,9 @@ export default async function CategoryList() {
             <Divider mt={15} mb={15} />
 
             {categories.map((category) =>
-                <Link key={category.uuid} className="w-full flex justify-between" href={`/library/categories/edit/${category.uuid}`}>
-                    <h1 className="primary-button" style={{ backgroundColor: category.color }}>{category.name}</h1>
-                    <h2 className="text-text font-semibold text-xl">{`${category._count.books} Books`}</h2>
+                <Link key={category.uuid} className="w-full flex justify-between smallCard" href={`/library/categories/edit/${category.uuid}`}>
+                    <h1 className="primary-button" style={{ backgroundColor: category.color, borderRadius: 10 }}>{category.name}</h1>
+                    <h2 className="text-text font-semibold text-xl pt-2 pr-2">{`${category._count.books} Books`}</h2>
                 </Link>
             )}
 

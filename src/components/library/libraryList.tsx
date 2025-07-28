@@ -12,57 +12,84 @@ import BookImage from "../Book/BookImage";
 import { useModalManager } from "../Decorative/Modal/ModalContext";
 import BookModal from "../Book/BookModal";
 import { Prisma } from "@/database/generated/prisma";
+import SelectInput from "../Forms/SelectInput";
+import BookCategoryList from "../Categories/BookCategoryList";
+import toast from "react-hot-toast";
 
 
 
 export type BookWithCategories = Prisma.BookGetPayload<{ include: { categories: true } }>
+
+const colums = [
+    {
+        accessorKey: "imageLink",
+        header: "Image",
+    },
+    {
+        accessorKey: "title",
+        header: "Title",
+    },
+    {
+        accessorKey: "author",
+        header: "Author"
+    },
+    {
+        accessorKey: "categories",
+        header: "Categories",
+    }
+
+]
+
+const searchByOptions = [
+    { id: "title", label: "Title" },
+    { id: "author", label: "Author" }
+]
 
 export default function LibraryList() {
 
     const { addModal } = useModalManager()
 
     const [books, setBooks] = useState([] as BookWithCategories[])
-    const [loading, setLoading] = useState(false)
     useEffect(() => {
         load()
     }, [])
 
     async function load() {
-        setLoading(true)
+        const loadingID = toast.loading("Loading Library")
         setBooks(await getLibraryBooks())
-        setLoading(false)
+        toast.dismiss(loadingID)
+
     }
 
 
     const [columnFilters, setColumnFilters] = useState([] as ColumnFilter[])
+    const [sorting] = useState([
+        { id: 'title', desc: false }, // default sort: title ascending
+    ]);
+
+
     const { urlState, setUrl } = useUrlState({
         search: "",
-        highlight: ""
+        highlight: "",
+        searchBy: searchByOptions[0].id
     });
-    const colums = [
-        {
-            accessorKey: "imageLink",
-            header: "Image",
-        },
-        {
-            accessorKey: "title",
-            header: "Title",
-        },
-        {
-            accessorKey: "author",
-            header: "Author",
-        },
-        {
-            accessorKey: "categories",
-            header: "Categories",
-        }
 
-    ]
+    function setSearch(search: string) {
+        setUrl({
+            highlight: "",
+            search: search
+        })
+    }
+
     const table = useReactTable({
         data: books,
         columns: colums,
         state: {
-            columnFilters
+            columnFilters,
+            sorting,
+            columnVisibility: {
+                author: false,
+            },
         },
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -73,34 +100,62 @@ export default function LibraryList() {
 
     useEffect(() => {
         setColumnFilters([
-            { id: 'title', value: urlState.search },
-            // { id: 'author', value: urlState.search }
+            { id: urlState.searchBy, value: urlState.search },
         ])
-    }, [urlState.search])
+    }, [urlState.search, urlState.searchBy])
 
     function clickBook(b: BookWithCategories) {
         setUrl({ highlight: b.uuid })
         addModal({
-            component: (push, pop) => (<BookModal book={b} push={push} pop={pop}/>)
+            component: (push, pop) => (<BookModal book={b} push={push} pop={pop} refreshCB={load} />)
         })
     }
 
+
+    useEffect(() => {
+        if (!urlState.highlight || books.length === 0) return;
+
+        // Find the index of the book
+        const bookIndex = books.findIndex(b => b.uuid === urlState.highlight);
+        if (bookIndex === -1) return;
+
+        const pageSize = table.getState().pagination.pageSize;
+        const pageIndex = Math.floor(bookIndex / pageSize);
+
+        // If already on correct page, skip page change
+        if (table.getState().pagination.pageIndex !== pageIndex) {
+            table.setPageIndex(pageIndex);
+        }
+
+        // Wait until the page is actually rendered
+        const timeout = setTimeout(() => {
+            const el = document.getElementById(`book-${urlState.highlight}`);
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 500); // slight delay to ensure rendering
+
+        return () => clearTimeout(timeout);
+    }, [books, urlState.highlight, table]);
+
+    const line1 = `Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`
+    const line2 = `Showing ${table.getRowModel().rows.length} of ${books.length} Total Entries`
 
     return (
         <div className="">
 
             <div className={`md:flex md:justify-between gap-10 card max-w-xl mx-auto`} style={{ padding: 15 }}>
-                <div className="w-full md:w-1/2 mt-2">
-                    <TextInput label="Search" val={urlState.search} onChange={(val) => { setUrl({ search: val }) }} />
+                <div className="w-full md:w-1/2 mt-2 flex gap-4">
+                    <TextInput label="Search" val={urlState.search} onChange={(val) => { setSearch(val) }} />
+                    <SelectInput label="Search By:" val={urlState.searchBy} options={searchByOptions} changeCB={(val) => { setUrl({ searchBy: val }) }} />
                 </div>
 
-                {loading && <div className="my-2"> Loading... </div>}
-                {!loading && <div className="flex justify-start max-w-md select-none mt-5">
+                <div className="flex justify-start max-w-md select-none">
                     <ChevronLeft strokeWidth={1.5} onClick={() => { if (table.getCanPreviousPage()) { table.previousPage() } }} className="mr-1" />
                     <ChevronRight strokeWidth={1.5} onClick={() => { if (table.getCanNextPage()) { table.nextPage() } }} className="mr-5" />
 
-                    <NumericText val={`Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`} spacing={-7} animDelta={0} />
-                </div>}
+                    <NumericText val={line1} spacing={-7} animDelta={0} />
+                </div>
             </div>
 
             <table className="w-full table-fixed card my-5">
@@ -132,12 +187,13 @@ export default function LibraryList() {
                         {table.getRowModel().rows.map((row) => (
                             <motion.tr
                                 key={row.id}
+                                id={`book-${row.original.uuid}`}
 
                                 initial={{ opacity: 1, height: 0, fontSize: 0, borderWidth: "0px" }}
-                                animate={{ 
-                                    opacity: 1, 
-                                    height: 40, 
-                                    fontSize: "15px", 
+                                animate={{
+                                    opacity: 1,
+                                    height: 40,
+                                    fontSize: "15px",
                                     borderWidth: "1px"
                                 }}
                                 exit={{ opacity: 1, height: 0, fontSize: 0, border: 0, borderColor: "white" }}
@@ -152,12 +208,15 @@ export default function LibraryList() {
                                 {row.getVisibleCells().map((cell) => (
                                     <td className="text-center" key={cell.id}>
                                         {cell.column.id == "imageLink" &&
-                                            <div>
-                                                <BookImage src={cell.getValue() as string} updatedAt={row.original.imageUpdated}/>
+                                            <div className="pl-5">
+                                                <BookImage src={cell.getValue() as string} updatedAt={row.original.imageUpdated} />
                                             </div>
                                         }
-                                        {cell.column.id !== "imageLink" &&
+                                        {cell.column.id == "title" &&
                                             <p>{cell.getValue() as string}</p>
+                                        }
+                                        {cell.column.id == "categories" &&
+                                            <BookCategoryList book={cell.row.original} />
                                         }
                                     </td>
                                 ))}
@@ -166,9 +225,11 @@ export default function LibraryList() {
                         ))}
                     </AnimatePresence>
                 </tbody>
-
-
             </table>
+
+
+            <NumericText val={line2} spacing={-7} animDelta={0} />
+
         </div>
     )
 }
