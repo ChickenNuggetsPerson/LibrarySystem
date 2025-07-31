@@ -5,4 +5,7 @@ module.exports = {
             bodySizeLimit: '35mb',
         },
     },
+    images: {
+        domains: ['books.google.com']
+    },
 };

@@ -36,7 +36,7 @@ export default async function upsertBook(book: Book) {
                 author: book.author,
                 description: book.description,
                 pageCount: book.pageCount,
-                imageLink: "", // Don't update image link -> This should be done with BookImageUploader
+                imageLink: book.imageLink,
                 libraryuuid: library.uuid
             }
         })

@@ -1,7 +1,7 @@
 'use client'
 
 import getLibraryBooks from "@/actions/books/getLibraryBooks"
-import { ColumnFilter, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortDirection, useReactTable } from "@tanstack/react-table";
+import { ColumnFilter, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Row, SortDirection, useReactTable } from "@tanstack/react-table";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -36,13 +36,28 @@ const colums = [
     {
         accessorKey: "categories",
         header: "Categories",
+        filterFn: (row: Row<BookWithCategories>, columnId: string, filterValue: string) => {
+            if (filterValue.trim() == "") { // Empty search bar shows all books
+                return true
+            }
+
+            const cs = row.original.categories.map(m => m.name.toLowerCase().trim())
+            for (let i = 0; i < cs.length; i++) {
+                const category = cs[i]
+                if (category.includes(filterValue.toLowerCase())) {
+                    return true
+                }
+            }
+            return false
+        },
     }
 
 ]
 
 const searchByOptions = [
     { id: "title", label: "Title" },
-    { id: "author", label: "Author" }
+    { id: "author", label: "Author" },
+    { id: "categories", label: "Category" }
 ]
 
 export default function LibraryList() {
@@ -50,23 +65,10 @@ export default function LibraryList() {
     const { addModal } = useModalManager()
 
     const [books, setBooks] = useState([] as BookWithCategories[])
-    useEffect(() => {
-        load()
-    }, [])
-
-    async function load() {
-        const loadingID = toast.loading("Loading Library")
-        setBooks(await getLibraryBooks())
-        toast.dismiss(loadingID)
-
-    }
-
-
     const [columnFilters, setColumnFilters] = useState([] as ColumnFilter[])
     const [sorting] = useState([
         { id: 'title', desc: false }, // default sort: title ascending
     ]);
-
 
     const { urlState, setUrl } = useUrlState({
         search: "",
@@ -74,11 +76,14 @@ export default function LibraryList() {
         searchBy: searchByOptions[0].id
     });
 
-    function setSearch(search: string) {
-        setUrl({
-            highlight: "",
-            search: search
-        })
+    useEffect(() => {
+        load()
+    }, [])
+    async function load() {
+        const loadingID = toast.loading("Loading Library")
+        setBooks(await getLibraryBooks())
+        toast.dismiss(loadingID)
+
     }
 
     const table = useReactTable({
@@ -98,11 +103,18 @@ export default function LibraryList() {
         columnResizeMode: "onChange"
     })
 
-    useEffect(() => {
+    useEffect(() => { // On change of search state
         setColumnFilters([
             { id: urlState.searchBy, value: urlState.search },
         ])
     }, [urlState.search, urlState.searchBy])
+
+    function setSearch(search: string) {
+        setUrl({
+            highlight: "",
+            search: search
+        })
+    }
 
     function clickBook(b: BookWithCategories) {
         setUrl({ highlight: b.uuid })
@@ -111,8 +123,8 @@ export default function LibraryList() {
         })
     }
 
-
     useEffect(() => {
+        table.setPageSize(50)
         if (!urlState.highlight || books.length === 0) return;
 
         // Find the index of the book
@@ -208,7 +220,7 @@ export default function LibraryList() {
                                 {row.getVisibleCells().map((cell) => (
                                     <td className="text-center" key={cell.id}>
                                         {cell.column.id == "imageLink" &&
-                                            <div className="pl-5">
+                                            <div className="pl-5 py-1">
                                                 <BookImage src={cell.getValue() as string} updatedAt={row.original.imageUpdated} />
                                             </div>
                                         }
@@ -228,7 +240,9 @@ export default function LibraryList() {
             </table>
 
 
-            <NumericText val={line2} spacing={-7} animDelta={0} />
+            <div className="ml-2">
+                <NumericText val={line2} spacing={-7} animDelta={0} />
+            </div>
 
         </div>
     )

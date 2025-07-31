@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "next dev --turbopack",
+    "devHTTPS": "next dev --turbopack --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -32,6 +33,7 @@
     "next": "^15.4.3",
     "postcss": "^8.5.6",
     "react": "^19.1.0",
+    "react-barcode-scanner": "^4.0.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",
     "state-in-url": "^5.2.0",

@@ -52,8 +52,8 @@ export default function BookModal({ book, push, pop, refreshCB }: { book: BookWi
 
         toast.promise(async () => {
             await deleteBook(book.uuid)
-            router.refresh()
             pop()
+            refreshCB()
         }, {
             loading: "Deleting Book",
             success: "Book Deleted",
@@ -89,14 +89,14 @@ export default function BookModal({ book, push, pop, refreshCB }: { book: BookWi
 
             <div className="flex justify-between gap-4">
 
-                <button className="w-full" onClick={categoriesClicked}>
-                    <div className="primary-button text-center">
-                        Categories
-                    </div>
-                </button>
                 <button className="w-full" onClick={editClicked}>
                     <div className="secondary-button text-center">
                         Edit
+                    </div>
+                </button>
+                <button className="w-full" onClick={categoriesClicked}>
+                    <div className="primary-button text-center">
+                        Categories
                     </div>
                 </button>
                 <button className="w-full" onClick={deleteClicked}>

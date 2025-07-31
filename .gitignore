@@ -44,3 +44,5 @@ data/*
 /src/generated/prisma
 
 /public/uploads/*
+
+certificates

@@ -25,7 +25,7 @@ export default function BookCategoryList({
             {book.categories.map((category) =>
                 <li key={category.uuid} className="w-fit select-none">
                     <ClickableDiv onClick={() => clicked(category)}>
-                        <h1 className="smallCard text-center" style={{ backgroundColor: category.color, padding: 5, borderWidth: 2, minWidth: 120 }}>{category.name}</h1>
+                        <h1 className="smallCard text-center font-bold" style={{ backgroundColor: category.color, padding: 5, borderWidth: 2, minWidth: 120 }}>{category.name}</h1>
                     </ClickableDiv>
                 </li>
             )}

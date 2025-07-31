@@ -10,25 +10,12 @@ import upsertBook from "@/actions/books/upsertBook"
 import { useRouter } from "next/navigation"
 import BookImage from "./BookImage"
 import getLibraryLink from "../library/LibraryLink"
+import { emptyBook } from "@/actions/books/emptyBook"
 
 
+export default function BookForm({ book, isNew }: { book?: Book, isNew?: boolean }) {
 
-function emptyBook(): Book {
-    return {
-        uuid: "",
-        libraryuuid: "",
-        title: "",
-        isbn: "",
-        author: "",
-        description: "",
-        pageCount: "",
-        imageLink: "",
-        imageUpdated: new Date()
-    }
-}
-
-
-export default function BookForm({ book }: { book?: Book }) {
+    isNew = isNew ?? false
 
     const router = useRouter()
     const [state, setState] = useState(book ?? emptyBook())
@@ -43,10 +30,10 @@ export default function BookForm({ book }: { book?: Book }) {
         if (editImage) {
             router.push(`/library/edit/${state.uuid}/image`)
         } else {
-            if (book) {
-                router.push("/library")
-            } else {
+            if (isNew) {
                 router.push(`/library/edit/${uuid}/image`)
+            } else {
+                router.push("/library")
             }
         }
 
@@ -65,12 +52,12 @@ export default function BookForm({ book }: { book?: Book }) {
         <div className="card w-sm">
 
             <div className="flex justify-between w-full gap-4">
-                <div>
+                <div className="w-full">
                     <TextInput label="Title" val={state.title} onChange={(val) => setState({ ...state, title: val })} />
                     <TextInput label="Author" val={state.author} onChange={(val) => setState({ ...state, author: val })} />
                 </div>
 
-                {book?.uuid &&
+                {!isNew &&
                     <div onClick={clickedImage}>
                         <BookImage src={state.imageLink} updatedAt={state.imageUpdated} />
                     </div>
@@ -92,7 +79,8 @@ export default function BookForm({ book }: { book?: Book }) {
 
                 <button className="w-full" onClick={() => save(false)}>
                     <div className="primary-button text-center">
-                        Save Changes
+                        {isNew && <p>Add To Library</p>}
+                        {!isNew && <p>Save Changes</p>}
                     </div>
                 </button>
 

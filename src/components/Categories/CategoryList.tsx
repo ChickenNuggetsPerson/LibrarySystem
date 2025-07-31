@@ -11,8 +11,9 @@ export function CategoryList_Loading() {
     return (
         <div className="card w-full max-w-lg">
 
-            <div className="flex justify-center w-full">
-                <h1 className="text-text font-bold text-2xl">Categories:</h1>
+            <div className="flex mb-2">
+                <h1 className="font-bold text-2xl pr-2">Categories:</h1>
+                <h1 className="font-semibold text-2xl text-text/70 animate-pulse">Loading...</h1>
             </div>
             <div className="flex justify-between w-full gap-4">
 
@@ -32,8 +33,7 @@ export function CategoryList_Loading() {
             </div>
 
             <Divider mt={15} mb={15} />
-
-            <h1 className="text-text text-lg font-semibold">Loading</h1>
+            
         </div>
     )
 }
