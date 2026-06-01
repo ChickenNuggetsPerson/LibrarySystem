@@ -1,14 +1,14 @@
 'use client'
 
 import Image from "next/image"
-import { useState } from "react";
+import { memo, useState } from "react";
 import ClickableDiv from "../Decorative/ClickableDiv";
 import { cn } from "@/lib/utils";
 
 
 
 
-export default function BookImage({ src, updatedAt, hoverable = true, reactKey }: { src: string, updatedAt?: Date | string, hoverable?: boolean, reactKey?: string }) {
+function BookImage({ src, updatedAt, hoverable = true, reactKey }: { src: string, updatedAt?: Date | string, hoverable?: boolean, reactKey?: string }) {
 
     const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -54,7 +54,7 @@ export default function BookImage({ src, updatedAt, hoverable = true, reactKey }
             <Image
                 fill
                 src={str}
-                alt="ImageName"
+                alt="Book Image"
                 sizes="100px"
                 unoptimized={unoptimized}
                 onLoad={() => setImageLoaded(true)}
@@ -65,7 +65,10 @@ export default function BookImage({ src, updatedAt, hoverable = true, reactKey }
                 className={cn(
                     !imageLoaded && "animate-pulse"
                 )}
+                loading="lazy"
             />
         </ClickableDiv>
     )
 }
+
+export default memo(BookImage)

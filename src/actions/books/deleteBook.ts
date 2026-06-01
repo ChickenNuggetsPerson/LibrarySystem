@@ -11,20 +11,19 @@ import { revalidatePath } from "next/cache";
 
 export default async function deleteBook(bookUUID: string) {
     const library = await getActiveLibraryOrThrow()
-    const book = await prisma.book.findUnique({ where: { uuid: bookUUID } })
+    const book = await prisma.book.findUnique({ where: { uuid: bookUUID, libraryuuid: library.uuid } })
     if (!book) { throw new Error("Book does not exist") }
-    if (book.libraryuuid !== library.uuid) { throw new Error("Unauthorized") }
 
     await prisma.book.delete({
         where: { uuid: book.uuid }
     })
 
-    const fileName = bookUUID
-    const filePath = path.join(process.cwd(), 'public', 'uploads', fileName)
+    const filePath = path.join(process.cwd(), book.imagePath)
 
     try {
-        await fs.unlink(filePath);
-        console.log("Deleted Book")
+        if (filePath.startsWith("/library")) {
+            await fs.unlink(filePath);
+        }
     } catch (error) {
         console.error(`Error deleting file ${filePath}:`, error);
     }

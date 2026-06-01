@@ -13,6 +13,8 @@ export function emptyBook(): Book {
         description: "",
         pageCount: "",
         imageLink: "",
+        imageFileType: "",
+        imagePath: "",
         imageUpdated: new Date()
     }
 }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardFooter } from "../ui/card"
-import { BookWithCategories } from "@/actions/books/getLibraryBooks"
 import { Input } from "../ui/input"
 import { Field, FieldLabel } from "../ui/field"
 import { Textarea } from "../ui/textarea"
@@ -13,30 +12,59 @@ import { useRouter } from "next/navigation"
 import { getLastSearchURL } from "../library/SearchHistory"
 import toast from "react-hot-toast"
 import upsertBook from "@/actions/books/upsertBook"
+import { Book } from "@/database/generated/prisma"
+import CategoriesModal from "../Categories/CategoriesModal"
 
 
+function emptyBook(): Book {
+    return {
+        uuid: "",
+        libraryuuid: "",
+        isbn: "",
+        title: "",
+        author: "",
+        description: "",
+        pageCount: "",
+        imageLink: "",
+        imageFileType: "",
+        imagePath: "",
+        imageUpdated: new Date()
+    }
+}
 
+export default function BookForm({ book, dismiss }: { book?: Book, dismiss?: (saved: boolean, uuid: string) => void }) {
 
-export default function BookForm({ book }: { book: BookWithCategories }) {
+    const isNew = !book || (book?.uuid ?? "").trim() === ""
 
     const router = useRouter()
 
-    const [state, setState] = useState(book)
+    const [state, setState] = useState(emptyBook())
     useEffect(() => {
+        if (!book) { return }
         setState(book)
     }, [book])
 
 
-    function save() {
-        toast.promise(upsertBook(state), {
+    async function save() {
+        const uuid = await toast.promise(upsertBook(state), {
             loading: "Saving Book",
             success: "Book Saved",
             error: "Error Saving Book"
         })
+
+        if (dismiss) {
+            dismiss(true, uuid)
+        }
     }
 
     function cancel() {
-        router.push(getLastSearchURL())
+        if (isNew) {
+            if (dismiss) {
+                dismiss(false, "")
+            }
+        } else {
+            router.push(getLastSearchURL())
+        }
     }
 
     return (
@@ -44,9 +72,11 @@ export default function BookForm({ book }: { book: BookWithCategories }) {
             <CardContent className="flex flex-col gap-3">
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="mx-auto sm:mx-0">
-                        <BookImage src={book.imageLink} updatedAt={book.imageUpdated} />
-                    </div>
+                    {!isNew &&
+                        <div className="mx-auto sm:mx-0">
+                            <BookImage src={book.imageLink} updatedAt={book.imageUpdated} />
+                        </div>
+                    }
                     <div className="w-full flex flex-col gap-3">
                         <Field>
                             <FieldLabel>Title</FieldLabel>
@@ -70,11 +100,16 @@ export default function BookForm({ book }: { book: BookWithCategories }) {
                     <Textarea value={state.description} onChange={(e) => setState({ ...state, description: e.target.value })} placeholder="Book Description" />
                 </Field>
             </CardContent>
-            <CardFooter className="gap-2">
-                <Link href={`/library/edit/${book.uuid}/image`}>
-                    <Button variant={'outline'} >Change Book Image</Button>
-                </Link>
-                <Button className="ml-auto" onClick={cancel} >Cancel</Button>
+            <CardFooter className="gap-2 flex-wrap">
+                {!isNew &&
+                    <Link href={`/library/edit/${book.uuid}/image`}>
+                        <Button variant={'outline'} >Change Book Image</Button>
+                    </Link>
+                }
+                {!isNew &&
+                    <CategoriesModal book={book} refresh={() => {}}/>
+                }
+                <Button className="ml-auto" onClick={cancel}>Close</Button>
                 <Button variant={'secondary'} onClick={save}>Save</Button>
             </CardFooter>
         </Card>

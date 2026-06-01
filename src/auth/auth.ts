@@ -21,39 +21,24 @@ export interface Session {
 export async function loginUser(username: string, password: string) {
 
 
-    // Check for authentication :3
-    if (username == process.env.ADMIN_USER && password == process.env.ADMIN_PASS) {
-        const session = await getSession()
-        if (!session) { throw new Error("Invalid Credentials") }
+    const user = await prisma.user.findUnique({
+        where: {
+            username: username,
+        },
+        include: { library: true }
+    })
 
-        await updateSession({
-            userID: session.userID,
-            isAdmin: true,
-            name: session.name + " (Admin)",
-            libraryUUID: ''
-        })
+    if (!user) { throw new Error("Invalid Credentials") }
 
-    } else {
+    const match = await bcrypt.compare(password, user.passHash)
+    if (!match) { throw new Error("Invalid Credentials") }
 
-        const user = await prisma.user.findUnique({
-            where: {
-                username: username,
-            },
-            include: { library: true }
-        })
-
-        if (!user) { throw new Error("Invalid Credentials") }
-
-        const match = await bcrypt.compare(password, user.passHash)
-        if (!match) { throw new Error("Invalid Credentials") }
-
-        await updateSession({
-            userID: user.uuid,
-            isAdmin: false,
-            name: user.name,
-            libraryUUID: user.library?.uuid ?? ""
-        })
-    }
+    await updateSession({
+        userID: user.uuid,
+        isAdmin: user.systemAdmin,
+        name: user.name,
+        libraryUUID: user.library?.uuid ?? ""
+    })
 }
 
 
@@ -145,7 +130,7 @@ export async function throwIfInvalidSession() {
 
 export async function redirectIfInvalidSession() {
     if (!(await isValidSession())) {
-        redirect("/login")
+        redirect("/auth/login")
     }
 }
 

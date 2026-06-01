@@ -11,21 +11,19 @@ export type LibrarySearchResult = {
     totalResults: number
 }
 
-export default async function getLibraryBooks(search: string, pageIndex: number, pageSize: number) {
+export default async function getLibraryBooks(search: string, pageIndex: number, pageSize: number, categoryFilter: string | null) {
     const library = await getActiveLibraryOrThrow()
 
     const filter = {
         libraryuuid: library.uuid,
+        categories: categoryFilter ? {
+            some: {
+                uuid: categoryFilter
+            }
+        } : undefined,
         OR: [
             { title: { contains: search } },
-            { author: { contains: search } },
-            {
-                categories: {
-                    some: {
-                        name: { contains: search }
-                    }
-                }
-            }
+            { author: { contains: search } }
         ]
     }
 
@@ -34,6 +32,9 @@ export default async function getLibraryBooks(search: string, pageIndex: number,
             where: filter,
             include: {
                 categories: true
+            },
+            orderBy: {
+                title: 'asc'
             },
             skip: pageIndex * pageSize,
             take: pageSize

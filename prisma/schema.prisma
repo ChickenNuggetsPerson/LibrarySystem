@@ -24,6 +24,8 @@ model User {
   passHash String @unique
 
   library Library?
+  
+  systemAdmin Boolean @default(false)
 }
 
 model Library {

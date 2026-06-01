@@ -3,7 +3,7 @@
 import getLibraryBooks, { BookWithCategories, LibrarySearchResult } from "@/actions/books/getLibraryBooks";
 import { DataTable } from "../DataTable";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import BookImage from "../Book/BookImage";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "../ui/input";
@@ -11,19 +11,15 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useUrlState } from "state-in-url";
 import { ArrowLeft, ArrowRight, Trash2Icon } from "lucide-react";
 import { Button } from "../ui/button";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import getBookByUUID from "@/actions/books/getBookByUUID";
-import getAllCategories from "@/actions/category/getAllCategories";
-import { Category } from "@/database/generated/prisma";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label";
 import toast from "react-hot-toast";
-import updateBookCategories from "@/actions/category/updateBookCategories";
 import Link from "next/link";
 import { setLastSearchURL } from "./SearchHistory";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle } from "../ui/alert-dialog";
 import deleteBook from "@/actions/books/deleteBook";
+import CategoriesModal from "../Categories/CategoriesModal";
 
 
 
@@ -38,18 +34,18 @@ export default function LibraryTable() {
     const [result, setResult] = useState<LibrarySearchResult>({ books: [], totalResults: 0 })
     const [selectedBook, setSelectedBook] = useState<BookWithCategories | null>(null)
 
-    const lastSearch = useRef<SearchState>({ search: "", pageIndex: 0, pageSize: 15 })
+    const lastSearch = useRef<SearchState>({ search: "", pageIndex: 0, pageSize: 25, categoryFilter: null })
 
     const sendSearch = useDebounce((searchState?: SearchState) => {
         if (!searchState) {
-            getLibraryBooks(lastSearch.current.search, lastSearch.current.pageIndex, lastSearch.current.pageSize).then(setResult)
+            getLibraryBooks(lastSearch.current.search, lastSearch.current.pageIndex, lastSearch.current.pageSize, lastSearch.current.categoryFilter).then(setResult)
         } else {
-            getLibraryBooks(searchState.search, searchState.pageIndex, searchState.pageSize).then(setResult)
+            getLibraryBooks(searchState.search, searchState.pageIndex, searchState.pageSize, searchState.categoryFilter).then(setResult)
             lastSearch.current = searchState
         }
     }, 500)
 
-    const columns: ColumnDef<BookWithCategories>[] = [
+    const columns = useMemo<ColumnDef<BookWithCategories>[]>(() => [
         {
             accessorKey: "image",
             header: "Image",
@@ -86,19 +82,28 @@ export default function LibraryTable() {
             accessorKey: "categories",
             header: "Categories",
             cell: ({ row }) => {
-
                 return (
                     <div className="pl-2">
                         {row.original.categories.map((category, index) => (
-                            <li key={`${row.original.uuid}-cat-${index}`} className="text-secondary font-semibold text-wrap" style={{ color: category.color }}>
-                                {category.name}
+                            <li
+                                key={`${row.original.uuid}-cat-${index}`}
+                                className="text-secondary font-semibold text-wrap"
+                                style={{ color: category.color }}
+                            >
+                                <Link
+                                    href={getCategoryFilterLink(category.uuid)}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                    }}>
+                                    {category.name}
+                                </Link>
                             </li>
                         ))}
                     </div>
                 )
             },
         }
-    ]
+    ], [isMobile])
 
     function refresh() {
         sendSearch(true)
@@ -122,6 +127,7 @@ export default function LibraryTable() {
                 rowClicked={(row) => {
                     getBookByUUID(row.uuid).then(book => setSelectedBook(book))
                 }}
+                getLayoutId={(r) => `row-${r.uuid}`}
             />
 
             {selectedBook && <BookModal book={selectedBook} dismiss={() => setSelectedBook(null)} refresh={refresh} />}
@@ -131,10 +137,16 @@ export default function LibraryTable() {
 }
 
 
-type SearchState = { search: string, pageIndex: number, pageSize: number }
+export function getCategoryFilterLink(categoryUUID: string): string {
+    const url = new URL(window.location.href);
+    url.searchParams.append('categoryFilter', encodeURIComponent(`'${categoryUUID}'`));
+    return `/library?${url.searchParams.toString()}`
+}
+
+type SearchState = { search: string, pageIndex: number, pageSize: number, categoryFilter: string | null }
 export function SearchBar({ cb, visibleCount, totalResults }: { cb: (noDB: boolean, state: SearchState) => void, visibleCount: number, totalResults: number }) {
 
-    const { urlState, setUrl } = useUrlState<SearchState>({ search: "", pageIndex: 0, pageSize: 15 });
+    const { urlState, setUrl } = useUrlState<SearchState>({ search: "", pageIndex: 0, pageSize: 25, categoryFilter: null });
 
     useEffect(() => {
         cb(false, urlState)
@@ -152,7 +164,17 @@ export function SearchBar({ cb, visibleCount, totalResults }: { cb: (noDB: boole
 
     return (
         <div className="w-full flex flex-col sm:flex-row gap-1 sm:gap-4 justify-between items-center">
-            <Input placeholder="Search Books" value={urlState.search} onChange={(e) => setUrl({ ...urlState, search: e.target.value, pageIndex: 0 })} />
+
+            {urlState.categoryFilter &&
+                <div className="text-nowrap text-muted-foreground font-semibold select-none flex flex-col">
+                    Filtering Category
+                    <Button onClick={() => setUrl({ categoryFilter: null })}>
+                        Clear
+                    </Button>
+                </div>
+            }
+
+            <Input id="searchbar" placeholder="Search Books" value={urlState.search} onChange={(e) => setUrl({ ...urlState, search: e.target.value, pageIndex: 0 })} />
 
             <div className="text-nowrap">
                 {`Showing ${urlState.pageIndex * urlState.pageSize + 1} - ${urlState.pageIndex * urlState.pageSize + visibleCount} of ${totalResults} Books`}
@@ -243,83 +265,5 @@ function BookModal({ book, dismiss, refresh }: { book: BookWithCategories, dismi
                 </AlertDialogContent>
             </AlertDialog>
         </>
-    )
-}
-
-function CategoriesModal({ book, refresh }: { book: BookWithCategories, refresh: () => void }) {
-
-    const [open, setOpen] = useState(false)
-    const [libCats, setLibCats] = useState<Category[]>([])
-    const [selectedCats, setSelectedCats] = useState(new Set<string>(book.categories.map(c => c.uuid)))
-
-    useEffect(() => {
-        setSelectedCats(new Set(book.categories.map(c => c.uuid)))
-    }, [book])
-
-    useEffect(() => {
-        getAllCategories().then(setLibCats)
-    }, [])
-
-    async function save() {
-        await toast.promise(updateBookCategories(book.uuid, Array.from(selectedCats)), {
-            loading: "Saving",
-            success: "Categories Updated",
-            error: "An error occurred while updating categories."
-        })
-        setOpen(false)
-        refresh()
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant={'secondary'}>
-                    Categories
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Categories</DialogTitle>
-                </DialogHeader>
-
-                <ul>
-                    {libCats.map(category => (
-                        <li
-                            key={category.uuid}
-                            style={{ color: category.color }}
-                            className="flex gap-1 items-center"
-                        >
-                            <Checkbox
-                                id={`${category.uuid}-checkbox`}
-                                checked={selectedCats.has(category.uuid)}
-                                onCheckedChange={() => {
-                                    const newSet = new Set(selectedCats)
-                                    if (newSet.has(category.uuid)) {
-                                        newSet.delete(category.uuid)
-                                    } else {
-                                        newSet.add(category.uuid)
-                                    }
-                                    setSelectedCats(newSet)
-                                }}
-                            />
-                            <Label htmlFor={`${category.uuid}-checkbox`}>
-                                {category.name}
-                            </Label>
-                        </li>
-                    ))}
-                </ul>
-
-                <DialogFooter className="flex flex-row justify-between">
-                    <DialogClose asChild>
-                        <Button className="w-1/2">
-                            Cancel
-                        </Button>
-                    </DialogClose>
-                    <Button variant={'secondary'} onClick={save} className="w-1/2">
-                        Save
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
     )
 }

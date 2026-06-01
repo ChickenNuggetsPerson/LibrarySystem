@@ -26,7 +26,7 @@ export default function Error({
   }
 
   return (
-    <Card className='w-md'>
+    <Card className='w-sm mx-auto mt-10'>
       <CardContent>
         <h1 className='font-bold text-2xl text-text'>Whoops! There was an error...</h1>
         <Separator />

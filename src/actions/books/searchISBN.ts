@@ -49,8 +49,7 @@ async function searchGoogle(isbn: string): Promise<Book | null> {
         
         return book
 
-    } catch (error) {
-        console.log(error)
+    } catch {
         return null
     }
 }
@@ -59,7 +58,7 @@ async function searchGoogle(isbn: string): Promise<Book | null> {
 type openResponse = {
     title?: string
     authors?: {url: string, name: string}[]
-    excerpts?: string
+    excerpts?: string | { text: string }[] 
     number_of_pages: number
     cover?: {
         small?: string,
@@ -78,14 +77,19 @@ async function searchOpenLibrary(isbn: string): Promise<Book | null> {
         book.isbn = isbn
         book.title = json.title ?? "Not Provided"
         book.author = (json?.authors == undefined) ? "Not Provided" : json.authors[0].name
-        book.description = json.excerpts ?? "Not Provided"
+
+        if (typeof json.excerpts === "object") {
+            book.description = json.excerpts[0].text
+        } else {
+            book.description = json.excerpts ?? "Not Provided"
+        }
+
         book.pageCount = String(json.number_of_pages ?? "Not Provided")
         book.imageLink = (json?.cover?.large == undefined) ? "" : json.cover.large
 
         return book
 
-    } catch (error) {
-        console.log(error)
+    } catch {
         return null
     }
 }

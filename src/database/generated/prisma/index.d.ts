@@ -2292,6 +2292,7 @@ export namespace Prisma {
     name: string | null
     username: string | null
     passHash: string | null
+    systemAdmin: boolean | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -2299,6 +2300,7 @@ export namespace Prisma {
     name: string | null
     username: string | null
     passHash: string | null
+    systemAdmin: boolean | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -2306,6 +2308,7 @@ export namespace Prisma {
     name: number
     username: number
     passHash: number
+    systemAdmin: number
     _all: number
   }
 
@@ -2315,6 +2318,7 @@ export namespace Prisma {
     name?: true
     username?: true
     passHash?: true
+    systemAdmin?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -2322,6 +2326,7 @@ export namespace Prisma {
     name?: true
     username?: true
     passHash?: true
+    systemAdmin?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -2329,6 +2334,7 @@ export namespace Prisma {
     name?: true
     username?: true
     passHash?: true
+    systemAdmin?: true
     _all?: true
   }
 
@@ -2409,6 +2415,7 @@ export namespace Prisma {
     name: string
     username: string
     passHash: string
+    systemAdmin: boolean
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -2433,6 +2440,7 @@ export namespace Prisma {
     name?: boolean
     username?: boolean
     passHash?: boolean
+    systemAdmin?: boolean
     library?: boolean | User$libraryArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2441,6 +2449,7 @@ export namespace Prisma {
     name?: boolean
     username?: boolean
     passHash?: boolean
+    systemAdmin?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2448,6 +2457,7 @@ export namespace Prisma {
     name?: boolean
     username?: boolean
     passHash?: boolean
+    systemAdmin?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -2455,9 +2465,10 @@ export namespace Prisma {
     name?: boolean
     username?: boolean
     passHash?: boolean
+    systemAdmin?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "name" | "username" | "passHash", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "name" | "username" | "passHash" | "systemAdmin", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     library?: boolean | User$libraryArgs<ExtArgs>
   }
@@ -2474,6 +2485,7 @@ export namespace Prisma {
       name: string
       username: string
       passHash: string
+      systemAdmin: boolean
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2902,6 +2914,7 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly username: FieldRef<"User", 'String'>
     readonly passHash: FieldRef<"User", 'String'>
+    readonly systemAdmin: FieldRef<"User", 'Boolean'>
   }
     
 
@@ -6692,7 +6705,8 @@ export namespace Prisma {
     uuid: 'uuid',
     name: 'name',
     username: 'username',
-    passHash: 'passHash'
+    passHash: 'passHash',
+    systemAdmin: 'systemAdmin'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -6755,6 +6769,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -6811,6 +6832,7 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     username?: StringFilter<"User"> | string
     passHash?: StringFilter<"User"> | string
+    systemAdmin?: BoolFilter<"User"> | boolean
     library?: XOR<LibraryNullableScalarRelationFilter, LibraryWhereInput> | null
   }
 
@@ -6819,6 +6841,7 @@ export namespace Prisma {
     name?: SortOrder
     username?: SortOrder
     passHash?: SortOrder
+    systemAdmin?: SortOrder
     library?: LibraryOrderByWithRelationInput
   }
 
@@ -6830,6 +6853,7 @@ export namespace Prisma {
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringFilter<"User"> | string
+    systemAdmin?: BoolFilter<"User"> | boolean
     library?: XOR<LibraryNullableScalarRelationFilter, LibraryWhereInput> | null
   }, "uuid" | "username" | "passHash">
 
@@ -6838,6 +6862,7 @@ export namespace Prisma {
     name?: SortOrder
     username?: SortOrder
     passHash?: SortOrder
+    systemAdmin?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -6851,6 +6876,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"User"> | string
     username?: StringWithAggregatesFilter<"User"> | string
     passHash?: StringWithAggregatesFilter<"User"> | string
+    systemAdmin?: BoolWithAggregatesFilter<"User"> | boolean
   }
 
   export type LibraryWhereInput = {
@@ -7078,6 +7104,7 @@ export namespace Prisma {
     name: string
     username: string
     passHash: string
+    systemAdmin?: boolean
     library?: LibraryCreateNestedOneWithoutUserInput
   }
 
@@ -7086,6 +7113,7 @@ export namespace Prisma {
     name: string
     username: string
     passHash: string
+    systemAdmin?: boolean
     library?: LibraryUncheckedCreateNestedOneWithoutUserInput
   }
 
@@ -7094,6 +7122,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     username?: StringFieldUpdateOperationsInput | string
     passHash?: StringFieldUpdateOperationsInput | string
+    systemAdmin?: BoolFieldUpdateOperationsInput | boolean
     library?: LibraryUpdateOneWithoutUserNestedInput
   }
 
@@ -7102,6 +7131,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     username?: StringFieldUpdateOperationsInput | string
     passHash?: StringFieldUpdateOperationsInput | string
+    systemAdmin?: BoolFieldUpdateOperationsInput | boolean
     library?: LibraryUncheckedUpdateOneWithoutUserNestedInput
   }
 
@@ -7110,6 +7140,7 @@ export namespace Prisma {
     name: string
     username: string
     passHash: string
+    systemAdmin?: boolean
   }
 
   export type UserUpdateManyMutationInput = {
@@ -7117,6 +7148,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     username?: StringFieldUpdateOperationsInput | string
     passHash?: StringFieldUpdateOperationsInput | string
+    systemAdmin?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -7124,6 +7156,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     username?: StringFieldUpdateOperationsInput | string
     passHash?: StringFieldUpdateOperationsInput | string
+    systemAdmin?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type LibraryCreateInput = {
@@ -7371,6 +7404,11 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type LibraryNullableScalarRelationFilter = {
     is?: LibraryWhereInput | null
     isNot?: LibraryWhereInput | null
@@ -7381,6 +7419,7 @@ export namespace Prisma {
     name?: SortOrder
     username?: SortOrder
     passHash?: SortOrder
+    systemAdmin?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -7388,6 +7427,7 @@ export namespace Prisma {
     name?: SortOrder
     username?: SortOrder
     passHash?: SortOrder
+    systemAdmin?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -7395,6 +7435,15 @@ export namespace Prisma {
     name?: SortOrder
     username?: SortOrder
     passHash?: SortOrder
+    systemAdmin?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type UserScalarRelationFilter = {
@@ -7547,6 +7596,10 @@ export namespace Prisma {
     create?: XOR<LibraryCreateWithoutUserInput, LibraryUncheckedCreateWithoutUserInput>
     connectOrCreate?: LibraryCreateOrConnectWithoutUserInput
     connect?: LibraryWhereUniqueInput
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type LibraryUpdateOneWithoutUserNestedInput = {
@@ -7817,6 +7870,19 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -7891,6 +7957,7 @@ export namespace Prisma {
     name: string
     username: string
     passHash: string
+    systemAdmin?: boolean
   }
 
   export type UserUncheckedCreateWithoutLibraryInput = {
@@ -7898,6 +7965,7 @@ export namespace Prisma {
     name: string
     username: string
     passHash: string
+    systemAdmin?: boolean
   }
 
   export type UserCreateOrConnectWithoutLibraryInput = {
@@ -7981,6 +8049,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     username?: StringFieldUpdateOperationsInput | string
     passHash?: StringFieldUpdateOperationsInput | string
+    systemAdmin?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UserUncheckedUpdateWithoutLibraryInput = {
@@ -7988,6 +8057,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     username?: StringFieldUpdateOperationsInput | string
     passHash?: StringFieldUpdateOperationsInput | string
+    systemAdmin?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type BookUpsertWithWhereUniqueWithoutLibraryInput = {

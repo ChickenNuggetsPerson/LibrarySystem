@@ -1,7 +1,6 @@
 'use server'
 
 
-import { redirect } from "next/navigation";
 import { loginUser } from "../auth";
 
 
@@ -20,5 +19,6 @@ export default async function login(
     } catch {
         return { error: "Invalid Credentials", loggedIn: false }
     }
-    redirect("/")
+
+    return { error: null, loggedIn: true }
 }

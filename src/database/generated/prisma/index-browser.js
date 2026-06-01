@@ -125,7 +125,8 @@ exports.Prisma.UserScalarFieldEnum = {
   uuid: 'uuid',
   name: 'name',
   username: 'username',
-  passHash: 'passHash'
+  passHash: 'passHash',
+  systemAdmin: 'systemAdmin'
 };
 
 exports.Prisma.LibraryScalarFieldEnum = {

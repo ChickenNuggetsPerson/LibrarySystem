@@ -38,4 +38,5 @@ export default async function updateBookCategories(bookUUID: string, categoryUUI
 
     revalidatePath("/library")
     revalidatePath("/library/categories")
+    revalidatePath(`/library/edit/${book.uuid}`)
 }

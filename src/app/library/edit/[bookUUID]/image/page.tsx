@@ -30,7 +30,7 @@ export default async function EditBookImagePage({
             <div className="w-full flex justify-center gap-4 mt-8">
 
                 <Link href={`/library/edit/${bookUUID}`}>
-                    <Button variant={'default'}>
+                    <Button variant={'secondary'}>
                         Edit Book
                     </Button>
                 </Link>
