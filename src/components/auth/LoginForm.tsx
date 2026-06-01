@@ -2,15 +2,18 @@
 
 import Login from "@/auth/actions/Login";
 import { useActionState, useEffect } from "react";
-import TextInput from "../Forms/TextInput";
 import toast from "react-hot-toast";
+import { Card, CardContent } from "../ui/card";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Field, FieldLabel } from "../ui/field";
 
 
 
 
 export default function LoginForm() {
     const [state, formAction] = useActionState(Login, { error: null, loggedIn: false });
-    
+
     useEffect(() => {
         if (state.error) {
             toast.error(state.error)
@@ -18,25 +21,28 @@ export default function LoginForm() {
     }, [state])
 
     return (
-        <div>
-            <form action={formAction} className="card w-sm">
+        <form action={formAction}>
+            <Card className="w-sm">
+                <CardContent className="flex flex-col gap-4">
+                    <div className="text-muted-foreground text-center text-3xl font-semibold">
+                        Login:
+                    </div>
 
-                <div className="flex flex-row justify-center w-full text-2xl font-bold">
-                    Login:
-                </div>
+                    <Field>
+                        <FieldLabel htmlFor="input-field-username">Username</FieldLabel>
+                        <Input id={"username"} placeholder={"Username"} name="username" autoComplete="username" />
+                    </Field>
 
-                <div className="flex flex-row justify-center w-full text-md text-gray-500">
-                    Login to your Library System account
-                </div>
-
-                <div className="h-5"></div>
-
-                <TextInput id={"username"} label={"Username:"} val={""} placeholder={""} disabled={false} />
-                <TextInput id={"password"} label={"Password:"} val={""} placeholder={""} disabled={false} obfuscate/>
-
-                <button type="submit" className="w-full primary-button">Login</button>
-            </form>
-
-        </div>
+                    <Field>
+                        <FieldLabel htmlFor="input-field-password">Password</FieldLabel>
+                        <Input id={"password"} placeholder={"Password"} name="password" autoComplete="password" type="password"  />
+                    </Field>
+                
+                    <Button className="w-full" type="submit">
+                        Login
+                    </Button>
+                </CardContent>
+            </Card>
+        </form>
     );
 }

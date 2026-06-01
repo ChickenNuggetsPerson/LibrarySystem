@@ -39,17 +39,21 @@ export async function UploadBookCover(formData: FormData) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    const fileName = bookUUID
-    const filePath = path.join(process.cwd(), 'public', 'uploads', fileName)
+    const fileName = `${bookUUID}`
+    const filePath = path.join(process.cwd(), 'uploads', fileName)
+
+    const dbFilePath = path.join('./', 'uploads', fileName)
 
     await writeFile(filePath, buffer)
 
-    const imageLink = `/uploads/${fileName}`
+    const imageLink = `/library/book/cover/${fileName}`
     await prisma.book.update({
         where: { uuid: book.uuid },
         data: {
             imageLink: imageLink,
-            imageUpdated: new Date()
+            imagePath: dbFilePath,
+            imageUpdated: new Date(),
+            imageFileType: file.type,
         }
     })
 

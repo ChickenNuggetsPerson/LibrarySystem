@@ -2,17 +2,44 @@
 
 import { prisma } from "@/database/prisma"
 import getActiveLibraryOrThrow from "../library/getActiveLibraryOrThrow"
-import { BookWithCategories } from "@/components/library/LibraryList"
+import { Prisma } from "@/database/generated/prisma"
 
 
+export type BookWithCategories = Prisma.BookGetPayload<{ include: { categories: true } }>
+export type LibrarySearchResult = {
+    books: BookWithCategories[],
+    totalResults: number
+}
 
-
-
-export default async function getLibraryBooks() : Promise<BookWithCategories[]> {
+export default async function getLibraryBooks(search: string, pageIndex: number, pageSize: number) {
     const library = await getActiveLibraryOrThrow()
 
-    return await prisma.book.findMany({
-        where: { libraryuuid: library.uuid },
-        include: { categories: true }
-    })
+    const filter = {
+        libraryuuid: library.uuid,
+        OR: [
+            { title: { contains: search } },
+            { author: { contains: search } },
+            {
+                categories: {
+                    some: {
+                        name: { contains: search }
+                    }
+                }
+            }
+        ]
+    }
+
+    return {
+        books: await prisma.book.findMany({
+            where: filter,
+            include: {
+                categories: true
+            },
+            skip: pageIndex * pageSize,
+            take: pageSize
+        }),
+        totalResults: await prisma.book.count({
+            where: filter
+        })
+    }
 }

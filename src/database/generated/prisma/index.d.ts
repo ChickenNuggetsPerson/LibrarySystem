@@ -3,7 +3,7 @@
  * Client
 **/
 
-import * as runtime from './runtime/library.js';
+import * as runtime from './runtime/client.js';
 import $Types = runtime.Types // general types
 import $Public = runtime.Types.Public
 import $Utils = runtime.Types.Utils
@@ -45,17 +45,19 @@ export type Category = $Result.DefaultSelection<Prisma.$CategoryPayload>
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
- * const prisma = new PrismaClient()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
  * // Fetch zero or more InviteCodes
  * const inviteCodes = await prisma.inviteCode.findMany()
  * ```
  *
  *
- * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ * Read more in our [docs](https://pris.ly/d/client).
  */
 export class PrismaClient<
   ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
-  U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
+  const U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
   ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
@@ -66,13 +68,15 @@ export class PrismaClient<
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
-   * const prisma = new PrismaClient()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
    * // Fetch zero or more InviteCodes
    * const inviteCodes = await prisma.inviteCode.findMany()
    * ```
    *
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+   * Read more in our [docs](https://pris.ly/d/client).
    */
 
   constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
@@ -88,13 +92,6 @@ export class PrismaClient<
    */
   $disconnect(): $Utils.JsPromise<void>;
 
-  /**
-   * Add a middleware
-   * @deprecated since 4.16.0. For new code, prefer client extensions instead.
-   * @see https://pris.ly/d/extensions
-   */
-  $use(cb: Prisma.Middleware): void
-
 /**
    * Executes a prepared raw query and returns the number of affected rows.
    * @example
@@ -102,7 +99,7 @@ export class PrismaClient<
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -114,7 +111,7 @@ export class PrismaClient<
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -125,7 +122,7 @@ export class PrismaClient<
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -137,7 +134,7 @@ export class PrismaClient<
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -153,12 +150,11 @@ export class PrismaClient<
    * ])
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
-
 
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
     extArgs: ExtArgs
@@ -253,14 +249,6 @@ export namespace Prisma {
   export type DecimalJsLike = runtime.DecimalJsLike
 
   /**
-   * Metrics
-   */
-  export type Metrics = runtime.Metrics
-  export type Metric<T> = runtime.Metric<T>
-  export type MetricHistogram = runtime.MetricHistogram
-  export type MetricHistogramBucket = runtime.MetricHistogramBucket
-
-  /**
   * Extensions
   */
   export import Extension = $Extensions.UserArgs
@@ -271,11 +259,12 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.12.0
-   * Query Engine version: 8047c96bbd92db98a2abc7c9323ce77c02c89dbc
+   * Prisma Client JS version: 7.8.0
+   * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
    */
   export type PrismaVersion = {
     client: string
+    engine: string
   }
 
   export const prismaVersion: PrismaVersion
@@ -285,6 +274,7 @@ export namespace Prisma {
    */
 
 
+  export import Bytes = runtime.Bytes
   export import JsonObject = runtime.JsonObject
   export import JsonArray = runtime.JsonArray
   export import JsonValue = runtime.JsonValue
@@ -663,9 +653,6 @@ export namespace Prisma {
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
 
 
-  export type Datasources = {
-    db?: Datasource
-  }
 
   interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
     returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
@@ -1079,32 +1066,32 @@ export namespace Prisma {
   export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
   export interface PrismaClientOptions {
     /**
-     * Overwrites the datasource url from your schema.prisma file
-     */
-    datasources?: Datasources
-    /**
-     * Overwrites the datasource url from your schema.prisma file
-     */
-    datasourceUrl?: string
-    /**
      * @default "colorless"
      */
     errorFormat?: ErrorFormat
     /**
      * @example
      * ```
-     * // Defaults to stdout
+     * // Shorthand for `emit: 'stdout'`
      * log: ['query', 'info', 'warn', 'error']
      * 
-     * // Emit as events
+     * // Emit as events only
      * log: [
-     *   { emit: 'stdout', level: 'query' },
-     *   { emit: 'stdout', level: 'info' },
-     *   { emit: 'stdout', level: 'warn' }
-     *   { emit: 'stdout', level: 'error' }
+     *   { emit: 'event', level: 'query' },
+     *   { emit: 'event', level: 'info' },
+     *   { emit: 'event', level: 'warn' }
+     *   { emit: 'event', level: 'error' }
      * ]
+     * 
+     * / Emit as events and log to stdout
+     * og: [
+     *  { emit: 'stdout', level: 'query' },
+     *  { emit: 'stdout', level: 'info' },
+     *  { emit: 'stdout', level: 'warn' }
+     *  { emit: 'stdout', level: 'error' }
+     * 
      * ```
-     * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
+     * Read more in our [docs](https://pris.ly/d/logging).
      */
     log?: (LogLevel | LogDefinition)[]
     /**
@@ -1117,6 +1104,14 @@ export namespace Prisma {
       timeout?: number
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
+    /**
+     * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-planetscale`
+     */
+    adapter?: runtime.SqlDriverAdapterFactory
+    /**
+     * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
+     */
+    accelerateUrl?: string
     /**
      * Global configuration for omitting model fields by default.
      * 
@@ -1132,6 +1127,22 @@ export namespace Prisma {
      * ```
      */
     omit?: Prisma.GlobalOmitConfig
+    /**
+     * SQL commenter plugins that add metadata to SQL queries as comments.
+     * Comments follow the sqlcommenter format: https://google.github.io/sqlcommenter/
+     * 
+     * @example
+     * ```
+     * const prisma = new PrismaClient({
+     *   adapter,
+     *   comments: [
+     *     traceContext(),
+     *     queryInsights(),
+     *   ],
+     * })
+     * ```
+     */
+    comments?: runtime.SqlCommenterPlugin[]
   }
   export type GlobalOmitConfig = {
     inviteCode?: InviteCodeOmit
@@ -1148,10 +1159,15 @@ export namespace Prisma {
     emit: 'stdout' | 'event'
   }
 
-  export type GetLogType<T extends LogLevel | LogDefinition> = T extends LogDefinition ? T['emit'] extends 'event' ? T['level'] : never : never
-  export type GetEvents<T extends any> = T extends Array<LogLevel | LogDefinition> ?
-    GetLogType<T[0]> | GetLogType<T[1]> | GetLogType<T[2]> | GetLogType<T[3]>
-    : never
+  export type CheckIsLogLevel<T> = T extends LogLevel ? T : never;
+
+  export type GetLogType<T> = CheckIsLogLevel<
+    T extends LogDefinition ? T['level'] : T
+  >;
+
+  export type GetEvents<T extends any[]> = T extends Array<LogLevel | LogDefinition>
+    ? GetLogType<T[number]>
+    : never;
 
   export type QueryEvent = {
     timestamp: Date
@@ -1191,25 +1207,6 @@ export namespace Prisma {
     | 'runCommandRaw'
     | 'findRaw'
     | 'groupBy'
-
-  /**
-   * These options are being passed into the middleware as "params"
-   */
-  export type MiddlewareParams = {
-    model?: ModelName
-    action: PrismaAction
-    args: any
-    dataPath: string[]
-    runInTransaction: boolean
-  }
-
-  /**
-   * The `T` type makes sure, that the `return proceed` is not forgotten in the middleware implementation
-   */
-  export type Middleware<T = any> = (
-    params: MiddlewareParams,
-    next: (params: MiddlewareParams) => $Utils.JsPromise<T>,
-  ) => $Utils.JsPromise<T>
 
   // tested in getLogLevel.test.ts
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
@@ -2087,6 +2084,11 @@ export namespace Prisma {
      * Skip the first `n` InviteCodes.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InviteCodes.
+     */
     distinct?: InviteCodeScalarFieldEnum | InviteCodeScalarFieldEnum[]
   }
 
@@ -3096,6 +3098,11 @@ export namespace Prisma {
      * Skip the first `n` Users.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
@@ -4147,6 +4154,11 @@ export namespace Prisma {
      * Skip the first `n` Libraries.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Libraries.
+     */
     distinct?: LibraryScalarFieldEnum | LibraryScalarFieldEnum[]
   }
 
@@ -4431,6 +4443,8 @@ export namespace Prisma {
     pageCount: string | null
     imageUpdated: Date | null
     imageLink: string | null
+    imagePath: string | null
+    imageFileType: string | null
   }
 
   export type BookMaxAggregateOutputType = {
@@ -4443,6 +4457,8 @@ export namespace Prisma {
     pageCount: string | null
     imageUpdated: Date | null
     imageLink: string | null
+    imagePath: string | null
+    imageFileType: string | null
   }
 
   export type BookCountAggregateOutputType = {
@@ -4455,6 +4471,8 @@ export namespace Prisma {
     pageCount: number
     imageUpdated: number
     imageLink: number
+    imagePath: number
+    imageFileType: number
     _all: number
   }
 
@@ -4469,6 +4487,8 @@ export namespace Prisma {
     pageCount?: true
     imageUpdated?: true
     imageLink?: true
+    imagePath?: true
+    imageFileType?: true
   }
 
   export type BookMaxAggregateInputType = {
@@ -4481,6 +4501,8 @@ export namespace Prisma {
     pageCount?: true
     imageUpdated?: true
     imageLink?: true
+    imagePath?: true
+    imageFileType?: true
   }
 
   export type BookCountAggregateInputType = {
@@ -4493,6 +4515,8 @@ export namespace Prisma {
     pageCount?: true
     imageUpdated?: true
     imageLink?: true
+    imagePath?: true
+    imageFileType?: true
     _all?: true
   }
 
@@ -4578,6 +4602,8 @@ export namespace Prisma {
     pageCount: string
     imageUpdated: Date
     imageLink: string
+    imagePath: string
+    imageFileType: string
     _count: BookCountAggregateOutputType | null
     _min: BookMinAggregateOutputType | null
     _max: BookMaxAggregateOutputType | null
@@ -4607,6 +4633,8 @@ export namespace Prisma {
     pageCount?: boolean
     imageUpdated?: boolean
     imageLink?: boolean
+    imagePath?: boolean
+    imageFileType?: boolean
     library?: boolean | LibraryDefaultArgs<ExtArgs>
     categories?: boolean | Book$categoriesArgs<ExtArgs>
     _count?: boolean | BookCountOutputTypeDefaultArgs<ExtArgs>
@@ -4622,6 +4650,8 @@ export namespace Prisma {
     pageCount?: boolean
     imageUpdated?: boolean
     imageLink?: boolean
+    imagePath?: boolean
+    imageFileType?: boolean
     library?: boolean | LibraryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["book"]>
 
@@ -4635,6 +4665,8 @@ export namespace Prisma {
     pageCount?: boolean
     imageUpdated?: boolean
     imageLink?: boolean
+    imagePath?: boolean
+    imageFileType?: boolean
     library?: boolean | LibraryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["book"]>
 
@@ -4648,9 +4680,11 @@ export namespace Prisma {
     pageCount?: boolean
     imageUpdated?: boolean
     imageLink?: boolean
+    imagePath?: boolean
+    imageFileType?: boolean
   }
 
-  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "libraryuuid" | "title" | "isbn" | "author" | "description" | "pageCount" | "imageUpdated" | "imageLink", ExtArgs["result"]["book"]>
+  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "libraryuuid" | "title" | "isbn" | "author" | "description" | "pageCount" | "imageUpdated" | "imageLink" | "imagePath" | "imageFileType", ExtArgs["result"]["book"]>
   export type BookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     library?: boolean | LibraryDefaultArgs<ExtArgs>
     categories?: boolean | Book$categoriesArgs<ExtArgs>
@@ -4679,6 +4713,8 @@ export namespace Prisma {
       pageCount: string
       imageUpdated: Date
       imageLink: string
+      imagePath: string
+      imageFileType: string
     }, ExtArgs["result"]["book"]>
     composites: {}
   }
@@ -5113,6 +5149,8 @@ export namespace Prisma {
     readonly pageCount: FieldRef<"Book", 'String'>
     readonly imageUpdated: FieldRef<"Book", 'DateTime'>
     readonly imageLink: FieldRef<"Book", 'String'>
+    readonly imagePath: FieldRef<"Book", 'String'>
+    readonly imageFileType: FieldRef<"Book", 'String'>
   }
     
 
@@ -5309,6 +5347,11 @@ export namespace Prisma {
      * Skip the first `n` Books.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Books.
+     */
     distinct?: BookScalarFieldEnum | BookScalarFieldEnum[]
   }
 
@@ -6382,6 +6425,11 @@ export namespace Prisma {
      * Skip the first `n` Categories.
      */
     skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Categories.
+     */
     distinct?: CategoryScalarFieldEnum | CategoryScalarFieldEnum[]
   }
 
@@ -6668,7 +6716,9 @@ export namespace Prisma {
     description: 'description',
     pageCount: 'pageCount',
     imageUpdated: 'imageUpdated',
-    imageLink: 'imageLink'
+    imageLink: 'imageLink',
+    imagePath: 'imagePath',
+    imageFileType: 'imageFileType'
   };
 
   export type BookScalarFieldEnum = (typeof BookScalarFieldEnum)[keyof typeof BookScalarFieldEnum]
@@ -6867,6 +6917,8 @@ export namespace Prisma {
     pageCount?: StringFilter<"Book"> | string
     imageUpdated?: DateTimeFilter<"Book"> | Date | string
     imageLink?: StringFilter<"Book"> | string
+    imagePath?: StringFilter<"Book"> | string
+    imageFileType?: StringFilter<"Book"> | string
     library?: XOR<LibraryScalarRelationFilter, LibraryWhereInput>
     categories?: CategoryListRelationFilter
   }
@@ -6881,6 +6933,8 @@ export namespace Prisma {
     pageCount?: SortOrder
     imageUpdated?: SortOrder
     imageLink?: SortOrder
+    imagePath?: SortOrder
+    imageFileType?: SortOrder
     library?: LibraryOrderByWithRelationInput
     categories?: CategoryOrderByRelationAggregateInput
   }
@@ -6898,6 +6952,8 @@ export namespace Prisma {
     pageCount?: StringFilter<"Book"> | string
     imageUpdated?: DateTimeFilter<"Book"> | Date | string
     imageLink?: StringFilter<"Book"> | string
+    imagePath?: StringFilter<"Book"> | string
+    imageFileType?: StringFilter<"Book"> | string
     library?: XOR<LibraryScalarRelationFilter, LibraryWhereInput>
     categories?: CategoryListRelationFilter
   }, "uuid">
@@ -6912,6 +6968,8 @@ export namespace Prisma {
     pageCount?: SortOrder
     imageUpdated?: SortOrder
     imageLink?: SortOrder
+    imagePath?: SortOrder
+    imageFileType?: SortOrder
     _count?: BookCountOrderByAggregateInput
     _max?: BookMaxOrderByAggregateInput
     _min?: BookMinOrderByAggregateInput
@@ -6930,6 +6988,8 @@ export namespace Prisma {
     pageCount?: StringWithAggregatesFilter<"Book"> | string
     imageUpdated?: DateTimeWithAggregatesFilter<"Book"> | Date | string
     imageLink?: StringWithAggregatesFilter<"Book"> | string
+    imagePath?: StringWithAggregatesFilter<"Book"> | string
+    imageFileType?: StringWithAggregatesFilter<"Book"> | string
   }
 
   export type CategoryWhereInput = {
@@ -7123,7 +7183,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
     library: LibraryCreateNestedOneWithoutBooksInput
     categories?: CategoryCreateNestedManyWithoutBooksInput
   }
@@ -7137,7 +7199,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
     categories?: CategoryUncheckedCreateNestedManyWithoutBooksInput
   }
 
@@ -7150,6 +7214,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
     library?: LibraryUpdateOneRequiredWithoutBooksNestedInput
     categories?: CategoryUpdateManyWithoutBooksNestedInput
   }
@@ -7164,6 +7230,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
     categories?: CategoryUncheckedUpdateManyWithoutBooksNestedInput
   }
 
@@ -7176,7 +7244,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
   }
 
   export type BookUpdateManyMutationInput = {
@@ -7188,6 +7258,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
   }
 
   export type BookUncheckedUpdateManyInput = {
@@ -7200,6 +7272,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
   }
 
   export type CategoryCreateInput = {
@@ -7392,6 +7466,8 @@ export namespace Prisma {
     pageCount?: SortOrder
     imageUpdated?: SortOrder
     imageLink?: SortOrder
+    imagePath?: SortOrder
+    imageFileType?: SortOrder
   }
 
   export type BookMaxOrderByAggregateInput = {
@@ -7404,6 +7480,8 @@ export namespace Prisma {
     pageCount?: SortOrder
     imageUpdated?: SortOrder
     imageLink?: SortOrder
+    imagePath?: SortOrder
+    imageFileType?: SortOrder
   }
 
   export type BookMinOrderByAggregateInput = {
@@ -7416,6 +7494,8 @@ export namespace Prisma {
     pageCount?: SortOrder
     imageUpdated?: SortOrder
     imageLink?: SortOrder
+    imagePath?: SortOrder
+    imageFileType?: SortOrder
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -7833,7 +7913,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
     categories?: CategoryCreateNestedManyWithoutBooksInput
   }
 
@@ -7845,7 +7927,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
     categories?: CategoryUncheckedCreateNestedManyWithoutBooksInput
   }
 
@@ -7935,6 +8019,8 @@ export namespace Prisma {
     pageCount?: StringFilter<"Book"> | string
     imageUpdated?: DateTimeFilter<"Book"> | Date | string
     imageLink?: StringFilter<"Book"> | string
+    imagePath?: StringFilter<"Book"> | string
+    imageFileType?: StringFilter<"Book"> | string
   }
 
   export type CategoryUpsertWithWhereUniqueWithoutLibraryInput = {
@@ -8069,7 +8155,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
     library: LibraryCreateNestedOneWithoutBooksInput
   }
 
@@ -8082,7 +8170,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
   }
 
   export type BookCreateOrConnectWithoutCategoriesInput = {
@@ -8139,7 +8229,9 @@ export namespace Prisma {
     description: string
     pageCount: string
     imageUpdated?: Date | string
-    imageLink: string
+    imageLink?: string
+    imagePath?: string
+    imageFileType?: string
   }
 
   export type CategoryCreateManyLibraryInput = {
@@ -8157,6 +8249,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
     categories?: CategoryUpdateManyWithoutBooksNestedInput
   }
 
@@ -8169,6 +8263,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
     categories?: CategoryUncheckedUpdateManyWithoutBooksNestedInput
   }
 
@@ -8181,6 +8277,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
   }
 
   export type CategoryUpdateWithoutLibraryInput = {
@@ -8233,6 +8331,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
     library?: LibraryUpdateOneRequiredWithoutBooksNestedInput
   }
 
@@ -8246,6 +8346,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
   }
 
   export type BookUncheckedUpdateManyWithoutCategoriesInput = {
@@ -8258,6 +8360,8 @@ export namespace Prisma {
     pageCount?: StringFieldUpdateOperationsInput | string
     imageUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
     imageLink?: StringFieldUpdateOperationsInput | string
+    imagePath?: StringFieldUpdateOperationsInput | string
+    imageFileType?: StringFieldUpdateOperationsInput | string
   }
 
 

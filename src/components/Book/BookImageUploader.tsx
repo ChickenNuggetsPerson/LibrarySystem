@@ -6,6 +6,8 @@ import BookImage from './BookImage'
 import toast from 'react-hot-toast'
 import { UploadBookCover } from '@/actions/books/UploadBookCover'
 import { useRouter } from 'next/navigation'
+import { Card, CardContent } from '../ui/card'
+import { Button } from '../ui/button'
 
 
 
@@ -60,42 +62,42 @@ export default function BookImageUploader({ book, cb }: { book: Book, cb?: () =>
     const disabled = uploading || !selectedFile
 
     return (
-        <div className="card w-sm">
+        <Card className="w-sm">
+            <CardContent>
+                <div className='flex justify-between w-full gap-4'>
+                    <div>
+                        {preview && <BookImage src={preview} />}
+                        {!preview && <BookImage src={book.imageLink} updatedAt={book.imageUpdated} />}
+                    </div>
 
-
-            <div className='flex justify-between w-full gap-4'>
-                <div>
-                    {preview && <BookImage src={preview} />}
-                    {!preview && <BookImage src={book.imageLink} updatedAt={book.imageUpdated} />}
+                    <div className='flex flex-col justify-between gap-2'>
+                        <label htmlFor="filePicker" className='cursor-pointer bg-background p-2 h-full rounded-lg text-center font-semibold hover:scale-102 transition-all'>
+                            Click me select a new image.
+                        </label>
+                        <Button
+                            onClick={handleUpload}
+                            disabled={disabled}
+                            style={{
+                                opacity: disabled ? 0.5 : 1
+                            }}
+                            className="success-button"
+                        >
+                            {uploading ? 'Uploading...' : 'Upload'}
+                        </Button>
+                    </div>
                 </div>
 
-                <div className='flex flex-col justify-between'>
-                    <label htmlFor="filePicker" className='primary-button cursor-pointer' style={{ backgroundColor: "var(--color-background)" }}>
-                        Click to select an image.
-                    </label>
-                    <button
-                        onClick={handleUpload}
-                        disabled={disabled}
-                        style={{
-                            opacity: disabled ? 0.5 : 1
-                        }}
-                        className="success-button"
-                    >
-                        {uploading ? 'Uploading...' : 'Upload'}
-                    </button>
-                </div>
-            </div>
-
-            <input
-                id="filePicker"
-                className='hidden'
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{
-                    padding: 15
-                }}
-            />
-        </div>
+                <input
+                    id="filePicker"
+                    className='hidden'
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{
+                        padding: 15
+                    }}
+                />
+            </CardContent>
+        </Card>
     )
 }

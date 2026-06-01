@@ -11,7 +11,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:../data/database.sqlite"
 }
 
 model InviteCode {
@@ -50,8 +49,10 @@ model Book {
   description String
   pageCount   String
 
-  imageUpdated DateTime @default(now())
-  imageLink    String
+  imageUpdated  DateTime @default(now())
+  imageLink     String   @default("")
+  imagePath     String   @default("")
+  imageFileType String   @default("")
 
   categories Category[] // many-to-many
 }

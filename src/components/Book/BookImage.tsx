@@ -3,18 +3,19 @@
 import Image from "next/image"
 import { useState } from "react";
 import ClickableDiv from "../Decorative/ClickableDiv";
+import { cn } from "@/lib/utils";
 
 
 
 
-export default function BookImage({ src, updatedAt, hoverable }: { src: string, updatedAt?: Date, hoverable?: boolean }) {
+export default function BookImage({ src, updatedAt, hoverable = true, reactKey }: { src: string, updatedAt?: Date | string, hoverable?: boolean, reactKey?: string }) {
 
     const [imageLoaded, setImageLoaded] = useState(false);
-    hoverable = hoverable ?? true;
 
     if (src.trim() == "") {
         return (
             <ClickableDiv
+                key={reactKey}
                 enabled={hoverable}
                 className="card"
                 style={{
@@ -22,29 +23,48 @@ export default function BookImage({ src, updatedAt, hoverable }: { src: string, 
                     width: 100,
                     height: 130
                 }}
-            > Invalid Image </ClickableDiv>
+            >
+                Invalid Image
+            </ClickableDiv>
         )
     }
 
-    const str = src + (updatedAt ? ("?cache=" + updatedAt.getTime()) : "")
+    const isBlobLike = src.startsWith("blob:") || src.startsWith("data:")
+    const isProtectedRoute = src.startsWith("/library/book/cover/")
+    const unoptimized = isBlobLike || isProtectedRoute
+
+    const updatedAtMs = updatedAt ? new Date(updatedAt).getTime() : null
+    const hasValidUpdatedAt = typeof updatedAtMs === "number" && Number.isFinite(updatedAtMs)
+    const cacheSeparator = src.includes("?") ? "&" : "?"
+    const str = hasValidUpdatedAt && !isBlobLike
+        ? `${src}${cacheSeparator}cache=${updatedAtMs}`
+        : src
 
     return (
-        <ClickableDiv enabled={hoverable} style={{
-            position: 'relative',
-            width: 100,
-            height: "auto",
-            aspectRatio: '3 / 4'
-        }}>
+        <ClickableDiv
+            key={reactKey}
+            enabled={hoverable}
+            style={{
+                position: 'relative',
+                width: 100,
+                height: "auto",
+                aspectRatio: '3 / 4'
+            }}
+        >
             <Image
                 fill
                 src={str}
                 alt="ImageName"
+                sizes="100px"
+                unoptimized={unoptimized}
                 onLoad={() => setImageLoaded(true)}
                 style={{
                     padding: 1,
                     objectFit: "contain"
                 }}
-                className={`card ${imageLoaded ? "" : "animate-pulse"}`}
+                className={cn(
+                    !imageLoaded && "animate-pulse"
+                )}
             />
         </ClickableDiv>
     )

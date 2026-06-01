@@ -1,5 +1,4 @@
 import getCategoryByUUID from "@/actions/category/getCategoryByUUID";
-import CategoryForm from "@/components/Categories/CategoryForm";
 import { Suspense } from "react";
 
 
@@ -36,5 +35,7 @@ async function Loader({ uuid }: { uuid: string }) {
         )
     }
 
-    return (<CategoryForm category={category}/>)
+    return (<div>
+        {JSON.stringify(category)}
+    </div>)
 }

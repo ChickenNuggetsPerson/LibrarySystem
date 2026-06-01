@@ -1,6 +1,6 @@
 import getBookByUUID from "@/actions/books/getBookByUUID";
 import BookImageUploader from "@/components/Book/BookImageUploader";
-import getLibraryLink from "@/components/library/LibraryLink";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -14,11 +14,10 @@ export default async function EditBookImagePage({
 }) {
 
     const bookUUID = (await params).bookUUID
-    const libraryLink = getLibraryLink(bookUUID)
 
     return (
         <div className="">
-            <div className="w-full flex justify-center mb-4">
+            <div className="w-full flex justify-center mb-4 mt-2">
                 <h1 className="text-text text-2xl font-bold">Edit Image:</h1>
             </div>
 
@@ -30,15 +29,10 @@ export default async function EditBookImagePage({
 
             <div className="w-full flex justify-center gap-4 mt-8">
 
-                <Link href={libraryLink} style={{ width: "150px" }}>
-                    <div className="primary-button text-center">
-                        Back to Library
-                    </div>
-                </Link>
-                <Link href={`/library/edit/${bookUUID}`} style={{ width: "150px" }}>
-                    <div className="secondary-button text-center">
+                <Link href={`/library/edit/${bookUUID}`}>
+                    <Button variant={'default'}>
                         Edit Book
-                    </div>
+                    </Button>
                 </Link>
 
             </div>

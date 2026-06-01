@@ -14,7 +14,7 @@ export default async function EditBookPage({
     const bookUUID = (await params).bookUUID
 
     return (
-        <div>
+        <div className="pt-2">
             <div className="w-full flex justify-center mb-4">
                 <h1 className="text-text text-2xl font-bold">Edit Book:</h1>
             </div>
@@ -36,5 +36,5 @@ async function Loader({ uuid }: { uuid: string }) {
         )
     }
 
-    return (<BookForm book={book}/>)
+    return (<BookForm book={book} />)
 }

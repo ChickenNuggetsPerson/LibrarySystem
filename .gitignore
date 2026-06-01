@@ -46,3 +46,7 @@ data/*
 /public/uploads/*
 
 certificates
+
+*.DS_Store
+
+uploads/

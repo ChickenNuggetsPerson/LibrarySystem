@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import { Toaster } from "react-hot-toast";
-import ModalContainer from "@/components/Decorative/Modal/ModalContainer";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
 
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
     title: "Library System",
@@ -20,24 +22,22 @@ export default function RootLayout({
 }>) {
 
     return (
-        <html lang="en" style={{ scrollbarWidth: "none" }} className="dark">
-            <body className={`antialiased text-text bg-background`}>
-                <ModalContainer>
-                    <Toaster
-                        toastOptions={{
-                            className: 'card',
-                            style: {
-                                background: "var(--color-card)",
-                                color: "var(--color-text)"
-                            },
-                        }}
-                    />
-                    <Header />
+        <html lang="en" style={{ scrollbarWidth: "none" }} className={cn("font-sans", geist.variable)}>
+            <body className="text-foreground bg-background">
+                <Toaster
+                    toastOptions={{
+                        className: 'card',
+                        style: {
+                            background: "var(--color-card)",
+                            color: "var(--color-text)"
+                        },
+                    }}
+                />
+                <Header />
 
-                    <div className="flex justify-center w-full pt-5 px-1 sm:px-10">
-                        {children}
-                    </div>
-                </ModalContainer>
+                <div>
+                    {children}
+                </div>
             </body>
         </html>
     );

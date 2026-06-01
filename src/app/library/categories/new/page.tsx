@@ -1,4 +1,3 @@
-import CategoryForm from "@/components/Categories/CategoryForm";
 
 
 
@@ -12,7 +11,7 @@ export default function AddPage() {
             </div>
 
             <div className="w-full flex justify-center">
-                <CategoryForm />
+                cateogry form
             </div>
         </div>
     )

@@ -1,101 +1,17 @@
 'use client'
 
 
-import { emptyBook } from "@/actions/books/emptyBook";
-import searchISBN from "@/actions/books/searchISBN";
-import BookForm from "@/components/Book/BookForm";
-import AnimateChildren from "@/components/Decorative/AnimateChildren";
-import { useModalManager } from "@/components/Decorative/Modal/ModalContext";
-import { promtTextInput } from "@/components/Decorative/Modals/promtTextInput";
-import Divider from "@/components/Forms/Divider";
-import { Book } from "@/database/generated/prisma";
 import { useState } from "react";
-import toast from "react-hot-toast";
 
 
 
 export default function AddPage() {
 
-    const { addModal } = useModalManager()
-    const [book, setBook] = useState(null as Book | null)
-
-    function scanBtn() {
-        addModal({
-            title: "Scan ISBN",
-            component: (push, pop) => (<ScanModal cb={(val) => {
-                pop()
-                if (val.trim() == "") { return }
-                lookupISBN(val)
-            }} />)
-        })
-    }
-    async function typeBtn() {
-        const result = await promtTextInput({
-            addModal,
-            title: "Enter ISBN",
-            message: "Type in the book's ISBN number."
-        })
-
-        if (result.trim() == "") { return }
-        lookupISBN(result)
-    }
-    function manualBtn() { setBook(emptyBook()) }
-
-
-    function lookupISBN(isbn: string) {
-        toast.promise(async () => {
-            const b = await searchISBN(isbn)
-            if (!b) {
-                setBook(emptyBook())
-                throw new Error("")
-            }
-            setBook(b)
-        }, {
-            loading: "Fetching Book Data",
-            success: "Book Data Found",
-            error: "Error Fetching Book Data"
-        })
-    }
-
     return (
-        <>
+        <div>
 
-            {!book &&
-                <div className="card max-w-lg w-full">
-                    <h1 className="text-text text-2xl font-bold">New Book:</h1>
-                    <Divider mb={10} />
-                    <div className="flex w-full justify-between gap-4">
-                        <button className="w-full" onClick={scanBtn}>
-                            <div className="primary-button text-center">
-                                Scan ISBN
-                            </div>
-                        </button>
-                        <button className="w-full" onClick={typeBtn}>
-                            <div className="secondary-button text-center">
-                                Type ISBN
-                            </div>
-                        </button>
-                        <button className="w-full" onClick={manualBtn}>
-                            <div className="accent-button text-center">
-                                Manual
-                            </div>
-                        </button>
-                    </div>
-                </div>
-            }
-
-            {book &&
-                <AnimateChildren y={-20}>
-                    <div className="w-full flex justify-center">
-                        <h1 className="text-text text-2xl font-bold">Enter Book Data:</h1>
-                    </div>
-                    <BookForm book={book} isNew />
-                </AnimateChildren>
-            }
-
-
-        </>
-    )
+        </div>
+    )    
 }
 
 

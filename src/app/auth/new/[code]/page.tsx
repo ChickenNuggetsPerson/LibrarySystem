@@ -1,5 +1,3 @@
-import CreateUserForm from "@/components/auth/CreateUserForm";
-
 
 
 
@@ -11,6 +9,8 @@ export default async function NewUserPage({ params }: { params: Promise<{ code: 
     const { code } = await params
 
     return (
-        <CreateUserForm code={code} />
+        <div>
+            {code}
+        </div>
     )
 }
