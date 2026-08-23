@@ -1,7 +1,6 @@
 const express = require('express')
 const compression = require('compression');
 let pem = require('pem');
-const https = require('https')
 const session = require('express-session');
 let FileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser')
@@ -633,7 +632,7 @@ async function removeCatFromBook(bookID, catName, userID) {
 // Serve the Pages
 app.get('/', (req, res) => {
     // console.log(req.headers.host)
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.render('login');
     }
@@ -641,31 +640,31 @@ app.get('/', (req, res) => {
     res.redirect('/library');
 });
 app.get('/login', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     res.render('login');
 });
 app.get('/signup', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     res.render('signup');
 });
 app.get('/quickLogin/:loginCode', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.params.loginCode) {
         res.redirect('/login');
     }
     // Do this
 });
 app.get('/resetLogin', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     res.render('resetLogin');
 });
 app.get('/logout', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     req.session.destroy(() => {});
     res.redirect('/');
 });
 app.get('/library', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.render('login');
     }
@@ -703,14 +702,14 @@ app.get('/fetchCategories', async (req, res) => {
     res.json(await getCategories(req.session.user))
 })
 app.get('/scanBook', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.render('login');
     }
     res.render('scanBook');
 })
 app.get('/addBook', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.render('login');
     }
@@ -725,7 +724,7 @@ app.get('/uploads', (req, res) => {
     // console.log(req.baseUrl)
 })
 app.get('/checkout', (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.render('login');
     }
@@ -737,7 +736,7 @@ app.get('/checkout', (req, res) => {
     }
 })
 app.get('/editBook/:bookID', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.render('login');
     }
@@ -749,7 +748,7 @@ app.get('/editBook/:bookID', async (req, res) => {
     }
 })
 app.get('/categories', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.render('login');
     }
@@ -760,14 +759,14 @@ app.get('/categories', async (req, res) => {
 
 
 app.get('/admin/login', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.redirect("/");
     }
     res.render('adminLogin')
 })
 app.get('/admin/view', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     if (!req.session.user) {
         return res.redirect("/");
     }
@@ -1338,21 +1337,9 @@ let port = 8080
 
 let override = false; // Use this to force into http mode
 
-// Add the -http argument to force http
-if ((process.platform == "linux" && process.argv.length != 3) && !override) {
-    const options = {
-        key: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/privkey.pem'),
-        cert: fs.readFileSync('/home/hayden/Desktop/LibrarySystem/cert.pem')
-    };
-    const server = https.createServer(options, app);
-    server.listen(port, () => {
-        console.log('Production server running on port: ' + port);
-    });  
-} else {
-    app.listen(port, () => {
-        console.log('Dev Server running on port: ' + port);
-    })
-}
+app.listen(port, () => {
+    console.log('Server running on port: ' + port);
+})
 
 let updater = new AutoUpdater("https://raw.githubusercontent.com/ChickenNuggetsPerson/LibrarySystem/main/package.json", "0 * 0 * * *")
 
@@ -1590,7 +1577,7 @@ app.get('/wardTracker/entries/list', async (req, res) => {
 })
 app.use('/wardTracker/entries/submit', limiter);
 app.post('/wardTracker/entries/submit', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     
     if (new Date() > new Date("Febuary 1 2025")) {
         return res.json({error: true});
@@ -1628,7 +1615,7 @@ app.post('/wardTracker/entries/submit', async (req, res) => {
 
 // Admin Endpoints
 app.get('/wardTracker/admin/entries/list', async (req, res) => {
-    // if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    // 
 
     if (!req.session.isAdmin) {
         return res.json({error: true});
@@ -1637,7 +1624,7 @@ app.get('/wardTracker/admin/entries/list', async (req, res) => {
     res.json(await fetchWardEntrys(false))
 })
 app.post('/wardTracker/admin/entries/delete', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
 
     if (!req.session.isAdmin) {
         return res.json({error: true});
@@ -1652,7 +1639,7 @@ app.post('/wardTracker/admin/entries/delete', async (req, res) => {
     res.json({error: false});
 })
 app.post('/wardTracker/admin/messages/edit', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
     
     try {
         // Validate Values
@@ -1686,7 +1673,7 @@ app.post('/wardTracker/admin/messages/edit', async (req, res) => {
 })
 
 app.post('/wardTracker/admin/newMax', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
 
     // if (!req.session.isAdmin) {
     //     return res.json({error: true});
@@ -1711,7 +1698,7 @@ app.get('/wardTracker/messages/list', async (req, res) => {
 })
 app.use('/wardTracker/messages/create', limiter);
 app.post('/wardTracker/messages/create', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
 
     if (new Date() > new Date("Febuary 1 2025")) {
         return res.json({error: true});
@@ -1736,7 +1723,7 @@ app.post('/wardTracker/messages/create', async (req, res) => {
 
 
 app.post('/wardTracker/admin/messages/delete', async (req, res) => {
-    if (!req.headers.host.startsWith("library.steeleinnovations.com") && !req.headers.host.startsWith("localhost")) { return res.sendStatus(404) }
+    
 
     if (!req.session.isAdmin) {
         return res.json({error: true});
